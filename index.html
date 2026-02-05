@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sổ tay Nghiệp vụ Công tác Tổ chức Đảng</title>
+    <title>Sổ tay Nghiệp vụ Công tác Xây dựng Đảng</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#cc0000">
+    <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Flag_of_the_Communist_Party_of_Vietnam.svg/1200px-Flag_of_the_Communist_Party_of_Vietnam.svg.png">
 
     <style>
         /* ==================================================================
-           CSS GIAO DIỆN (GIỮ NGUYÊN BẢN 7.0)
+           1. CSS CHUNG & GIAO DIỆN MOBILE
            ================================================================== */
         :root {
             --primary-color: #cc0000;
@@ -23,14 +24,14 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: var(--text-color); margin: 0; background-color: #f4f4f4; }
         
-        /* Sidebar */
+        /* Sidebar (Menu trái) */
         .sidebar { 
             width: 280px; background-color: var(--bg-sidebar); color: white; padding: 20px; 
             position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 1000; 
             transition: transform 0.3s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         }
         
-        /* Mobile: Ẩn sidebar mặc định */
+        /* Giao diện Mobile: Ẩn sidebar đi */
         @media (max-width: 992px) { 
             .sidebar { transform: translateX(-100%); width: 85%; max-width: 320px; } 
             .sidebar.active { transform: translateX(0); } 
@@ -42,7 +43,7 @@
         .sidebar a { color: #ecf0f1; text-decoration: none; display: block; padding: 12px 15px; border-radius: 4px; transition: 0.2s; font-size: 0.95rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sidebar a:hover { background-color: var(--primary-color); padding-left: 20px; }
         
-        /* Header Mobile */
+        /* Nút Menu trên Mobile */
         .mobile-header {
             display: none; position: fixed; top: 0; left: 0; right: 0; height: var(--header-height);
             background: var(--primary-color); z-index: 990; align-items: center; padding: 0 15px;
@@ -51,23 +52,26 @@
         .menu-toggle-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; margin-right: 15px; }
         @media (max-width: 992px) { .mobile-header { display: flex; } }
 
+        /* Overlay che nền khi mở menu */
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
 
         /* Main Content */
         .main-content { padding: 20px 20px; background-color: white; min-height: 100vh; transition: margin-left 0.3s ease; }
         @media (min-width: 992px) { .main-content { margin-left: 280px; padding: 40px 60px; } }
-        @media (max-width: 992px) { .main-content { padding-top: 70px; } }
+        @media (max-width: 992px) { .main-content { padding-top: 70px; } /* Tránh bị che bởi header */ }
         
+        /* Typography */
         h1 { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); padding-bottom: 15px; margin-top: 0; font-size: 1.6rem; text-transform: uppercase; line-height: 1.3; }
         .phan-header { background-color: #fcebeb; padding: 15px; border-left: 6px solid var(--primary-color); margin-top: 30px; color: var(--primary-dark); font-size: 1.3em; font-weight: bold; }
         .muc-header { color: #b71c1c; margin-top: 25px; font-weight: 700; font-size: 1.1em; }
         
-        /* Boxes & Buttons */
+        /* Component: Hộp quy trình */
         .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); position: relative; }
         .step-number { background: var(--primary-color); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 10px; font-size: 0.85rem; }
         .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #666; font-weight: bold; margin-bottom: 5px; display: block; letter-spacing: 0.5px; }
         
+        /* Component: Nút trích dẫn */
         .btn-trich-dan { display: inline-flex; align-items: center; margin-top: 15px; background-color: #e3f2fd; color: #0d47a1; padding: 10px 15px; border-radius: 6px; border: 1px solid #90caf9; font-size: 0.9em; cursor: pointer; font-weight: 600; width: 100%; justify-content: center; }
         .btn-trich-dan:active { background-color: #bbdefb; }
         @media (min-width: 768px) { .btn-trich-dan { width: auto; } }
@@ -79,9 +83,12 @@
         .modal-user-body { padding: 20px; line-height: 1.6; overflow-y: auto; text-align: justify; font-size: 0.95rem; }
         @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
 
+        /* Nút lên đầu trang */
         #backToTop { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 90; border: none; background-color: var(--primary-color); color: white; cursor: pointer; padding: 12px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 1.2rem; }
 
-        /* CSS Admin Responsive */
+        /* ==================================================================
+           2. CSS QUẢN TRỊ (ADMIN PANEL) - RESPONSIVE
+           ================================================================== */
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; overflow-y: auto; }
         .admin-layout { display: flex; height: 100%; flex-direction: column; }
         @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
@@ -96,7 +103,7 @@
         .tree-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
         .tree-item.active { background: #e3f2fd; color: #007bff; font-weight: bold; border-left: 4px solid #007bff; }
 
-        .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; font-size: 16px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; font-size: 16px; } /* Font to cho dễ bấm trên đt */
         .btn { padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; width: 100%; margin-bottom: 10px; }
         @media (min-width: 768px) { .btn { width: auto; margin-right: 10px; margin-bottom: 0; } }
         
@@ -104,6 +111,8 @@
         .btn-close { background: #6c757d; }
         .btn-delete { background: #dc3545; }
         .btn-add { background: #007bff; }
+
+        /* Admin Footer Link */
         .admin-trigger { margin-top: 30px; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.3); cursor: pointer; padding: 20px; }
     </style>
 </head>
@@ -111,20 +120,25 @@
 
     <div class="mobile-header">
         <button class="menu-toggle-btn" onclick="toggleMenu()">☰</button>
-        <span>SỔ TAY ĐẢNG VIÊN</span>
+        <span>SỔ TAY ĐẢNG VIÊN NGHIỆP VỤ</span>
     </div>
 
     <div class="overlay" onclick="toggleMenu()"></div>
     <div class="sidebar" id="sidebar">
-        <div style="text-align: right; margin-bottom: 10px;">
+        <div style="text-align: right; display: block; margin-bottom: 10px;">
              <span onclick="toggleMenu()" style="cursor:pointer; color:#fff; font-size:1.5rem; padding: 10px; display: inline-block;">✕</span>
         </div>
+
         <h3 style="margin-top:0">MỤC LỤC</h3>
         <ul id="menuList"></ul>
+
         <div style="margin-top: 30px; font-size: 0.8rem; text-align: center; color: #95a5a6;">
             <p>&copy; 2024 Ban Tổ chức</p>
         </div>
-        <div class="admin-trigger" onclick="checkAdminPassword()">🔒 Quản trị hệ thống</div>
+        
+        <div class="admin-trigger" onclick="checkAdminPassword()">
+            🔒 Quản trị hệ thống
+        </div>
     </div>
 
     <div class="main-content">
@@ -166,25 +180,33 @@
                     <div style="text-align: right; margin-bottom: 10px;">
                         <button class="btn btn-delete" style="width: auto; font-size: 0.8rem;" onclick="deleteCurrentItem()">Xóa mục này</button>
                     </div>
+                    
                     <label>Loại (Tag):</label>
                     <input type="text" id="inpTag" class="form-control" placeholder="VD: Quy trình, Hướng dẫn...">
+                    
                     <label>Tiêu đề:</label>
                     <input type="text" id="inpTitle" class="form-control" placeholder="Nhập tiêu đề...">
+                    
                     <label>Nội dung tóm tắt:</label>
                     <textarea id="inpSummary" class="form-control" rows="5" placeholder="Nội dung hiển thị..."></textarea>
+                    
                     <label>Trích dẫn (Chi tiết):</label>
                     <textarea id="inpDetail" class="form-control" rows="5" placeholder="Nội dung trong popup..."></textarea>
+
                     <div style="margin-top:20px; border-top:1px dashed #ccc; padding-top:20px">
                         <button class="btn btn-add" style="background:#17a2b8" onclick="addSubItem()">+ Thêm mục con cấp dưới</button>
                     </div>
                 </div>
-                <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px;">Chọn một mục để sửa</div>
+
+                <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px;">
+                    Chọn một mục để sửa
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // DỮ LIỆU MẪU
+        // 1. DỮ LIỆU MẪU
         const initialData = [
             {
                 id: 'r1', title: 'PHẦN 1: TỔ CHỨC ĐẢNG', tag: '', summary: '', detail: '', level: 0,
@@ -199,23 +221,13 @@
             }
         ];
 
-        // --- KHẮC PHỤC LỖI TRẮNG TRANG TRÊN ĐIỆN THOẠI ---
-        let APP_DATA;
-        try {
-            // Cố gắng đọc dữ liệu
-            const storedData = localStorage.getItem('SOTAY_DATA_V7');
-            APP_DATA = storedData ? JSON.parse(storedData) : initialData;
-        } catch (e) {
-            // Nếu bị chặn (Safari/Incognito) thì dùng dữ liệu mặc định để không bị trắng trang
-            console.log("Chế độ Offline/Riêng tư: Không đọc được LocalStorage.");
-            APP_DATA = initialData;
-        }
-
+        let APP_DATA = JSON.parse(localStorage.getItem('SOTAY_DATA_V7')) || initialData;
         let currentEditNode = null;
 
-        // --- LOGIC GIAO DIỆN ---
+        // 2. LOGIC BẢO MẬT & ADMIN
         function checkAdminPassword() {
             let pass = prompt("Vui lòng nhập mật khẩu quản trị:", "");
+            // MẬT KHẨU MẶC ĐỊNH LÀ 123456 (Bạn có thể sửa số này)
             if (pass === "123456") {
                 document.getElementById('adminPanel').style.display = 'block';
                 renderAdminTree();
@@ -223,8 +235,10 @@
                 alert("Mật khẩu không đúng!");
             }
         }
+
         function closeAdminPanel() { document.getElementById('adminPanel').style.display = 'none'; }
 
+        // 3. RENDER GIAO DIỆN USER (MOBILE FRIENDLY)
         function renderUserInterface() {
             const menuEl = document.getElementById('menuList');
             const contentEl = document.getElementById('dynamicContent');
@@ -232,12 +246,16 @@
 
             function processNode(items) {
                 items.forEach(item => {
+                    // Menu
                     if(item.level < 2) {
                         let li = document.createElement('li');
                         let indent = item.level === 1 ? '&nbsp;&nbsp;📂 ' : '';
+                        // Khi click menu trên mobile thì tự đóng menu
                         li.innerHTML = `<a href="#${item.id}" onclick="toggleMenu(false)">${indent}${item.title}</a>`;
                         menuEl.appendChild(li);
                     }
+
+                    // Content
                     let div = document.createElement('div');
                     div.id = item.id;
                     if(item.level === 0) {
@@ -258,7 +276,7 @@
             processNode(APP_DATA);
         }
 
-        // --- LOGIC QUẢN TRỊ ---
+        // 4. LOGIC QUẢN TRỊ (CÂY & FORM)
         function findNode(id, nodes) {
             for(let node of nodes) {
                 if(node.id === id) return node;
@@ -293,12 +311,14 @@
             renderAdminTree();
             document.getElementById('editorPlaceholder').style.display = 'none';
             document.getElementById('editorArea').style.display = 'block';
+            
             document.getElementById('inpTag').value = currentEditNode.tag || '';
             document.getElementById('inpTitle').value = currentEditNode.title || '';
             document.getElementById('inpSummary').value = currentEditNode.summary || '';
             document.getElementById('inpDetail').value = currentEditNode.detail || '';
         }
 
+        // Binding input events
         ['inpTag', 'inpTitle', 'inpSummary', 'inpDetail'].forEach(fid => {
             document.getElementById(fid).addEventListener('input', function() {
                 if(!currentEditNode) return;
@@ -329,15 +349,11 @@
             currentEditNode = null; document.getElementById('editorArea').style.display='none'; renderAdminTree();
         }
         function saveData() {
-            try {
-                localStorage.setItem('SOTAY_DATA_V7', JSON.stringify(APP_DATA));
-                alert('Đã lưu dữ liệu!');
-            } catch (e) {
-                alert('Không thể lưu trên thiết bị này (Chế độ riêng tư/Offline).');
-            }
-            renderUserInterface(); 
+            localStorage.setItem('SOTAY_DATA_V7', JSON.stringify(APP_DATA));
+            renderUserInterface(); alert('Đã lưu dữ liệu!');
         }
 
+        // 5. HELPER UI
         function toggleMenu(forceState) {
             const sb = document.getElementById('sidebar');
             const ov = document.querySelector('.overlay');
@@ -351,7 +367,7 @@
         
         function showPopup(html) {
             document.getElementById('noi-dung-chi-tiet').innerHTML = html;
-            document.getElementById('modalTrichDan').style.display = 'flex';
+            document.getElementById('modalTrichDan').style.display = 'flex'; // Flex để căn giữa
         }
         function dongModalButton() { document.getElementById('modalTrichDan').style.display = 'none'; }
         function dongModal(e) { if(e.target.id === 'modalTrichDan') dongModalButton(); }
@@ -361,6 +377,7 @@
         };
         function topFunction() { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; }
 
+        // Start
         renderUserInterface();
     </script>
 </body>
