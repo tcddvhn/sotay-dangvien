@@ -120,7 +120,7 @@
 
     <div class="mobile-header">
         <button class="menu-toggle-btn" onclick="toggleMenu()">☰</button>
-        <span>SỔ TAY ĐẢNG VIÊN NGHIỆP VỤ</span>
+        <span>SỔ TAY NGHIỆP VỤ CÔNG TÁC XÂY DỰNG ĐẢNG</span>
     </div>
 
     <div class="overlay" onclick="toggleMenu()"></div>
@@ -142,7 +142,7 @@
     </div>
 
     <div class="main-content">
-        <h1>NGHIỆP VỤ CÔNG TÁC TỔ CHỨC ĐẢNG</h1>
+        <h1>NGHIỆP VỤ CÔNG TÁC XÂY DỰNG ĐẢNG</h1>
         <div id="dynamicContent"></div>
         <br><br><br>
     </div>
@@ -228,7 +228,7 @@
         function checkAdminPassword() {
             let pass = prompt("Vui lòng nhập mật khẩu quản trị:", "");
             // MẬT KHẨU MẶC ĐỊNH LÀ 123456 (Bạn có thể sửa số này)
-            if (pass === "123456") {
+            if (pass === "btctuhn@123") {
                 document.getElementById('adminPanel').style.display = 'block';
                 renderAdminTree();
             } else if (pass !== null) {
@@ -381,4 +381,5 @@
         renderUserInterface();
     </script>
 </body>
+
 </html>
