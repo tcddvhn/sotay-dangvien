@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sổ tay Nghiệp vụ Công tác Tổ chức Đảng</title>
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#cc0000">
@@ -15,14 +14,10 @@
         :root { --primary: #cc0000; --primary-dark: #a30000; --text: #333; --sidebar-bg: #2c3e50; --header-h: 50px; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: var(--text); margin: 0; background: #f4f4f4; }
-        
-        /* HEADER MOBILE */
         .mobile-header { display: none; position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); background: var(--primary); color: white; align-items: center; padding: 0 15px; z-index: 2000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; margin-right: 15px; }
         .app-title { font-weight: bold; text-transform: uppercase; font-size: 1rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         @media (max-width: 992px) { .mobile-header { display: flex; } }
-
-        /* SIDEBAR */
         .sidebar { width: 280px; background: var(--sidebar-bg); color: white; padding: 20px; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 3000; transition: transform 0.3s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
         @media (max-width: 992px) { .sidebar { transform: translateX(-100%); width: 85%; max-width: 320px; } .sidebar.active { transform: translateX(0); } }
         .sidebar h3 { border-bottom: 1px solid #555; padding-bottom: 15px; margin-top: 0; color: #f1c40f; text-align: center; }
@@ -31,37 +26,27 @@
         .nav-link:hover { background: var(--primary); padding-left: 20px; }
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2500; display: none; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
-
-        /* MAIN CONTENT */
         .main { padding: 20px; background: white; min-height: 100vh; transition: margin-left 0.3s; }
         @media (min-width: 992px) { .main { margin-left: 280px; padding: 40px 60px; } }
         @media (max-width: 992px) { .main { padding-top: 70px; } }
-
         h1 { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 15px; margin-top: 0; font-size: 1.6rem; text-transform: uppercase; }
         .phan-header { background: #fcebeb; padding: 15px; border-left: 6px solid var(--primary); margin-top: 30px; color: var(--primary-dark); font-size: 1.3em; font-weight: bold; }
         .muc-header { color: #b71c1c; margin-top: 25px; font-weight: 700; font-size: 1.1em; }
-
-        /* STEP BOX & TABLE */
         .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
         .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #666; font-weight: bold; display: block; margin-bottom: 5px; }
         .step-title { font-weight: bold; color: var(--primary); margin-bottom: 10px; display: block; font-size: 1.05rem; }
         .btn-detail { display: inline-flex; align-items: center; justify-content: center; margin-top: 15px; background: #e3f2fd; color: #0d47a1; padding: 10px 20px; border-radius: 6px; border: 1px solid #90caf9; font-weight: bold; cursor: pointer; width: 100%; text-decoration:none; }
         @media (min-width: 768px) { .btn-detail { width: auto; } }
-
         .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; border: 1px solid #ddd; }
         .data-table th, .data-table td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
         .data-table th { background-color: #f2f2f2; color: var(--primary-dark); font-weight: bold; text-align: center; }
         .data-table tr:nth-child(even) { background-color: #fafafa; }
         .data-table tr:hover { background-color: #f1f1f1; }
-
-        /* MODAL */
         .modal { display: none; position: fixed; z-index: 4000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 10px; }
         .modal-box { background: white; width: 100%; max-width: 800px; border-radius: 10px; overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; animation: slideUp 0.3s; }
         .modal-head { background: var(--primary); color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 20px; overflow-y: auto; line-height: 1.6; text-align: justify; }
         @keyframes slideUp { from {transform: translateY(20px); opacity:0} to {transform: translateY(0); opacity:1} }
-
-        /* ADMIN */
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; flex-direction: column; }
         @media (min-width: 768px) { #adminPanel { flex-direction: row; } }
         .admin-sidebar { background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 10px; display: flex; flex-direction: column; }
@@ -70,12 +55,12 @@
         .form-control { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
         .btn { padding: 10px 15px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; margin-bottom: 5px; }
         .btn-save { background: #28a745; } .btn-close { background: #6c757d; } .btn-del { background: #dc3545; } .btn-add { background: #007bff; }
-        
         #backToTop { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 90; border: none; background: var(--primary); color: white; padding: 12px; border-radius: 50%; cursor: pointer; }
+        #loadingBar { position:fixed; top:0; left:0; height:4px; background:#28a745; z-index:9999; transition: width 0.3s; width:0%; }
     </style>
 </head>
 <body>
-
+    <div id="loadingBar"></div>
     <div class="mobile-header">
         <button class="menu-btn" onclick="toggleMenu()">☰</button>
         <span class="app-title">SỔ TAY NGHIỆP VỤ</span>
@@ -89,13 +74,14 @@
         <div style="margin-top:30px; text-align:center; font-size:0.8rem; color:#999; border-top:1px solid #444; padding-top:20px;">
             <p>&copy; 2025 Ban Tổ chức Thành ủy</p>
             <span onclick="checkAdmin()" style="cursor:pointer; opacity:0.5">🔒 Quản trị hệ thống</span>
+            <p id="dbStatus" style="font-size:0.7rem; color:#28a745; margin-top:5px">☁️ Đang kết nối...</p>
         </div>
     </div>
 
     <div class="main">
-        <h1>HƯỚNG DẪN NGHIỆP VỤ CÔNG TÁC ĐẢNG VIÊN (2025)</h1>
+        <h1>HƯỚNG DẪN NGHIỆP VỤ CÔNG TÁC TỔ CHỨC ĐẢNG VÀ ĐẢNG VIÊN (2025)</h1>
         <p><i>(Căn cứ Hướng dẫn số 10-HD/BTCTU của Ban Tổ chức Thành ủy Hà Nội)</i></p>
-        <div id="dynamicContent"></div>
+        <div id="dynamicContent"><p style="text-align:center; color:#999">Đang tải dữ liệu từ máy chủ...</p></div>
         <br><br><br>
     </div>
 
@@ -121,7 +107,7 @@
             <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:10px">
                 <h2 style="margin:0">Biên tập nội dung</h2>
                 <div>
-                    <button class="btn btn-save" onclick="downloadHTML()">💾 LƯU & TẢI FILE</button>
+                    <button class="btn btn-save" onclick="saveToCloud()">☁️ LƯU LÊN MÁY CHỦ</button>
                     <button class="btn btn-close" onclick="document.getElementById('adminPanel').style.display='none'">Đóng</button>
                 </div>
             </div>
@@ -137,65 +123,116 @@
         </div>
     </div>
 
-    <script>
-        // --- DỮ LIỆU BAN ĐẦU ---
+    <script type="module">
+        // ==========================================================
+        // 1. CẤU HÌNH FIREBASE - QUAN TRỌNG NHẤT
+        // ==========================================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            // 🔴 DÁN CẤU HÌNH FIREBASE CỦA BẠN VÀO ĐÂY (Xóa hết nội dung cũ trong ngoặc này đi)
+  		apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs",
+  		authDomain: "sotay-dangvien.firebaseapp.com",
+		projectId: "sotay-dangvien",
+		storageBucket: "sotay-dangvien.firebasestorage.app",
+  		messagingSenderId: "699788813951",
+  		appId: "1:699788813951:web:14eb81183799f83e0f814a"
+        };
+
+        // Khởi tạo Firebase
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            console.log("Firebase connected");
+        } catch(e) {
+            console.error("Lỗi kết nối Firebase (Có thể chưa điền Config)", e);
+        }
+
+        // ==========================================================
+        // 2. DỮ LIỆU MẶC ĐỊNH (PHÒNG KHI MẤT MẠNG)
+        // ==========================================================
         const initialData = [
             {
                 id: 'p1', title: 'PHẦN I: KẾT NẠP ĐẢNG VIÊN', tag: '', summary: '', detail: '', level: 0,
                 children: [
-                    {
-                        id: 'p1_1', title: 'I. Tiêu chuẩn, điều kiện', tag: 'Quy định', level: 1,
-                        summary: 'Quy định chi tiết về tuổi đời (18-60), trình độ học vấn và điều kiện kết nạp lại.', 
-                        detail: '<p><b>1. Về tuổi đời:</b><br>- Từ 18 đến 60 tuổi.<br>- Trên 60 tuổi: Do cấp ủy trực thuộc Thành ủy xem xét.<br><b>2. Trình độ học vấn:</b><br>- Yêu cầu: Tốt nghiệp THCS trở lên.</p>'
-                    }
-                ]
-            },
-            {
-                id: 'p3', title: 'PHẦN III: CÁC BIỂU MẪU & KHUNG TIÊU CHÍ', tag: '', summary: '', detail: '', level: 0,
-                children: [
-                    {
-                        id: 'p3_1', title: 'Danh mục các Mẫu tài liệu', tag: 'Tra cứu', level: 1,
-                        summary: 'Bấm xem Bảng tổng hợp các biểu mẫu nghiệp vụ.',
-                        detail: `
-                        <h3 style="text-align:center; color:#b71c1c;">DANH MỤC CÁC MẪU TÀI LIỆU</h3>
-                        <table class="data-table">
-                            <thead><tr><th>Ký hiệu</th><th>Tên mẫu</th><th>Ghi chú</th></tr></thead>
-                            <tbody>
-                                <tr style="background:#ffebee"><td colspan="3"><b>A. KẾT NẠP ĐẢNG</b></td></tr>
-                                <tr><td>1-KNĐ</td><td>Đơn xin vào Đảng</td><td></td></tr>
-                                <tr><td>2-KNĐ</td><td>Lý lịch người xin vào Đảng</td><td></td></tr>
-                            </tbody>
-                        </table>
-                        `
-                    },
-                    {
-                        id: 'p3_2', title: 'Khung tiêu chí đánh giá Lãnh đạo', tag: 'Phụ lục 2', level: 1,
-                        summary: 'Khung tiêu chí đánh giá cá nhân giữ chức vụ lãnh đạo.',
-                        detail: `
-                        <h3 style="text-align:center; color:#b71c1c;">PHỤ LỤC 2: KHUNG TIÊU CHÍ</h3>
-                        <table class="data-table">
-                            <thead><tr><th>STT</th><th>Chức danh</th><th>Biểu số</th></tr></thead>
-                            <tbody>
-                                <tr><td>1</td><td>Phó Chủ tịch HĐND Thành phố</td><td>Biểu 01</td></tr>
-                                <tr><td>2</td><td>Phó Chủ tịch UBND Thành phố</td><td>Biểu 02</td></tr>
-                            </tbody>
-                        </table>
-                        `
-                    }
+                    { id: 'p1_1', title: 'I. Tiêu chuẩn, điều kiện', tag: 'Quy định', level: 1, summary: 'Quy định chi tiết về tuổi đời (18-60), trình độ học vấn.', detail: '<p>Chi tiết...</p>' }
                 ]
             }
         ];
 
         let APP_DATA = initialData;
-        // Ưu tiên lấy dữ liệu từ LocalStorage nếu có
-        try {
-            const stored = localStorage.getItem('SOTAY_DATA_FINAL');
-            if(stored) APP_DATA = JSON.parse(stored);
-        } catch(e) {}
-        
         let currentEditNode = null;
 
-        // --- RENDER UI ---
+        // ==========================================================
+        // 3. HÀM XỬ LÝ DỮ LIỆU ĐÁM MÂY (CLOUD)
+        // ==========================================================
+        
+        // Tải dữ liệu khi mở Web
+        async function loadFromCloud() {
+            document.getElementById('loadingBar').style.width = '50%';
+            if(!db) {
+                // Nếu chưa cấu hình, dùng LocalStorage cũ
+                try { const s = localStorage.getItem('SOTAY_DATA_FINAL'); if(s) APP_DATA = JSON.parse(s); } catch(e){}
+                renderUI();
+                document.getElementById('dbStatus').innerText = "⚠️ Chưa cấu hình Server";
+                return;
+            }
+
+            try {
+                const docRef = doc(db, "sotay_db", "master_data");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    APP_DATA = JSON.parse(docSnap.data().content);
+                    console.log("Đã tải dữ liệu từ Cloud!");
+                    document.getElementById('dbStatus').innerText = "✅ Đã kết nối Máy chủ";
+                } else {
+                    console.log("Chưa có dữ liệu trên Cloud, dùng mặc định");
+                    // Nếu Cloud chưa có gì, tự động úp bản đầu tiên lên
+                    saveToCloud(true);
+                }
+            } catch (error) {
+                console.error("Lỗi tải data:", error);
+                document.getElementById('dbStatus').innerText = "⚠️ Lỗi mạng / Offline";
+            }
+            document.getElementById('loadingBar').style.width = '100%';
+            setTimeout(() => { document.getElementById('loadingBar').style.width = '0%'; }, 500);
+            renderUI();
+        }
+
+        // Lưu dữ liệu lên Cloud
+        window.saveToCloud = async function(silent = false) {
+            if(!db) { alert("Chưa cấu hình Firebase! Hãy dán mã Config vào code."); return; }
+            
+            const btn = document.querySelector('.btn-save');
+            if(btn) { btn.innerText = "⏳ Đang lưu..."; btn.disabled = true; }
+
+            try {
+                // 1. Lưu lên Cloud
+                await setDoc(doc(db, "sotay_db", "master_data"), {
+                    content: JSON.stringify(APP_DATA),
+                    updatedAt: new Date().toISOString()
+                });
+                
+                // 2. Lưu dự phòng vào máy
+                localStorage.setItem('SOTAY_DATA_FINAL', JSON.stringify(APP_DATA));
+
+                if(!silent) alert("✅ ĐÃ LƯU THÀNH CÔNG!\nMọi người sẽ thấy nội dung mới ngay lập tức.");
+                renderUI();
+            } catch (error) {
+                console.error("Lỗi lưu:", error);
+                alert("❌ Lỗi khi lưu: " + error.message + "\n(Kiểm tra lại Internet hoặc quyền truy cập)");
+            }
+
+            if(btn) { btn.innerText = "☁️ LƯU LÊN MÁY CHỦ"; btn.disabled = false; }
+        }
+
+        // ==========================================================
+        // 4. CÁC HÀM GIAO DIỆN (UI) - GIỮ NGUYÊN
+        // ==========================================================
+        
         function renderUI() {
             const menu = document.getElementById('menuList');
             const content = document.getElementById('dynamicContent');
@@ -206,22 +243,20 @@
                     if(item.level < 2) {
                         let li = document.createElement('li');
                         let indent = item.level === 1 ? '&nbsp;&nbsp;📂 ' : '';
-                        li.innerHTML = `<a href="#${item.id}" onclick="toggleMenu(false)" class="nav-link">${indent}${item.title}</a>`;
+                        li.innerHTML = `<a href="#${item.id}" class="nav-link" onclick="window.toggleMenu(false)">${indent}${item.title}</a>`;
                         menu.appendChild(li);
                     }
                     let div = document.createElement('div');
                     div.id = item.id;
-                    if(item.level === 0) {
-                        div.innerHTML = `<div class="phan-header">${item.title}</div>`;
-                    } else if (item.level === 1) {
+                    if(item.level === 0) div.innerHTML = `<div class="phan-header">${item.title}</div>`;
+                    else if (item.level === 1) {
                         div.innerHTML = `<div class="muc-header">${item.title}</div>`;
                         if(item.summary) div.innerHTML += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
                     } else {
-                        let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
                         let btnHtml = (item.detail && item.detail.trim() !== "") ? 
-                            `<a class="btn-detail" onclick="openPopup('${item.id}')">📖 Xem chi tiết / Biểu mẫu</a>` : '';
+                            `<a class="btn-detail" onclick="window.openPopup('${item.id}')">📖 Xem chi tiết / Biểu mẫu</a>` : '';
                         div.className = 'step-box';
-                        div.innerHTML = `${tagHtml}<span class="step-title">${item.title}</span><div style="font-size:0.95rem">${item.summary.replace(/\n/g, '<br>')}</div>${btnHtml}`;
+                        div.innerHTML = `${item.tag ? `<span class="tag-label">${item.tag}</span>` : ''}<span class="step-title">${item.title}</span><div style="font-size:0.95rem">${item.summary.replace(/\n/g, '<br>')}</div>${btnHtml}`;
                     }
                     content.appendChild(div);
                     if(item.children) processNode(item.children);
@@ -230,8 +265,8 @@
             processNode(APP_DATA);
         }
 
-        // --- HELPER FUNCTIONS ---
-        function toggleMenu(forceState) {
+        // Gán các hàm vào window để HTML gọi được (vì dùng type="module")
+        window.toggleMenu = function(forceState) {
             const sb = document.getElementById('sidebar');
             const ov = document.querySelector('.overlay');
             if(typeof forceState !== 'undefined') {
@@ -239,27 +274,28 @@
                 else { sb.classList.remove('active'); ov.classList.remove('active'); }
             } else { sb.classList.toggle('active'); ov.classList.toggle('active'); }
         }
+        
+        window.openPopup = function(id) {
+            const item = findNodeRecursive(id, APP_DATA);
+            if(item) { document.getElementById('popupContent').innerHTML = item.detail; document.getElementById('popup').style.display = 'flex'; }
+        }
+        window.closePopup = function(e) { if(e.target.id === 'popup') document.getElementById('popup').style.display='none'; }
+        
+        window.checkAdmin = function() {
+            let p = prompt("Mật khẩu quản trị (btctuhn@123):");
+            if(p === "btctuhn@123") { document.getElementById('adminPanel').style.display = 'flex'; renderAdminTree(); } 
+            else if (p !== null) { alert("Sai mật khẩu!"); }
+        }
+
+        // --- Admin Tree & Edit Logic ---
         function findNodeRecursive(id, nodes) {
             for(let node of nodes) {
                 if(node.id === id) return node;
                 if(node.children) { let found = findNodeRecursive(id, node.children); if(found) return found; }
             } return null;
         }
-        function openPopup(id) {
-            const item = findNodeRecursive(id, APP_DATA);
-            if(item) { document.getElementById('popupContent').innerHTML = item.detail; document.getElementById('popup').style.display = 'flex'; }
-        }
-        function closePopup(e) { if(e.target.id === 'popup') document.getElementById('popup').style.display='none'; }
-        window.onscroll = function() { document.getElementById("backToTop").style.display = (window.scrollY > 300) ? "block" : "none"; };
-
-        // --- ADMIN LOGIC ---
-        function checkAdmin() {
-            let p = prompt("Mật khẩu:");
-            if(p === "btctuhn@123") { document.getElementById('adminPanel').style.display = 'flex'; renderAdminTree(); } 
-            else if (p !== null) { alert("Sai mật khẩu!"); }
-        }
-
-        function renderAdminTree() {
+        
+        window.renderAdminTree = function() {
             const container = document.getElementById('adminTree');
             container.innerHTML = '';
             function buildHtml(nodes) {
@@ -268,7 +304,7 @@
                     let active = (currentEditNode && currentEditNode.id === node.id) ? 'background:#e3f2fd; color:#007bff; font-weight:bold;' : '';
                     let icon = node.level === 0 ? '📚' : (node.level === 1 ? '📂' : '📄');
                     let padding = node.level * 20 + 10;
-                    html += `<div style="padding:10px; padding-left:${padding}px; border-bottom:1px solid #eee; cursor:pointer; ${active}" onclick="selectItem('${node.id}')">${icon} ${node.title}</div>`;
+                    html += `<div style="padding:10px; padding-left:${padding}px; border-bottom:1px solid #eee; cursor:pointer; ${active}" onclick="window.selectItem('${node.id}')">${icon} ${node.title}</div>`;
                     if(node.children) html += buildHtml(node.children);
                 });
                 return html;
@@ -276,9 +312,9 @@
             container.innerHTML = buildHtml(APP_DATA);
         }
 
-        function selectItem(id) {
+        window.selectItem = function(id) {
             currentEditNode = findNodeRecursive(id, APP_DATA);
-            renderAdminTree();
+            window.renderAdminTree();
             document.getElementById('editorPlaceholder').style.display = 'none';
             document.getElementById('editorArea').style.display = 'block';
             document.getElementById('inpTag').value = currentEditNode.tag || '';
@@ -287,6 +323,7 @@
             document.getElementById('inpDetail').value = currentEditNode.detail || '';
         }
 
+        // Binding Input
         ['inpTag', 'inpTitle', 'inpSummary', 'inpDetail'].forEach(fid => {
             document.getElementById(fid).addEventListener('input', function() {
                 if(!currentEditNode) return;
@@ -295,82 +332,35 @@
                 if(prop === 'title') currentEditNode.title = this.value;
                 if(prop === 'summary') currentEditNode.summary = this.value;
                 if(prop === 'detail') currentEditNode.detail = this.value;
-                if(prop === 'title') renderAdminTree();
+                if(prop === 'title') window.renderAdminTree();
             });
         });
 
-        function addNewRoot() { APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]}); renderAdminTree(); }
-        function addSubItem() { 
+        window.addNewRoot = function() { APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]}); window.renderAdminTree(); }
+        window.addSubItem = function() { 
             if(!currentEditNode) return; 
             if(!currentEditNode.children) currentEditNode.children = [];
             currentEditNode.children.push({id: 'n'+Date.now(), title:'Mục mới', tag:'', summary:'', detail:'', level: currentEditNode.level+1, children:[]});
-            renderAdminTree(); 
+            window.renderAdminTree(); 
         }
-        function findParent(id, nodes) {
-            for(let node of nodes) {
-                if(node.children && node.children.some(c => c.id === id)) return node;
-                let f = findParent(id, node.children || []); if(f) return f;
-            } return null;
-        }
-        function deleteItem() {
+        window.deleteItem = function() {
             if(!currentEditNode || !confirm('Xóa mục này?')) return;
+            // Logic tìm cha để xóa con (tương tự bản cũ)
+            const findParent = (id, nodes) => {
+                for(let node of nodes) {
+                    if(node.children && node.children.some(c => c.id === id)) return node;
+                    let f = findParent(id, node.children || []); if(f) return f;
+                } return null;
+            }
             let p = findParent(currentEditNode.id, APP_DATA);
             if(p) { let idx = p.children.findIndex(c=>c.id === currentEditNode.id); p.children.splice(idx,1); }
             else { let idx = APP_DATA.findIndex(c=>c.id === currentEditNode.id); APP_DATA.splice(idx,1); }
-            currentEditNode = null; document.getElementById('editorArea').style.display='none'; renderAdminTree();
+            currentEditNode = null; document.getElementById('editorArea').style.display='none'; window.renderAdminTree();
         }
 
-        // ============================================================
-        // TÍNH NĂNG MỚI: TỰ ĐỘNG TẠO VÀ TẢI FILE INDEX.HTML
-        // ============================================================
-        function downloadHTML() {
-            // 1. Lưu lại vào LocalStorage
-            try { localStorage.setItem('SOTAY_DATA_FINAL', JSON.stringify(APP_DATA)); } catch(e){}
-            renderUI(); // Vẽ lại giao diện để đảm bảo mới nhất
+        // KHỞI CHẠY
+        loadFromCloud();
 
-            // 2. Chuẩn bị dữ liệu JSON
-            const jsonString = JSON.stringify(APP_DATA, null, 4);
-
-            // 3. Lấy toàn bộ mã nguồn hiện tại của trang
-            let htmlContent = document.documentElement.outerHTML;
-
-            // 4. LÀM SẠCH: Xóa các nội dung sinh ra bởi JS để tránh trùng lặp khi mở file mới
-            // Chúng ta dùng DOMParser để thao tác an toàn trên chuỗi HTML
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlContent, 'text/html');
-
-            // Xóa nội dung trong các container động
-            doc.getElementById('menuList').innerHTML = '';
-            doc.getElementById('dynamicContent').innerHTML = '';
-            doc.getElementById('adminTree').innerHTML = '';
-            
-            // Đảm bảo Admin và Popup đang đóng
-            doc.getElementById('adminPanel').style.display = 'none';
-            doc.getElementById('popup').style.display = 'none';
-
-            // 5. THAY THẾ DỮ LIỆU CŨ BẰNG DỮ LIỆU MỚI (QUAN TRỌNG NHẤT)
-            // Tìm đoạn "const initialData = [ ... ];" và thay bằng dữ liệu mới
-            let cleanHTML = "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
-            
-            // Sử dụng Regex để thay thế biến initialData
-            const regex = /const initialData = \[[\s\S]*?\];/;
-            const newScript = `const initialData = ${jsonString};`;
-            
-            cleanHTML = cleanHTML.replace(regex, newScript);
-
-            // 6. Tải file về
-            const blob = new Blob([cleanHTML], {type: 'text/html'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'index.html';
-            a.click();
-            
-            alert("✅ Đã tạo file 'index.html' mới!\n\nBạn hãy lấy file này trong thư mục Tải xuống (Downloads) và úp lên GitHub.");
-        }
-
-        // Start App
-        renderUI();
     </script>
 </body>
 </html>
