@@ -1,386 +1,82 @@
-<!DOCTYPE html>
-<!-- saved from url=(0041)https://tcddvhn.github.io/sotay-dangvien/ -->
-<html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sổ tay Nghiệp vụ Công tác Xây dựng Đảng</title>
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#cc0000">
-    <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Flag_of_the_Communist_Party_of_Vietnam.svg/1200px-Flag_of_the_Communist_Party_of_Vietnam.svg.png">
-
-    <style>
-        /* ==================================================================
-           1. CSS CHUNG & GIAO DIỆN MOBILE
-           ================================================================== */
-        :root {
-            --primary-color: #cc0000;
-            --primary-dark: #a30000;
-            --text-color: #333;
-            --bg-sidebar: #2c3e50;
-            --header-height: 50px;
-        }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: var(--text-color); margin: 0; background-color: #f4f4f4; }
-        
-        /* Sidebar (Menu trái) */
-        .sidebar { 
-            width: 280px; background-color: var(--bg-sidebar); color: white; padding: 20px; 
-            position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 1000; 
-            transition: transform 0.3s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        }
-        
-        /* Giao diện Mobile: Ẩn sidebar đi */
-        @media (max-width: 992px) { 
-            .sidebar { transform: translateX(-100%); width: 85%; max-width: 320px; } 
-            .sidebar.active { transform: translateX(0); } 
-        }
-
-        .sidebar h3 { border-bottom: 1px solid #555; padding-bottom: 15px; margin-top: 40px; text-transform: uppercase; font-size: 1.1rem; text-align: center; color: #f1c40f; }
-        .sidebar ul { list-style: none; padding: 0; }
-        .sidebar li { margin-bottom: 5px; }
-        .sidebar a { color: #ecf0f1; text-decoration: none; display: block; padding: 12px 15px; border-radius: 4px; transition: 0.2s; font-size: 0.95rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .sidebar a:hover { background-color: var(--primary-color); padding-left: 20px; }
-        
-        /* Nút Menu trên Mobile */
-        .mobile-header {
-            display: none; position: fixed; top: 0; left: 0; right: 0; height: var(--header-height);
-            background: var(--primary-color); z-index: 990; align-items: center; padding: 0 15px;
-            color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .menu-toggle-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; margin-right: 15px; }
-        @media (max-width: 992px) { .mobile-header { display: flex; } }
-
-        /* Overlay che nền khi mở menu */
-        .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(2px); }
-        .overlay.active { display: block; }
-
-        /* Main Content */
-        .main-content { padding: 20px 20px; background-color: white; min-height: 100vh; transition: margin-left 0.3s ease; }
-        @media (min-width: 992px) { .main-content { margin-left: 280px; padding: 40px 60px; } }
-        @media (max-width: 992px) { .main-content { padding-top: 70px; } /* Tránh bị che bởi header */ }
-        
-        /* Typography */
-        h1 { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); padding-bottom: 15px; margin-top: 0; font-size: 1.6rem; text-transform: uppercase; line-height: 1.3; }
-        .phan-header { background-color: #fcebeb; padding: 15px; border-left: 6px solid var(--primary-color); margin-top: 30px; color: var(--primary-dark); font-size: 1.3em; font-weight: bold; }
-        .muc-header { color: #b71c1c; margin-top: 25px; font-weight: 700; font-size: 1.1em; }
-        
-        /* Component: Hộp quy trình */
-        .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); position: relative; }
-        .step-number { background: var(--primary-color); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 10px; font-size: 0.85rem; }
-        .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #666; font-weight: bold; margin-bottom: 5px; display: block; letter-spacing: 0.5px; }
-        
-        /* Component: Nút trích dẫn */
-        .btn-trich-dan { display: inline-flex; align-items: center; margin-top: 15px; background-color: #e3f2fd; color: #0d47a1; padding: 10px 15px; border-radius: 6px; border: 1px solid #90caf9; font-size: 0.9em; cursor: pointer; font-weight: 600; width: 100%; justify-content: center; }
-        .btn-trich-dan:active { background-color: #bbdefb; }
-        @media (min-width: 768px) { .btn-trich-dan { width: auto; } }
-
-        /* Modal Popup */
-        .modal-user { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); padding: 10px; align-items: center; justify-content: center; }
-        .modal-user-content { background-color: #fefefe; width: 100%; max-width: 600px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; max-height: 80vh; animation: slideUp 0.3s; }
-        .modal-user-header { background-color: var(--primary-color); color: white; padding: 15px; border-radius: 12px 12px 0 0; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .modal-user-body { padding: 20px; line-height: 1.6; overflow-y: auto; text-align: justify; font-size: 0.95rem; }
-        @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
-
-        /* Nút lên đầu trang */
-        #backToTop { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 90; border: none; background-color: var(--primary-color); color: white; cursor: pointer; padding: 12px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 1.2rem; }
-
-        /* ==================================================================
-           2. CSS QUẢN TRỊ (ADMIN PANEL) - RESPONSIVE
-           ================================================================== */
-        #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; overflow-y: auto; }
-        .admin-layout { display: flex; height: 100%; flex-direction: column; }
-        @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
-
-        .admin-sidebar { background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 10px; height: 40vh; display: flex; flex-direction: column; }
-        @media (min-width: 768px) { .admin-sidebar { width: 300px; height: 100vh; border-right: 1px solid #ddd; border-bottom: none; } }
-
-        .admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 60vh; }
-        @media (min-width: 768px) { .admin-main { height: 100vh; } }
-
-        .tree-container { flex: 1; overflow-y: auto; border: 1px solid #eee; background: white; border-radius: 4px; margin: 10px 0; }
-        .tree-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .tree-item.active { background: #e3f2fd; color: #007bff; font-weight: bold; border-left: 4px solid #007bff; }
-
-        .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; font-size: 16px; } /* Font to cho dễ bấm trên đt */
-        .btn { padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; width: 100%; margin-bottom: 10px; }
-        @media (min-width: 768px) { .btn { width: auto; margin-right: 10px; margin-bottom: 0; } }
-        
-        .btn-save { background: #28a745; }
-        .btn-close { background: #6c757d; }
-        .btn-delete { background: #dc3545; }
-        .btn-add { background: #007bff; }
-
-        /* Admin Footer Link */
-        .admin-trigger { margin-top: 30px; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.3); cursor: pointer; padding: 20px; }
-    </style>
-</head>
-<body>
-
-    <div class="mobile-header">
-        <button class="menu-toggle-btn" onclick="toggleMenu()">☰</button>
-        <span>SỔ TAY NGHIỆP VỤ CÔNG TÁC XÂY DỰNG ĐẢNG</span>
-    </div>
-
-    <div class="overlay" onclick="toggleMenu()"></div>
-    <div class="sidebar" id="sidebar">
-        <div style="text-align: right; display: block; margin-bottom: 10px;">
-             <span onclick="toggleMenu()" style="cursor:pointer; color:#fff; font-size:1.5rem; padding: 10px; display: inline-block;">✕</span>
-        </div>
-
-        <h3 style="margin-top:0">MỤC LỤC</h3>
-        <ul id="menuList"><li><a href="https://tcddvhn.github.io/sotay-dangvien/#r1" onclick="toggleMenu(false)">PHẦN 1: CÔNG TÁC TỔ CHỨC ĐẢNG</a></li><li><a href="https://tcddvhn.github.io/sotay-dangvien/#c1" onclick="toggleMenu(false)">&nbsp;&nbsp;📂 I. THÀNH LẬP TỔ CHỨC ĐẢNG</a></li><li><a href="https://tcddvhn.github.io/sotay-dangvien/#n1770273656463" onclick="toggleMenu(false)">&nbsp;&nbsp;📂 II. SÁP NHẬP, HỢP NHẤT, CHIA TÁCH TỔ CHỨC ĐẢNG</a></li><li><a href="https://tcddvhn.github.io/sotay-dangvien/#n1770273707987" onclick="toggleMenu(false)">&nbsp;&nbsp;📂 III. GIẢI THỂ, GIẢI TÁN TỔ CHỨC</a></li><li><a href="https://tcddvhn.github.io/sotay-dangvien/#n1770273746789" onclick="toggleMenu(false)">&nbsp;&nbsp;📂 IV. CHUYỂN GIAO TỔ CHỨC ĐẢNG VÀ CHUYỂN SINH HOẠT ĐẢNG</a></li><li><a href="https://tcddvhn.github.io/sotay-dangvien/#r1770273644237" onclick="toggleMenu(false)">PHẦN II: CÔNG TÁC ĐẢNG VIÊN</a></li><li><a href="https://tcddvhn.github.io/sotay-dangvien/#n1770273981819" onclick="toggleMenu(false)">&nbsp;&nbsp;📂 I. CÔNG TÁC KẾT NẠP ĐẢNG VIÊN</a></li><li><a href="https://tcddvhn.github.io/sotay-dangvien/#n1770273996693" onclick="toggleMenu(false)">&nbsp;&nbsp;📂 II. CÔNG TÁC CHUYỂN ĐẢNG CHÍNH THỨC</a></li><li><a href="https://tcddvhn.github.io/sotay-dangvien/#n1770274048215" onclick="toggleMenu(false)">&nbsp;&nbsp;📂 III. HỒ SƠ ĐẢNG VIÊN</a></li><li><a href="https://tcddvhn.github.io/sotay-dangvien/#n1770274089647" onclick="toggleMenu(false)">&nbsp;&nbsp;📂 IV. QUẢN LÝ ĐẢNG VIÊN</a></li><li><a href="https://tcddvhn.github.io/sotay-dangvien/#n1770274101475" onclick="toggleMenu(false)">&nbsp;&nbsp;📂 V. PHÁT VÀ QUẢN LÝ THẺ ĐẢNG VIÊN</a></li></ul>
-
-        <div style="margin-top: 30px; font-size: 0.8rem; text-align: center; color: #95a5a6;">
-            <p>© 2024 Ban Tổ chức</p>
-        </div>
-        
-        <div class="admin-trigger" onclick="checkAdminPassword()">
-            🔒 Quản trị hệ thống
-        </div>
-    </div>
-
-    <div class="main-content">
-        <h1>NGHIỆP VỤ CÔNG TÁC XÂY DỰNG ĐẢNG</h1>
-        <div id="dynamicContent"><div id="r1"><h2 class="phan-header">PHẦN 1: CÔNG TÁC TỔ CHỨC ĐẢNG</h2></div><div id="c1"><h3 class="muc-header">I. THÀNH LẬP TỔ CHỨC ĐẢNG</h3><p>Điều kiện lập chi bộ...</p></div><div id="s1" class="step-box"><span class="tag-label">Quy trình</span><div class="step-number">Bước 1: Khảo sát</div><p>Cấp ủy cấp trên khảo sát...</p><div class="btn-trich-dan" onclick="showPopup(&#39;Chi tiết hướng dẫn số 01... &#39;)">Xem quy định chi tiết</div></div><div id="n1770273656463"><h3 class="muc-header">II. SÁP NHẬP, HỢP NHẤT, CHIA TÁCH TỔ CHỨC ĐẢNG</h3></div><div id="n1770273707987"><h3 class="muc-header">III. GIẢI THỂ, GIẢI TÁN TỔ CHỨC</h3></div><div id="n1770273746789"><h3 class="muc-header">IV. CHUYỂN GIAO TỔ CHỨC ĐẢNG VÀ CHUYỂN SINH HOẠT ĐẢNG</h3></div><div id="r1770273644237"><h2 class="phan-header">PHẦN II: CÔNG TÁC ĐẢNG VIÊN</h2></div><div id="n1770273981819"><h3 class="muc-header">I. CÔNG TÁC KẾT NẠP ĐẢNG VIÊN</h3></div><div id="n1770273996693"><h3 class="muc-header">II. CÔNG TÁC CHUYỂN ĐẢNG CHÍNH THỨC</h3></div><div id="n1770274048215"><h3 class="muc-header">III. HỒ SƠ ĐẢNG VIÊN</h3></div><div id="n1770274089647"><h3 class="muc-header">IV. QUẢN LÝ ĐẢNG VIÊN</h3></div><div id="n1770274101475"><h3 class="muc-header">V. PHÁT VÀ QUẢN LÝ THẺ ĐẢNG VIÊN</h3></div></div>
-        <br><br><br>
-    </div>
-
-    <div id="modalTrichDan" class="modal-user" onclick="dongModal(event)">
-        <div class="modal-user-content">
-            <div class="modal-user-header">
-                <span>Nội dung quy định</span>
-                <span onclick="dongModalButton()" style="cursor:pointer; padding:10px; font-size:1.2rem">✕</span>
-            </div>
-            <div class="modal-user-body" id="noi-dung-chi-tiet"></div>
-        </div>
-    </div>
-
-    <button id="backToTop" onclick="topFunction()" style="display: none;">⬆</button>
-
-    <div id="adminPanel">
-        <div class="admin-layout">
-            <div class="admin-sidebar">
-                <div style="font-weight:bold; margin-bottom:10px">DANH SÁCH MỤC</div>
-                <button class="btn btn-add" onclick="addNewRoot()">+ Thêm Phần Lớn</button>
-                <div class="tree-container" id="adminTree"></div>
-            </div>
-
-            <div class="admin-main">
-                <div style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; flex-wrap: wrap;">
-                    <h2 style="margin:0">Biên tập</h2>
-                    <div style="margin-top: 10px;">
-                        <button class="btn btn-save" onclick="saveData()">💾 Lưu</button>
-                        <button class="btn btn-close" onclick="closeAdminPanel()">Đóng</button>
-                    </div>
-                </div>
-
-                <div id="editorArea" style="display:none">
-                    <div style="text-align: right; margin-bottom: 10px;">
-                        <button class="btn btn-delete" style="width: auto; font-size: 0.8rem;" onclick="deleteCurrentItem()">Xóa mục này</button>
-                    </div>
-                    
-                    <label>Loại (Tag):</label>
-                    <input type="text" id="inpTag" class="form-control" placeholder="VD: Quy trình, Hướng dẫn...">
-                    
-                    <label>Tiêu đề:</label>
-                    <input type="text" id="inpTitle" class="form-control" placeholder="Nhập tiêu đề...">
-                    
-                    <label>Nội dung tóm tắt:</label>
-                    <textarea id="inpSummary" class="form-control" rows="5" placeholder="Nội dung hiển thị..."></textarea>
-                    
-                    <label>Trích dẫn (Chi tiết):</label>
-                    <textarea id="inpDetail" class="form-control" rows="5" placeholder="Nội dung trong popup..."></textarea>
-
-                    <div style="margin-top:20px; border-top:1px dashed #ccc; padding-top:20px">
-                        <button class="btn btn-add" style="background:#17a2b8" onclick="addSubItem()">+ Thêm mục con cấp dưới</button>
-                    </div>
-                </div>
-
-                <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px;">
-                    Chọn một mục để sửa
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // 1. DỮ LIỆU MẪU
-        const initialData = [
+const initialData = [
+    {
+        "id": "p1",
+        "title": "PHẦN THỨ NHẤT: NGHIỆP VỤ CÔNG TÁC ĐẢNG VIÊN",
+        "tag": "",
+        "summary": "",
+        "detail": "",
+        "level": 0,
+        "children": [
             {
-                id: 'r1', title: 'PHẦN 1: TỔ CHỨC ĐẢNG', tag: '', summary: '', detail: '', level: 0,
-                children: [
+                "id": "p1_1",
+                "title": "I. KẾT NẠP ĐẢNG VIÊN",
+                "tag": "",
+                "level": 1,
+                "summary": "",
+                "detail": "",
+                "children": [
                     {
-                        id: 'c1', title: 'I. Thành lập tổ chức', tag: 'Quy định', level: 1, summary: 'Điều kiện lập chi bộ...', detail: '', 
-                        children: [
-                            { id: 's1', title: 'Bước 1: Khảo sát', tag: 'Quy trình', level: 2, summary: 'Cấp ủy cấp trên khảo sát...', detail: 'Chi tiết hướng dẫn số 01...' }
-                        ] 
+                        "id": "p1_1_1",
+                        "title": "1. Tiêu chuẩn, điều kiện",
+                        "tag": "Quy định",
+                        "level": 2,
+                        "summary": "Quy định về Tuổi đời (18-60), Trình độ học vấn (THCS trở lên) và các điều kiện khác.",
+                        "detail": "<p><b>1.1. Về tuổi đời:</b><br>- Tại thời điểm chi bộ xét kết nạp, người vào Đảng phải đủ 18 tuổi đến đủ 60 tuổi (tính theo tháng).<br>- Việc kết nạp vào Đảng những người trên 60 tuổi do cấp ủy trực thuộc Thành ủy xem xét, quyết định.<br><br><b>1.2. Về trình độ học vấn:</b><br>- Người vào Đảng phải có bằng tốt nghiệp trung học cơ sở hoặc tương đương trở lên.<br>- Đối với người dân tộc thiểu số, vùng sâu vùng xa... tối thiểu hoàn thành chương trình tiểu học.</p>"
+                    },
+                    {
+                        "id": "p1_1_2",
+                        "title": "2. Thủ tục xem xét kết nạp",
+                        "tag": "Quy trình",
+                        "level": 2,
+                        "summary": "Gồm: Đơn xin vào Đảng, Lý lịch, Giấy giới thiệu, Nghị quyết chi bộ...",
+                        "detail": "<p><b>Hồ sơ bao gồm:</b></p><ul><li>Đơn xin vào Đảng (Mẫu 1-KNĐ).</li><li>Lý lịch của người xin vào Đảng (Mẫu 2-KNĐ).</li><li>Giấy giới thiệu của đảng viên chính thức (Mẫu 3-KNĐ).</li><li>Nghị quyết giới thiệu của BCH Đoàn TNCS hoặc Công đoàn (Mẫu 4-KNĐ).</li><li>Tổng hợp ý kiến nhận xét của tổ chức đoàn thể (Mẫu 5-KNĐ).</li><li>Nghị quyết xét đề nghị kết nạp của Chi bộ (Mẫu 6-KNĐ).</li></ul>"
+                    }
+                ]
+            },
+            {
+                "id": "p1_2",
+                "title": "II. CÔNG NHẬN ĐẢNG VIÊN CHÍNH THỨC",
+                "tag": "",
+                "level": 1,
+                "summary": "",
+                "detail": "",
+                "children": [
+                    {
+                        "id": "p1_2_1",
+                        "title": "Thời hạn và Điều kiện",
+                        "tag": "Quy định",
+                        "level": 2,
+                        "summary": "Sau 12 tháng dự bị. Trong vòng 30 ngày làm việc phải xét công nhận.",
+                        "detail": "<p>- Trong thời hạn 30 ngày làm việc kể từ ngày đảng viên hết 12 tháng dự bị, chi bộ phải xét và đề nghị công nhận chính thức.<br>- Nếu không đủ điều kiện thì làm thủ tục xóa tên.</p>"
                     }
                 ]
             }
-        ];
-
-        let APP_DATA = JSON.parse(localStorage.getItem('SOTAY_DATA_V7')) || initialData;
-        let currentEditNode = null;
-
-        // 2. LOGIC BẢO MẬT & ADMIN
-        function checkAdminPassword() {
-            let pass = prompt("Vui lòng nhập mật khẩu quản trị:", "");
-            // MẬT KHẨU MẶC ĐỊNH LÀ 123456 (Bạn có thể sửa số này)
-            if (pass === "btctuhn@123") {
-                document.getElementById('adminPanel').style.display = 'block';
-                renderAdminTree();
-            } else if (pass !== null) {
-                alert("Mật khẩu không đúng!");
+        ]
+    },
+    {
+        "id": "p_phuluc",
+        "title": "PHẦN PHỤ LỤC: CÁC BIỂU MẪU & KHUNG TIÊU CHÍ",
+        "tag": "",
+        "summary": "Tổng hợp các mẫu văn bản và khung tiêu chí đánh giá.",
+        "detail": "",
+        "level": 0,
+        "children": [
+            {
+                "id": "pl_1",
+                "title": "Danh mục Mẫu tài liệu (Kết nạp, Công nhận...)",
+                "tag": "Tra cứu",
+                "level": 1,
+                "summary": "Bảng tổng hợp ký hiệu các biểu mẫu nghiệp vụ.",
+                "detail": "\n                        <h3 style=\"text-align:center; color:#b71c1c;\">DANH MỤC CÁC MẪU TÀI LIỆU<br>VỀ CÔNG TÁC TỔ CHỨC ĐẢNG VÀ ĐẢNG VIÊN</h3>\n                        <table class=\"data-table\">\n                            <thead>\n                                <tr>\n                                    <th style=\"width:15%\">Ký hiệu</th>\n                                    <th>Tên mẫu tài liệu</th>\n                                    <th style=\"width:25%\">Ghi chú</th>\n                                </tr>\n                            </thead>\n                            <tbody>\n                                <tr style=\"background-color:#ffebee\"><td colspan=\"3\"><b>A. KẾT NẠP ĐẢNG VIÊN</b></td></tr>\n                                <tr><td>1-KNĐ</td><td>Đơn xin vào Đảng</td><td>Người xin vào Đảng viết</td></tr>\n                                <tr><td>2-KNĐ</td><td>Lý lịch của người xin vào Đảng</td><td>Khai chi tiết</td></tr>\n                                <tr><td>3-KNĐ</td><td>Giấy giới thiệu người ưu tú vào Đảng</td><td>Của đảng viên chính thức</td></tr>\n                                <tr><td>6-KNĐ</td><td>Nghị quyết đề nghị kết nạp đảng viên</td><td>Của Chi bộ</td></tr>\n                                \n                                <tr style=\"background-color:#ffebee\"><td colspan=\"3\"><b>B. CÔNG NHẬN ĐẢNG VIÊN CHÍNH THỨC</b></td></tr>\n                                <tr><td>10-CN</td><td>Bản kiểm điểm của đảng viên dự bị</td><td></td></tr>\n                                <tr><td>12-CN</td><td>Nghị quyết đề nghị công nhận đảng viên chính thức</td><td>Của Chi bộ</td></tr>\n                                \n                                <tr style=\"background-color:#ffebee\"><td colspan=\"3\"><b>C. XOÁ TÊN, RA KHỎI ĐẢNG</b></td></tr>\n                                <tr><td>16-XTD</td><td>Nghị quyết đề nghị xóa tên đảng viên</td><td>Chi bộ</td></tr>\n                            </tbody>\n                        </table>\n                        <p style=\"font-style:italic; margin-top:10px; text-align:center\">(Nguồn: Phụ lục Hướng dẫn số 10-HD/BTCTU)</p>\n                        "
+            },
+            {
+                "id": "pl_2",
+                "title": "Khung tiêu chí đánh giá Lãnh đạo/Quản lý",
+                "tag": "Phụ lục 2",
+                "level": 1,
+                "summary": "Trích Phụ lục 2: Khung tiêu chí đánh giá cá nhân giữ chức vụ lãnh đạo, quản lý.",
+                "detail": "\n                        <h3 style=\"text-align:center; color:#b71c1c;\">PHỤ LỤC 2<br>KHUNG TIÊU CHÍ ĐÁNH GIÁ CÁ NHÂN GIỮ CHỨC VỤ LÃNH ĐẠO, QUẢN LÝ</h3>\n                        <table class=\"data-table\">\n                            <thead>\n                                <tr>\n                                    <th style=\"width:10%\">STT</th>\n                                    <th>Nội dung Chức danh</th>\n                                    <th style=\"width:30%\">Ký hiệu biểu</th>\n                                </tr>\n                            </thead>\n                            <tbody>\n                                <tr><td style=\"text-align:center\">1</td><td>Chức danh Phó Chủ tịch HĐND Thành phố</td><td>Biểu số 01-LĐQL</td></tr>\n                                <tr><td style=\"text-align:center\">2</td><td>Chức danh Phó Chủ tịch UBND Thành phố</td><td>Biểu số 02-LĐQL</td></tr>\n                                <tr><td style=\"text-align:center\">3</td><td>Chức danh Phó Trưởng Đoàn ĐBQH Thành phố</td><td>Biểu số 03-LĐQL</td></tr>\n                                <tr><td style=\"text-align:center\">4</td><td>Chức danh Đại biểu Quốc hội chuyên trách</td><td>Biểu số 04-LĐQL</td></tr>\n                                <tr><td style=\"text-align:center\">5</td><td>Chức danh Trưởng ban, cơ quan tham mưu giúp việc TU</td><td>Biểu số 05-LĐQL</td></tr>\n                                <tr><td style=\"text-align:center\">6</td><td>Chức danh Phó Trưởng ban, cơ quan tham mưu giúp việc TU</td><td>Biểu số 06-LĐQL</td></tr>\n                                <tr><td style=\"text-align:center\">7</td><td>Chức danh Ủy viên Ủy ban kiểm tra Thành ủy</td><td>Biểu số 07-LĐQL</td></tr>\n                            </tbody>\n                        </table>\n                        "
             }
-        }
-
-        function closeAdminPanel() { document.getElementById('adminPanel').style.display = 'none'; }
-
-        // 3. RENDER GIAO DIỆN USER (MOBILE FRIENDLY)
-        function renderUserInterface() {
-            const menuEl = document.getElementById('menuList');
-            const contentEl = document.getElementById('dynamicContent');
-            menuEl.innerHTML = ''; contentEl.innerHTML = '';
-
-            function processNode(items) {
-                items.forEach(item => {
-                    // Menu
-                    if(item.level < 2) {
-                        let li = document.createElement('li');
-                        let indent = item.level === 1 ? '&nbsp;&nbsp;📂 ' : '';
-                        // Khi click menu trên mobile thì tự đóng menu
-                        li.innerHTML = `<a href="#${item.id}" onclick="toggleMenu(false)">${indent}${item.title}</a>`;
-                        menuEl.appendChild(li);
-                    }
-
-                    // Content
-                    let div = document.createElement('div');
-                    div.id = item.id;
-                    if(item.level === 0) {
-                        div.innerHTML = `<h2 class="phan-header">${item.title}</h2>`;
-                    } else if (item.level === 1) {
-                        div.innerHTML = `<h3 class="muc-header">${item.title}</h3>`;
-                        if(item.summary) div.innerHTML += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
-                    } else {
-                        let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
-                        let btnHtml = item.detail ? `<div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">Xem quy định chi tiết</div>` : '';
-                        div.className = 'step-box';
-                        div.innerHTML = `${tagHtml}<div class="step-number">${item.title}</div><p>${item.summary.replace(/\n/g, '<br>')}</p>${btnHtml}`;
-                    }
-                    contentEl.appendChild(div);
-                    if(item.children) processNode(item.children);
-                });
-            }
-            processNode(APP_DATA);
-        }
-
-        // 4. LOGIC QUẢN TRỊ (CÂY & FORM)
-        function findNode(id, nodes) {
-            for(let node of nodes) {
-                if(node.id === id) return node;
-                if(node.children) { let f = findNode(id, node.children); if(f) return f; }
-            } return null;
-        }
-        function findParent(id, nodes) {
-            for(let node of nodes) {
-                if(node.children && node.children.some(c => c.id === id)) return node;
-                let f = findParent(id, node.children || []); if(f) return f;
-            } return null;
-        }
-
-        function renderAdminTree() {
-            const tree = document.getElementById('adminTree');
-            tree.innerHTML = '';
-            function buildHtml(nodes) {
-                let html = '';
-                nodes.forEach(node => {
-                    let active = (currentEditNode && currentEditNode.id === node.id) ? 'active' : '';
-                    let icon = node.level === 0 ? '📚' : (node.level === 1 ? '📂' : '📄');
-                    html += `<div class="tree-item level-${node.level} ${active}" onclick="selectItem('${node.id}')">${icon} ${node.title}</div>`;
-                    if(node.children) html += buildHtml(node.children);
-                });
-                return html;
-            }
-            tree.innerHTML = buildHtml(APP_DATA);
-        }
-
-        function selectItem(id) {
-            currentEditNode = findNode(id, APP_DATA);
-            renderAdminTree();
-            document.getElementById('editorPlaceholder').style.display = 'none';
-            document.getElementById('editorArea').style.display = 'block';
-            
-            document.getElementById('inpTag').value = currentEditNode.tag || '';
-            document.getElementById('inpTitle').value = currentEditNode.title || '';
-            document.getElementById('inpSummary').value = currentEditNode.summary || '';
-            document.getElementById('inpDetail').value = currentEditNode.detail || '';
-        }
-
-        // Binding input events
-        ['inpTag', 'inpTitle', 'inpSummary', 'inpDetail'].forEach(fid => {
-            document.getElementById(fid).addEventListener('input', function() {
-                if(!currentEditNode) return;
-                let prop = fid.replace('inp','').toLowerCase();
-                if(prop === 'tag') currentEditNode.tag = this.value;
-                if(prop === 'title') currentEditNode.title = this.value;
-                if(prop === 'summary') currentEditNode.summary = this.value;
-                if(prop === 'detail') currentEditNode.detail = this.value;
-                if(prop === 'title') renderAdminTree();
-            });
-        });
-
-        function addNewRoot() {
-            APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]});
-            renderAdminTree();
-        }
-        function addSubItem() {
-            if(!currentEditNode) return;
-            if(!currentEditNode.children) currentEditNode.children = [];
-            currentEditNode.children.push({id: 'n'+Date.now(), title:'Mục mới', tag:'', summary:'', detail:'', level: currentEditNode.level+1, children:[]});
-            renderAdminTree();
-        }
-        function deleteCurrentItem() {
-            if(!currentEditNode || !confirm('Xóa mục này?')) return;
-            let p = findParent(currentEditNode.id, APP_DATA);
-            if(p) { let idx = p.children.findIndex(c=>c.id === currentEditNode.id); p.children.splice(idx,1); }
-            else { let idx = APP_DATA.findIndex(c=>c.id === currentEditNode.id); APP_DATA.splice(idx,1); }
-            currentEditNode = null; document.getElementById('editorArea').style.display='none'; renderAdminTree();
-        }
-        function saveData() {
-            localStorage.setItem('SOTAY_DATA_V7', JSON.stringify(APP_DATA));
-            renderUserInterface(); alert('Đã lưu dữ liệu!');
-        }
-
-        // 5. HELPER UI
-        function toggleMenu(forceState) {
-            const sb = document.getElementById('sidebar');
-            const ov = document.querySelector('.overlay');
-            if (typeof forceState !== 'undefined') {
-                if(forceState) { sb.classList.add('active'); ov.classList.add('active'); }
-                else { sb.classList.remove('active'); ov.classList.remove('active'); }
-            } else {
-                sb.classList.toggle('active'); ov.classList.toggle('active');
-            }
-        }
-        
-        function showPopup(html) {
-            document.getElementById('noi-dung-chi-tiet').innerHTML = html;
-            document.getElementById('modalTrichDan').style.display = 'flex'; // Flex để căn giữa
-        }
-        function dongModalButton() { document.getElementById('modalTrichDan').style.display = 'none'; }
-        function dongModal(e) { if(e.target.id === 'modalTrichDan') dongModalButton(); }
-        
-        window.onscroll = function() {
-            document.getElementById("backToTop").style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none";
-        };
-        function topFunction() { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; }
-
-        // Start
-        renderUserInterface();
-    </script>
-
-
-
-</body></html>
+        ]
+    }
+];
