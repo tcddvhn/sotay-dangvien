@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sổ tay Nghiệp vụ Công tác Tổ chức Đảng</title>
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#cc0000">
@@ -57,6 +58,7 @@
         .btn-save { background: #28a745; } .btn-close { background: #6c757d; } .btn-del { background: #dc3545; } .btn-add { background: #007bff; }
         #backToTop { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 90; border: none; background: var(--primary); color: white; padding: 12px; border-radius: 50%; cursor: pointer; }
         #loadingBar { position:fixed; top:0; left:0; height:4px; background:#28a745; z-index:9999; transition: width 0.3s; width:0%; }
+        .error-msg { text-align:center; color:#999; padding:20px; }
     </style>
 </head>
 <body>
@@ -74,14 +76,14 @@
         <div style="margin-top:30px; text-align:center; font-size:0.8rem; color:#999; border-top:1px solid #444; padding-top:20px;">
             <p>&copy; 2025 Ban Tổ chức Thành ủy</p>
             <span onclick="checkAdmin()" style="cursor:pointer; opacity:0.5">🔒 Quản trị hệ thống</span>
-            <p id="dbStatus" style="font-size:0.7rem; color:#28a745; margin-top:5px">☁️ Đang kết nối...</p>
+            <p id="dbStatus" style="font-size:0.7rem; color:#28a745; margin-top:5px; font-weight:bold">☁️ Đang kết nối...</p>
         </div>
     </div>
 
     <div class="main">
-        <h1>HƯỚNG DẪN NGHIỆP VỤ CÔNG TÁC TỔ CHỨC ĐẢNG VÀ ĐẢNG VIÊN (2025)</h1>
+        <h1>HƯỚNG DẪN NGHIỆP VỤ CÔNG TÁC ĐẢNG VIÊN (2025)</h1>
         <p><i>(Căn cứ Hướng dẫn số 10-HD/BTCTU của Ban Tổ chức Thành ủy Hà Nội)</i></p>
-        <div id="dynamicContent"><p style="text-align:center; color:#999">Đang tải dữ liệu từ máy chủ...</p></div>
+        <div id="dynamicContent"><p class="error-msg">⏳ Đang tải dữ liệu từ máy chủ...</p></div>
         <br><br><br>
     </div>
 
@@ -124,120 +126,129 @@
     </div>
 
     <script type="module">
-        // ==========================================================
-        // 1. CẤU HÌNH FIREBASE - QUAN TRỌNG NHẤT
-        // ==========================================================
+        // -------------------------------------------------------------
+        // 1. CẤU HÌNH FIREBASE (ĐÃ SỬA LẠI CHUẨN CDN)
+        // -------------------------------------------------------------
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Đây là mã của bạn, tôi đã điền đúng định dạng
         const firebaseConfig = {
-            // 🔴 DÁN CẤU HÌNH FIREBASE CỦA BẠN VÀO ĐÂY (Xóa hết nội dung cũ trong ngoặc này đi)
-  	apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs",
-  	authDomain: "sotay-dangvien.firebaseapp.com",
-  	projectId: "sotay-dangvien",
-  	storageBucket: "sotay-dangvien.firebasestorage.app",
-  	messagingSenderId: "699788813951",
-  	appId: "1:699788813951:web:14eb81183799f83e0f814a"
-	};
+            apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs",
+            authDomain: "sotay-dangvien.firebaseapp.com",
+            projectId: "sotay-dangvien",
+            storageBucket: "sotay-dangvien.firebasestorage.app",
+            messagingSenderId: "699788813951",
+            appId: "1:699788813951:web:14eb81183799f83e0f814a"
+        };
 
-
-        // Khởi tạo Firebase
         let db;
         try {
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
-            console.log("Firebase connected");
+            console.log("Firebase initialized");
         } catch(e) {
-            console.error("Lỗi kết nối Firebase (Có thể chưa điền Config)", e);
+            console.error("Firebase error", e);
         }
 
-        // ==========================================================
-        // 2. DỮ LIỆU MẶC ĐỊNH (PHÒNG KHI MẤT MẠNG)
-        // ==========================================================
+        // -------------------------------------------------------------
+        // 2. DỮ LIỆU & LOGIC
+        // -------------------------------------------------------------
         const initialData = [
-            {
-                id: 'p1', title: 'PHẦN I: KẾT NẠP ĐẢNG VIÊN', tag: '', summary: '', detail: '', level: 0,
-                children: [
-                    { id: 'p1_1', title: 'I. Tiêu chuẩn, điều kiện', tag: 'Quy định', level: 1, summary: 'Quy định chi tiết về tuổi đời (18-60), trình độ học vấn.', detail: '<p>Chi tiết...</p>' }
-                ]
-            }
+            { id: 'p1', title: 'ĐANG TẢI DỮ LIỆU...', tag: '', summary: 'Vui lòng đợi trong giây lát...', detail: '', level: 0, children: [] }
         ];
 
         let APP_DATA = initialData;
         let currentEditNode = null;
 
-        // ==========================================================
-        // 3. HÀM XỬ LÝ DỮ LIỆU ĐÁM MÂY (CLOUD)
-        // ==========================================================
-        
-        // Tải dữ liệu khi mở Web
+        // Tải dữ liệu (Có Timeout 5 giây để chống treo)
         async function loadFromCloud() {
-            document.getElementById('loadingBar').style.width = '50%';
-            if(!db) {
-                // Nếu chưa cấu hình, dùng LocalStorage cũ
-                try { const s = localStorage.getItem('SOTAY_DATA_FINAL'); if(s) APP_DATA = JSON.parse(s); } catch(e){}
-                renderUI();
-                document.getElementById('dbStatus').innerText = "⚠️ Chưa cấu hình Server";
-                return;
-            }
-
+            document.getElementById('loadingBar').style.width = '30%';
+            
+            // Đặt thời gian chờ tối đa 5 giây
+            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve('TIMEOUT'), 5000));
+            
             try {
-                const docRef = doc(db, "sotay_db", "master_data");
-                const docSnap = await getDoc(docRef);
+                // Đua tốc độ: Ai xong trước thì lấy
+                const result = await Promise.race([fetchData(), timeoutPromise]);
 
-                if (docSnap.exists()) {
-                    APP_DATA = JSON.parse(docSnap.data().content);
-                    console.log("Đã tải dữ liệu từ Cloud!");
-                    document.getElementById('dbStatus').innerText = "✅ Đã kết nối Máy chủ";
+                if (result === 'TIMEOUT') {
+                    console.warn("Mạng chậm, dùng dữ liệu Offline");
+                    loadOffline();
+                    document.getElementById('dbStatus').innerText = "⚠️ Chế độ Offline";
                 } else {
-                    console.log("Chưa có dữ liệu trên Cloud, dùng mặc định");
-                    // Nếu Cloud chưa có gì, tự động úp bản đầu tiên lên
-                    saveToCloud(true);
+                    console.log("Dữ liệu Online OK");
+                    document.getElementById('dbStatus').innerText = "✅ Đã kết nối Máy chủ";
                 }
-            } catch (error) {
-                console.error("Lỗi tải data:", error);
-                document.getElementById('dbStatus').innerText = "⚠️ Lỗi mạng / Offline";
+            } catch (err) {
+                console.error(err);
+                loadOffline();
             }
+            
             document.getElementById('loadingBar').style.width = '100%';
             setTimeout(() => { document.getElementById('loadingBar').style.width = '0%'; }, 500);
-            renderUI();
         }
 
-        // Lưu dữ liệu lên Cloud
-        window.saveToCloud = async function(silent = false) {
-            if(!db) { alert("Chưa cấu hình Firebase! Hãy dán mã Config vào code."); return; }
-            
+        async function fetchData() {
+            if(!db) throw new Error("No DB");
+            const docRef = doc(db, "sotay_db", "master_data");
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if(data.content) {
+                    APP_DATA = JSON.parse(data.content);
+                    renderUI();
+                    return 'OK';
+                }
+            }
+            // Nếu chưa có data trên mây, thử load offline
+            loadOffline(); 
+            return 'OK';
+        }
+
+        function loadOffline() {
+            try {
+                const s = localStorage.getItem('SOTAY_DATA_FINAL');
+                if(s) { 
+                    APP_DATA = JSON.parse(s); 
+                    renderUI();
+                } else {
+                    document.getElementById('dynamicContent').innerHTML = '<p class="error-msg">Không có dữ liệu. Vui lòng vào Admin để khởi tạo.</p>';
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        window.saveToCloud = async function() {
+            if(!db) { alert("Lỗi cấu hình!"); return; }
             const btn = document.querySelector('.btn-save');
             if(btn) { btn.innerText = "⏳ Đang lưu..."; btn.disabled = true; }
 
             try {
-                // 1. Lưu lên Cloud
                 await setDoc(doc(db, "sotay_db", "master_data"), {
                     content: JSON.stringify(APP_DATA),
                     updatedAt: new Date().toISOString()
                 });
-                
-                // 2. Lưu dự phòng vào máy
                 localStorage.setItem('SOTAY_DATA_FINAL', JSON.stringify(APP_DATA));
-
-                if(!silent) alert("✅ ĐÃ LƯU THÀNH CÔNG!\nMọi người sẽ thấy nội dung mới ngay lập tức.");
+                alert("✅ ĐÃ LƯU THÀNH CÔNG!");
                 renderUI();
             } catch (error) {
-                console.error("Lỗi lưu:", error);
-                alert("❌ Lỗi khi lưu: " + error.message + "\n(Kiểm tra lại Internet hoặc quyền truy cập)");
+                alert("Lỗi: " + error.message);
             }
-
             if(btn) { btn.innerText = "☁️ LƯU LÊN MÁY CHỦ"; btn.disabled = false; }
         }
 
-        // ==========================================================
-        // 4. CÁC HÀM GIAO DIỆN (UI) - GIỮ NGUYÊN
-        // ==========================================================
-        
+        // -------------------------------------------------------------
+        // 3. GIAO DIỆN (UI)
+        // -------------------------------------------------------------
         function renderUI() {
             const menu = document.getElementById('menuList');
             const content = document.getElementById('dynamicContent');
             menu.innerHTML = ''; content.innerHTML = '';
+
+            if(!APP_DATA || APP_DATA.length === 0) {
+                content.innerHTML = '<p class="error-msg">Chưa có dữ liệu.</p>';
+                return;
+            }
 
             function processNode(items) {
                 items.forEach(item => {
@@ -266,7 +277,7 @@
             processNode(APP_DATA);
         }
 
-        // Gán các hàm vào window để HTML gọi được (vì dùng type="module")
+        // Global functions
         window.toggleMenu = function(forceState) {
             const sb = document.getElementById('sidebar');
             const ov = document.querySelector('.overlay');
@@ -275,27 +286,24 @@
                 else { sb.classList.remove('active'); ov.classList.remove('active'); }
             } else { sb.classList.toggle('active'); ov.classList.toggle('active'); }
         }
-        
         window.openPopup = function(id) {
             const item = findNodeRecursive(id, APP_DATA);
             if(item) { document.getElementById('popupContent').innerHTML = item.detail; document.getElementById('popup').style.display = 'flex'; }
         }
         window.closePopup = function(e) { if(e.target.id === 'popup') document.getElementById('popup').style.display='none'; }
-        
         window.checkAdmin = function() {
-            let p = prompt("Mật khẩu quản trị (btctuhn@123):");
-            if(p === "btctuhn@123") { document.getElementById('adminPanel').style.display = 'flex'; renderAdminTree(); } 
+            let p = prompt("Mật khẩu (btctuhn@123):");
+            if(p === "btctuhn@123") { document.getElementById('adminPanel').style.display = 'flex'; window.renderAdminTree(); } 
             else if (p !== null) { alert("Sai mật khẩu!"); }
         }
 
-        // --- Admin Tree & Edit Logic ---
+        // Admin Helpers
         function findNodeRecursive(id, nodes) {
             for(let node of nodes) {
                 if(node.id === id) return node;
                 if(node.children) { let found = findNodeRecursive(id, node.children); if(found) return found; }
             } return null;
         }
-        
         window.renderAdminTree = function() {
             const container = document.getElementById('adminTree');
             container.innerHTML = '';
@@ -312,7 +320,6 @@
             }
             container.innerHTML = buildHtml(APP_DATA);
         }
-
         window.selectItem = function(id) {
             currentEditNode = findNodeRecursive(id, APP_DATA);
             window.renderAdminTree();
@@ -323,8 +330,6 @@
             document.getElementById('inpSummary').value = currentEditNode.summary || '';
             document.getElementById('inpDetail').value = currentEditNode.detail || '';
         }
-
-        // Binding Input
         ['inpTag', 'inpTitle', 'inpSummary', 'inpDetail'].forEach(fid => {
             document.getElementById(fid).addEventListener('input', function() {
                 if(!currentEditNode) return;
@@ -336,7 +341,6 @@
                 if(prop === 'title') window.renderAdminTree();
             });
         });
-
         window.addNewRoot = function() { APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]}); window.renderAdminTree(); }
         window.addSubItem = function() { 
             if(!currentEditNode) return; 
@@ -346,7 +350,6 @@
         }
         window.deleteItem = function() {
             if(!currentEditNode || !confirm('Xóa mục này?')) return;
-            // Logic tìm cha để xóa con (tương tự bản cũ)
             const findParent = (id, nodes) => {
                 for(let node of nodes) {
                     if(node.children && node.children.some(c => c.id === id)) return node;
@@ -359,9 +362,8 @@
             currentEditNode = null; document.getElementById('editorArea').style.display='none'; window.renderAdminTree();
         }
 
-        // KHỞI CHẠY
+        // Start
         loadFromCloud();
-
     </script>
 </body>
 </html>
