@@ -8,321 +8,289 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#cc0000">
-    <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Flag_of_the_Communist_Party_of_Vietnam.svg/1200px-Flag_of_the_Communist_Party_of_Vietnam.svg.png">
 
     <style>
-        /* CSS CHUNG */
-        :root { --primary: #cc0000; --primary-dark: #a30000; --text: #333; --sidebar-bg: #2c3e50; --header-h: 50px; }
+        /* ==================================================================
+           CSS GIAO DIỆN (GIỮ NGUYÊN BẢN 7.0)
+           ================================================================== */
+        :root {
+            --primary-color: #cc0000;
+            --primary-dark: #a30000;
+            --text-color: #333;
+            --bg-sidebar: #2c3e50;
+            --header-height: 50px;
+        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: var(--text); margin: 0; background: #f4f4f4; }
-        .mobile-header { display: none; position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); background: var(--primary); color: white; align-items: center; padding: 0 15px; z-index: 2000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; margin-right: 15px; }
-        .app-title { font-weight: bold; text-transform: uppercase; font-size: 1rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: var(--text-color); margin: 0; background-color: #f4f4f4; }
+        
+        /* Sidebar */
+        .sidebar { 
+            width: 280px; background-color: var(--bg-sidebar); color: white; padding: 20px; 
+            position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 1000; 
+            transition: transform 0.3s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Mobile: Ẩn sidebar mặc định */
+        @media (max-width: 992px) { 
+            .sidebar { transform: translateX(-100%); width: 85%; max-width: 320px; } 
+            .sidebar.active { transform: translateX(0); } 
+        }
+
+        .sidebar h3 { border-bottom: 1px solid #555; padding-bottom: 15px; margin-top: 40px; text-transform: uppercase; font-size: 1.1rem; text-align: center; color: #f1c40f; }
+        .sidebar ul { list-style: none; padding: 0; }
+        .sidebar li { margin-bottom: 5px; }
+        .sidebar a { color: #ecf0f1; text-decoration: none; display: block; padding: 12px 15px; border-radius: 4px; transition: 0.2s; font-size: 0.95rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .sidebar a:hover { background-color: var(--primary-color); padding-left: 20px; }
+        
+        /* Header Mobile */
+        .mobile-header {
+            display: none; position: fixed; top: 0; left: 0; right: 0; height: var(--header-height);
+            background: var(--primary-color); z-index: 990; align-items: center; padding: 0 15px;
+            color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .menu-toggle-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; margin-right: 15px; }
         @media (max-width: 992px) { .mobile-header { display: flex; } }
-        .sidebar { width: 280px; background: var(--sidebar-bg); color: white; padding: 20px; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 3000; transition: transform 0.3s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
-        @media (max-width: 992px) { .sidebar { transform: translateX(-100%); width: 85%; max-width: 320px; } .sidebar.active { transform: translateX(0); } }
-        .sidebar h3 { border-bottom: 1px solid #555; padding-bottom: 15px; margin-top: 0; color: #f1c40f; text-align: center; }
-        .nav-list { list-style: none; padding: 0; }
-        .nav-link { display: block; padding: 12px 15px; color: #ecf0f1; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.05); transition:0.2s; }
-        .nav-link:hover { background: var(--primary); padding-left: 20px; }
-        .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2500; display: none; backdrop-filter: blur(2px); }
+
+        .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
-        .main { padding: 20px; background: white; min-height: 100vh; transition: margin-left 0.3s; }
-        @media (min-width: 992px) { .main { margin-left: 280px; padding: 40px 60px; } }
-        @media (max-width: 992px) { .main { padding-top: 70px; } }
-        h1 { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 15px; margin-top: 0; font-size: 1.6rem; text-transform: uppercase; }
-        .phan-header { background: #fcebeb; padding: 15px; border-left: 6px solid var(--primary); margin-top: 30px; color: var(--primary-dark); font-size: 1.3em; font-weight: bold; }
+
+        /* Main Content */
+        .main-content { padding: 20px 20px; background-color: white; min-height: 100vh; transition: margin-left 0.3s ease; }
+        @media (min-width: 992px) { .main-content { margin-left: 280px; padding: 40px 60px; } }
+        @media (max-width: 992px) { .main-content { padding-top: 70px; } }
+        
+        h1 { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); padding-bottom: 15px; margin-top: 0; font-size: 1.6rem; text-transform: uppercase; line-height: 1.3; }
+        .phan-header { background-color: #fcebeb; padding: 15px; border-left: 6px solid var(--primary-color); margin-top: 30px; color: var(--primary-dark); font-size: 1.3em; font-weight: bold; }
         .muc-header { color: #b71c1c; margin-top: 25px; font-weight: 700; font-size: 1.1em; }
-        .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
-        .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #666; font-weight: bold; display: block; margin-bottom: 5px; }
-        .step-title { font-weight: bold; color: var(--primary); margin-bottom: 10px; display: block; font-size: 1.05rem; }
-        .btn-detail { display: inline-flex; align-items: center; justify-content: center; margin-top: 15px; background: #e3f2fd; color: #0d47a1; padding: 10px 20px; border-radius: 6px; border: 1px solid #90caf9; font-weight: bold; cursor: pointer; width: 100%; text-decoration:none; }
-        @media (min-width: 768px) { .btn-detail { width: auto; } }
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; border: 1px solid #ddd; }
-        .data-table th, .data-table td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
-        .data-table th { background-color: #f2f2f2; color: var(--primary-dark); font-weight: bold; text-align: center; }
-        .data-table tr:nth-child(even) { background-color: #fafafa; }
-        .data-table tr:hover { background-color: #f1f1f1; }
-        .modal { display: none; position: fixed; z-index: 4000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 10px; }
-        .modal-box { background: white; width: 100%; max-width: 800px; border-radius: 10px; overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; animation: slideUp 0.3s; }
-        .modal-head { background: var(--primary); color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 20px; overflow-y: auto; line-height: 1.6; text-align: justify; }
-        @keyframes slideUp { from {transform: translateY(20px); opacity:0} to {transform: translateY(0); opacity:1} }
-        #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; flex-direction: column; }
-        @media (min-width: 768px) { #adminPanel { flex-direction: row; } }
-        .admin-sidebar { background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 10px; display: flex; flex-direction: column; }
+        
+        /* Boxes & Buttons */
+        .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); position: relative; }
+        .step-number { background: var(--primary-color); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 10px; font-size: 0.85rem; }
+        .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #666; font-weight: bold; margin-bottom: 5px; display: block; letter-spacing: 0.5px; }
+        
+        .btn-trich-dan { display: inline-flex; align-items: center; margin-top: 15px; background-color: #e3f2fd; color: #0d47a1; padding: 10px 15px; border-radius: 6px; border: 1px solid #90caf9; font-size: 0.9em; cursor: pointer; font-weight: 600; width: 100%; justify-content: center; }
+        .btn-trich-dan:active { background-color: #bbdefb; }
+        @media (min-width: 768px) { .btn-trich-dan { width: auto; } }
+
+        /* Modal Popup */
+        .modal-user { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); padding: 10px; align-items: center; justify-content: center; }
+        .modal-user-content { background-color: #fefefe; width: 100%; max-width: 600px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; max-height: 80vh; animation: slideUp 0.3s; }
+        .modal-user-header { background-color: var(--primary-color); color: white; padding: 15px; border-radius: 12px 12px 0 0; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .modal-user-body { padding: 20px; line-height: 1.6; overflow-y: auto; text-align: justify; font-size: 0.95rem; }
+        @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+
+        #backToTop { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 90; border: none; background-color: var(--primary-color); color: white; cursor: pointer; padding: 12px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 1.2rem; }
+
+        /* CSS Admin Responsive */
+        #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; overflow-y: auto; }
+        .admin-layout { display: flex; height: 100%; flex-direction: column; }
+        @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
+
+        .admin-sidebar { background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 10px; height: 40vh; display: flex; flex-direction: column; }
         @media (min-width: 768px) { .admin-sidebar { width: 300px; height: 100vh; border-right: 1px solid #ddd; border-bottom: none; } }
-        .admin-main { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
-        .form-control { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
-        .btn { padding: 10px 15px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; margin-bottom: 5px; }
-        .btn-save { background: #28a745; } .btn-close { background: #6c757d; } .btn-del { background: #dc3545; } .btn-add { background: #007bff; }
-        #backToTop { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 90; border: none; background: var(--primary); color: white; padding: 12px; border-radius: 50%; cursor: pointer; }
-        #loadingBar { position:fixed; top:0; left:0; height:4px; background:#28a745; z-index:9999; transition: width 0.3s; width:0%; }
-        .error-msg { text-align:center; color:#999; padding:20px; }
+
+        .admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 60vh; }
+        @media (min-width: 768px) { .admin-main { height: 100vh; } }
+
+        .tree-container { flex: 1; overflow-y: auto; border: 1px solid #eee; background: white; border-radius: 4px; margin: 10px 0; }
+        .tree-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .tree-item.active { background: #e3f2fd; color: #007bff; font-weight: bold; border-left: 4px solid #007bff; }
+
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; font-size: 16px; }
+        .btn { padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; width: 100%; margin-bottom: 10px; }
+        @media (min-width: 768px) { .btn { width: auto; margin-right: 10px; margin-bottom: 0; } }
+        
+        .btn-save { background: #28a745; }
+        .btn-close { background: #6c757d; }
+        .btn-delete { background: #dc3545; }
+        .btn-add { background: #007bff; }
+        .admin-trigger { margin-top: 30px; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.3); cursor: pointer; padding: 20px; }
     </style>
 </head>
 <body>
-    <div id="loadingBar"></div>
+
     <div class="mobile-header">
-        <button class="menu-btn" onclick="toggleMenu()">☰</button>
-        <span class="app-title">SỔ TAY NGHIỆP VỤ</span>
+        <button class="menu-toggle-btn" onclick="toggleMenu()">☰</button>
+        <span>SỔ TAY ĐẢNG VIÊN</span>
     </div>
 
     <div class="overlay" onclick="toggleMenu()"></div>
     <div class="sidebar" id="sidebar">
-        <div style="text-align:right"><span onclick="toggleMenu()" style="cursor:pointer; font-size:1.5rem; padding:5px;">✕</span></div>
-        <h3>MỤC LỤC</h3>
-        <ul class="nav-list" id="menuList"></ul>
-        <div style="margin-top:30px; text-align:center; font-size:0.8rem; color:#999; border-top:1px solid #444; padding-top:20px;">
-            <p>&copy; 2025 Ban Tổ chức Thành ủy</p>
-            <span onclick="checkAdmin()" style="cursor:pointer; opacity:0.5">🔒 Quản trị hệ thống</span>
-            <p id="dbStatus" style="font-size:0.7rem; color:#28a745; margin-top:5px; font-weight:bold">☁️ Đang kết nối...</p>
+        <div style="text-align: right; margin-bottom: 10px;">
+             <span onclick="toggleMenu()" style="cursor:pointer; color:#fff; font-size:1.5rem; padding: 10px; display: inline-block;">✕</span>
         </div>
+        <h3 style="margin-top:0">MỤC LỤC</h3>
+        <ul id="menuList"></ul>
+        <div style="margin-top: 30px; font-size: 0.8rem; text-align: center; color: #95a5a6;">
+            <p>&copy; 2024 Ban Tổ chức</p>
+        </div>
+        <div class="admin-trigger" onclick="checkAdminPassword()">🔒 Quản trị hệ thống</div>
     </div>
 
-    <div class="main">
-        <h1>HƯỚNG DẪN NGHIỆP VỤ CÔNG TÁC ĐẢNG VIÊN (2025)</h1>
-        <p><i>(Căn cứ Hướng dẫn số 10-HD/BTCTU của Ban Tổ chức Thành ủy Hà Nội)</i></p>
-        <div id="dynamicContent"><p class="error-msg">⏳ Đang tải dữ liệu từ máy chủ...</p></div>
+    <div class="main-content">
+        <h1>NGHIỆP VỤ CÔNG TÁC TỔ CHỨC ĐẢNG</h1>
+        <div id="dynamicContent"></div>
         <br><br><br>
     </div>
 
-    <div id="popup" class="modal" onclick="closePopup(event)">
-        <div class="modal-box">
-            <div class="modal-head">
-                <span>Nội dung chi tiết</span>
-                <span onclick="document.getElementById('popup').style.display='none'" style="cursor:pointer; font-size:1.2rem">✕</span>
+    <div id="modalTrichDan" class="modal-user" onclick="dongModal(event)">
+        <div class="modal-user-content">
+            <div class="modal-user-header">
+                <span>Nội dung quy định</span>
+                <span onclick="dongModalButton()" style="cursor:pointer; padding:10px; font-size:1.2rem">✕</span>
             </div>
-            <div class="modal-body" id="popupContent"></div>
+            <div class="modal-user-body" id="noi-dung-chi-tiet"></div>
         </div>
     </div>
 
-    <button id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'})">⬆</button>
+    <button id="backToTop" onclick="topFunction()">⬆</button>
 
     <div id="adminPanel">
-        <div class="admin-sidebar">
-            <div style="font-weight:bold; margin-bottom:10px">CẤU TRÚC SỔ TAY</div>
-            <button class="btn btn-add" onclick="addNewRoot()">+ Thêm Phần Lớn</button>
-            <div id="adminTree" style="flex:1; overflow-y:auto; margin-top:10px; border:1px solid #eee; background:white;"></div>
-        </div>
-        <div class="admin-main">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:10px">
-                <h2 style="margin:0">Biên tập nội dung</h2>
-                <div>
-                    <button class="btn btn-save" onclick="saveToCloud()">☁️ LƯU LÊN MÁY CHỦ</button>
-                    <button class="btn btn-close" onclick="document.getElementById('adminPanel').style.display='none'">Đóng</button>
+        <div class="admin-layout">
+            <div class="admin-sidebar">
+                <div style="font-weight:bold; margin-bottom:10px">DANH SÁCH MỤC</div>
+                <button class="btn btn-add" onclick="addNewRoot()">+ Thêm Phần Lớn</button>
+                <div class="tree-container" id="adminTree"></div>
+            </div>
+
+            <div class="admin-main">
+                <div style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; flex-wrap: wrap;">
+                    <h2 style="margin:0">Biên tập</h2>
+                    <div style="margin-top: 10px;">
+                        <button class="btn btn-save" onclick="saveData()">💾 Lưu</button>
+                        <button class="btn btn-close" onclick="closeAdminPanel()">Đóng</button>
+                    </div>
                 </div>
+
+                <div id="editorArea" style="display:none">
+                    <div style="text-align: right; margin-bottom: 10px;">
+                        <button class="btn btn-delete" style="width: auto; font-size: 0.8rem;" onclick="deleteCurrentItem()">Xóa mục này</button>
+                    </div>
+                    <label>Loại (Tag):</label>
+                    <input type="text" id="inpTag" class="form-control" placeholder="VD: Quy trình, Hướng dẫn...">
+                    <label>Tiêu đề:</label>
+                    <input type="text" id="inpTitle" class="form-control" placeholder="Nhập tiêu đề...">
+                    <label>Nội dung tóm tắt:</label>
+                    <textarea id="inpSummary" class="form-control" rows="5" placeholder="Nội dung hiển thị..."></textarea>
+                    <label>Trích dẫn (Chi tiết):</label>
+                    <textarea id="inpDetail" class="form-control" rows="5" placeholder="Nội dung trong popup..."></textarea>
+                    <div style="margin-top:20px; border-top:1px dashed #ccc; padding-top:20px">
+                        <button class="btn btn-add" style="background:#17a2b8" onclick="addSubItem()">+ Thêm mục con cấp dưới</button>
+                    </div>
+                </div>
+                <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px;">Chọn một mục để sửa</div>
             </div>
-            <div id="editorArea" style="display:none">
-                <div style="text-align:right"><button class="btn btn-del" onclick="deleteItem()">Xóa mục này</button></div>
-                <label>Loại (Tag):</label><input type="text" id="inpTag" class="form-control" placeholder="VD: Quy trình, Hướng dẫn...">
-                <label>Tiêu đề:</label><input type="text" id="inpTitle" class="form-control">
-                <label>Nội dung hiển thị (Tóm tắt):</label><textarea id="inpSummary" class="form-control" rows="5"></textarea>
-                <label>Nội dung chi tiết (Popup/Bảng biểu):</label><p style="font-size:0.8rem; color:#666; margin:0"><i>Dán mã HTML bảng vào đây.</i></p><textarea id="inpDetail" class="form-control" rows="8"></textarea>
-                <div style="margin-top:15px; border-top:1px dashed #ccc; padding-top:15px"><button class="btn btn-add" style="background:#17a2b8" onclick="addSubItem()">+ Thêm mục con</button></div>
-            </div>
-            <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px">Chọn một mục bên trái để sửa</div>
         </div>
     </div>
 
-    <script type="module">
-        // -------------------------------------------------------------
-        // 1. CẤU HÌNH FIREBASE (ĐÃ SỬA LẠI CHUẨN CDN)
-        // -------------------------------------------------------------
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // Đây là mã của bạn, tôi đã điền đúng định dạng
-        const firebaseConfig = {
-            apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs",
-            authDomain: "sotay-dangvien.firebaseapp.com",
-            projectId: "sotay-dangvien",
-            storageBucket: "sotay-dangvien.firebasestorage.app",
-            messagingSenderId: "699788813951",
-            appId: "1:699788813951:web:14eb81183799f83e0f814a"
-        };
-
-        let db;
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            console.log("Firebase initialized");
-        } catch(e) {
-            console.error("Firebase error", e);
-        }
-
-        // -------------------------------------------------------------
-        // 2. DỮ LIỆU & LOGIC
-        // -------------------------------------------------------------
+    <script>
+        // DỮ LIỆU MẪU
         const initialData = [
-            { id: 'p1', title: 'ĐANG TẢI DỮ LIỆU...', tag: '', summary: 'Vui lòng đợi trong giây lát...', detail: '', level: 0, children: [] }
+            {
+                id: 'r1', title: 'PHẦN 1: TỔ CHỨC ĐẢNG', tag: '', summary: '', detail: '', level: 0,
+                children: [
+                    {
+                        id: 'c1', title: 'I. Thành lập tổ chức', tag: 'Quy định', level: 1, summary: 'Điều kiện lập chi bộ...', detail: '', 
+                        children: [
+                            { id: 's1', title: 'Bước 1: Khảo sát', tag: 'Quy trình', level: 2, summary: 'Cấp ủy cấp trên khảo sát...', detail: 'Chi tiết hướng dẫn số 01...' }
+                        ] 
+                    }
+                ]
+            }
         ];
 
-        let APP_DATA = initialData;
+        // --- KHẮC PHỤC LỖI TRẮNG TRANG TRÊN ĐIỆN THOẠI ---
+        let APP_DATA;
+        try {
+            // Cố gắng đọc dữ liệu
+            const storedData = localStorage.getItem('SOTAY_DATA_V7');
+            APP_DATA = storedData ? JSON.parse(storedData) : initialData;
+        } catch (e) {
+            // Nếu bị chặn (Safari/Incognito) thì dùng dữ liệu mặc định để không bị trắng trang
+            console.log("Chế độ Offline/Riêng tư: Không đọc được LocalStorage.");
+            APP_DATA = initialData;
+        }
+
         let currentEditNode = null;
 
-        // Tải dữ liệu (Có Timeout 5 giây để chống treo)
-        async function loadFromCloud() {
-            document.getElementById('loadingBar').style.width = '30%';
-            
-            // Đặt thời gian chờ tối đa 5 giây
-            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve('TIMEOUT'), 5000));
-            
-            try {
-                // Đua tốc độ: Ai xong trước thì lấy
-                const result = await Promise.race([fetchData(), timeoutPromise]);
-
-                if (result === 'TIMEOUT') {
-                    console.warn("Mạng chậm, dùng dữ liệu Offline");
-                    loadOffline();
-                    document.getElementById('dbStatus').innerText = "⚠️ Chế độ Offline";
-                } else {
-                    console.log("Dữ liệu Online OK");
-                    document.getElementById('dbStatus').innerText = "✅ Đã kết nối Máy chủ";
-                }
-            } catch (err) {
-                console.error(err);
-                loadOffline();
+        // --- LOGIC GIAO DIỆN ---
+        function checkAdminPassword() {
+            let pass = prompt("Vui lòng nhập mật khẩu quản trị:", "");
+            if (pass === "123456") {
+                document.getElementById('adminPanel').style.display = 'block';
+                renderAdminTree();
+            } else if (pass !== null) {
+                alert("Mật khẩu không đúng!");
             }
-            
-            document.getElementById('loadingBar').style.width = '100%';
-            setTimeout(() => { document.getElementById('loadingBar').style.width = '0%'; }, 500);
         }
+        function closeAdminPanel() { document.getElementById('adminPanel').style.display = 'none'; }
 
-        async function fetchData() {
-            if(!db) throw new Error("No DB");
-            const docRef = doc(db, "sotay_db", "master_data");
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if(data.content) {
-                    APP_DATA = JSON.parse(data.content);
-                    renderUI();
-                    return 'OK';
-                }
-            }
-            // Nếu chưa có data trên mây, thử load offline
-            loadOffline(); 
-            return 'OK';
-        }
-
-        function loadOffline() {
-            try {
-                const s = localStorage.getItem('SOTAY_DATA_FINAL');
-                if(s) { 
-                    APP_DATA = JSON.parse(s); 
-                    renderUI();
-                } else {
-                    document.getElementById('dynamicContent').innerHTML = '<p class="error-msg">Không có dữ liệu. Vui lòng vào Admin để khởi tạo.</p>';
-                }
-            } catch(e) { console.error(e); }
-        }
-
-        window.saveToCloud = async function() {
-            if(!db) { alert("Lỗi cấu hình!"); return; }
-            const btn = document.querySelector('.btn-save');
-            if(btn) { btn.innerText = "⏳ Đang lưu..."; btn.disabled = true; }
-
-            try {
-                await setDoc(doc(db, "sotay_db", "master_data"), {
-                    content: JSON.stringify(APP_DATA),
-                    updatedAt: new Date().toISOString()
-                });
-                localStorage.setItem('SOTAY_DATA_FINAL', JSON.stringify(APP_DATA));
-                alert("✅ ĐÃ LƯU THÀNH CÔNG!");
-                renderUI();
-            } catch (error) {
-                alert("Lỗi: " + error.message);
-            }
-            if(btn) { btn.innerText = "☁️ LƯU LÊN MÁY CHỦ"; btn.disabled = false; }
-        }
-
-        // -------------------------------------------------------------
-        // 3. GIAO DIỆN (UI)
-        // -------------------------------------------------------------
-        function renderUI() {
-            const menu = document.getElementById('menuList');
-            const content = document.getElementById('dynamicContent');
-            menu.innerHTML = ''; content.innerHTML = '';
-
-            if(!APP_DATA || APP_DATA.length === 0) {
-                content.innerHTML = '<p class="error-msg">Chưa có dữ liệu.</p>';
-                return;
-            }
+        function renderUserInterface() {
+            const menuEl = document.getElementById('menuList');
+            const contentEl = document.getElementById('dynamicContent');
+            menuEl.innerHTML = ''; contentEl.innerHTML = '';
 
             function processNode(items) {
                 items.forEach(item => {
                     if(item.level < 2) {
                         let li = document.createElement('li');
                         let indent = item.level === 1 ? '&nbsp;&nbsp;📂 ' : '';
-                        li.innerHTML = `<a href="#${item.id}" class="nav-link" onclick="window.toggleMenu(false)">${indent}${item.title}</a>`;
-                        menu.appendChild(li);
+                        li.innerHTML = `<a href="#${item.id}" onclick="toggleMenu(false)">${indent}${item.title}</a>`;
+                        menuEl.appendChild(li);
                     }
                     let div = document.createElement('div');
                     div.id = item.id;
-                    if(item.level === 0) div.innerHTML = `<div class="phan-header">${item.title}</div>`;
-                    else if (item.level === 1) {
-                        div.innerHTML = `<div class="muc-header">${item.title}</div>`;
+                    if(item.level === 0) {
+                        div.innerHTML = `<h2 class="phan-header">${item.title}</h2>`;
+                    } else if (item.level === 1) {
+                        div.innerHTML = `<h3 class="muc-header">${item.title}</h3>`;
                         if(item.summary) div.innerHTML += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
                     } else {
-                        let btnHtml = (item.detail && item.detail.trim() !== "") ? 
-                            `<a class="btn-detail" onclick="window.openPopup('${item.id}')">📖 Xem chi tiết / Biểu mẫu</a>` : '';
+                        let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
+                        let btnHtml = item.detail ? `<div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">Xem quy định chi tiết</div>` : '';
                         div.className = 'step-box';
-                        div.innerHTML = `${item.tag ? `<span class="tag-label">${item.tag}</span>` : ''}<span class="step-title">${item.title}</span><div style="font-size:0.95rem">${item.summary.replace(/\n/g, '<br>')}</div>${btnHtml}`;
+                        div.innerHTML = `${tagHtml}<div class="step-number">${item.title}</div><p>${item.summary.replace(/\n/g, '<br>')}</p>${btnHtml}`;
                     }
-                    content.appendChild(div);
+                    contentEl.appendChild(div);
                     if(item.children) processNode(item.children);
                 });
             }
             processNode(APP_DATA);
         }
 
-        // Global functions
-        window.toggleMenu = function(forceState) {
-            const sb = document.getElementById('sidebar');
-            const ov = document.querySelector('.overlay');
-            if(typeof forceState !== 'undefined') {
-                if(forceState) { sb.classList.add('active'); ov.classList.add('active'); }
-                else { sb.classList.remove('active'); ov.classList.remove('active'); }
-            } else { sb.classList.toggle('active'); ov.classList.toggle('active'); }
-        }
-        window.openPopup = function(id) {
-            const item = findNodeRecursive(id, APP_DATA);
-            if(item) { document.getElementById('popupContent').innerHTML = item.detail; document.getElementById('popup').style.display = 'flex'; }
-        }
-        window.closePopup = function(e) { if(e.target.id === 'popup') document.getElementById('popup').style.display='none'; }
-        window.checkAdmin = function() {
-            let p = prompt("Mật khẩu (btctuhn@123):");
-            if(p === "btctuhn@123") { document.getElementById('adminPanel').style.display = 'flex'; window.renderAdminTree(); } 
-            else if (p !== null) { alert("Sai mật khẩu!"); }
-        }
-
-        // Admin Helpers
-        function findNodeRecursive(id, nodes) {
+        // --- LOGIC QUẢN TRỊ ---
+        function findNode(id, nodes) {
             for(let node of nodes) {
                 if(node.id === id) return node;
-                if(node.children) { let found = findNodeRecursive(id, node.children); if(found) return found; }
+                if(node.children) { let f = findNode(id, node.children); if(f) return f; }
             } return null;
         }
-        window.renderAdminTree = function() {
-            const container = document.getElementById('adminTree');
-            container.innerHTML = '';
+        function findParent(id, nodes) {
+            for(let node of nodes) {
+                if(node.children && node.children.some(c => c.id === id)) return node;
+                let f = findParent(id, node.children || []); if(f) return f;
+            } return null;
+        }
+
+        function renderAdminTree() {
+            const tree = document.getElementById('adminTree');
+            tree.innerHTML = '';
             function buildHtml(nodes) {
                 let html = '';
                 nodes.forEach(node => {
-                    let active = (currentEditNode && currentEditNode.id === node.id) ? 'background:#e3f2fd; color:#007bff; font-weight:bold;' : '';
+                    let active = (currentEditNode && currentEditNode.id === node.id) ? 'active' : '';
                     let icon = node.level === 0 ? '📚' : (node.level === 1 ? '📂' : '📄');
-                    let padding = node.level * 20 + 10;
-                    html += `<div style="padding:10px; padding-left:${padding}px; border-bottom:1px solid #eee; cursor:pointer; ${active}" onclick="window.selectItem('${node.id}')">${icon} ${node.title}</div>`;
+                    html += `<div class="tree-item level-${node.level} ${active}" onclick="selectItem('${node.id}')">${icon} ${node.title}</div>`;
                     if(node.children) html += buildHtml(node.children);
                 });
                 return html;
             }
-            container.innerHTML = buildHtml(APP_DATA);
+            tree.innerHTML = buildHtml(APP_DATA);
         }
-        window.selectItem = function(id) {
-            currentEditNode = findNodeRecursive(id, APP_DATA);
-            window.renderAdminTree();
+
+        function selectItem(id) {
+            currentEditNode = findNode(id, APP_DATA);
+            renderAdminTree();
             document.getElementById('editorPlaceholder').style.display = 'none';
             document.getElementById('editorArea').style.display = 'block';
             document.getElementById('inpTag').value = currentEditNode.tag || '';
@@ -330,6 +298,7 @@
             document.getElementById('inpSummary').value = currentEditNode.summary || '';
             document.getElementById('inpDetail').value = currentEditNode.detail || '';
         }
+
         ['inpTag', 'inpTitle', 'inpSummary', 'inpDetail'].forEach(fid => {
             document.getElementById(fid).addEventListener('input', function() {
                 if(!currentEditNode) return;
@@ -338,32 +307,61 @@
                 if(prop === 'title') currentEditNode.title = this.value;
                 if(prop === 'summary') currentEditNode.summary = this.value;
                 if(prop === 'detail') currentEditNode.detail = this.value;
-                if(prop === 'title') window.renderAdminTree();
+                if(prop === 'title') renderAdminTree();
             });
         });
-        window.addNewRoot = function() { APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]}); window.renderAdminTree(); }
-        window.addSubItem = function() { 
-            if(!currentEditNode) return; 
+
+        function addNewRoot() {
+            APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]});
+            renderAdminTree();
+        }
+        function addSubItem() {
+            if(!currentEditNode) return;
             if(!currentEditNode.children) currentEditNode.children = [];
             currentEditNode.children.push({id: 'n'+Date.now(), title:'Mục mới', tag:'', summary:'', detail:'', level: currentEditNode.level+1, children:[]});
-            window.renderAdminTree(); 
+            renderAdminTree();
         }
-        window.deleteItem = function() {
+        function deleteCurrentItem() {
             if(!currentEditNode || !confirm('Xóa mục này?')) return;
-            const findParent = (id, nodes) => {
-                for(let node of nodes) {
-                    if(node.children && node.children.some(c => c.id === id)) return node;
-                    let f = findParent(id, node.children || []); if(f) return f;
-                } return null;
-            }
             let p = findParent(currentEditNode.id, APP_DATA);
             if(p) { let idx = p.children.findIndex(c=>c.id === currentEditNode.id); p.children.splice(idx,1); }
             else { let idx = APP_DATA.findIndex(c=>c.id === currentEditNode.id); APP_DATA.splice(idx,1); }
-            currentEditNode = null; document.getElementById('editorArea').style.display='none'; window.renderAdminTree();
+            currentEditNode = null; document.getElementById('editorArea').style.display='none'; renderAdminTree();
+        }
+        function saveData() {
+            try {
+                localStorage.setItem('SOTAY_DATA_V7', JSON.stringify(APP_DATA));
+                alert('Đã lưu dữ liệu!');
+            } catch (e) {
+                alert('Không thể lưu trên thiết bị này (Chế độ riêng tư/Offline).');
+            }
+            renderUserInterface(); 
         }
 
-        // Start
-        loadFromCloud();
+        function toggleMenu(forceState) {
+            const sb = document.getElementById('sidebar');
+            const ov = document.querySelector('.overlay');
+            if (typeof forceState !== 'undefined') {
+                if(forceState) { sb.classList.add('active'); ov.classList.add('active'); }
+                else { sb.classList.remove('active'); ov.classList.remove('active'); }
+            } else {
+                sb.classList.toggle('active'); ov.classList.toggle('active');
+            }
+        }
+        
+        function showPopup(html) {
+            document.getElementById('noi-dung-chi-tiet').innerHTML = html;
+            document.getElementById('modalTrichDan').style.display = 'flex';
+        }
+        function dongModalButton() { document.getElementById('modalTrichDan').style.display = 'none'; }
+        function dongModal(e) { if(e.target.id === 'modalTrichDan') dongModalButton(); }
+        
+        window.onscroll = function() {
+            document.getElementById("backToTop").style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none";
+        };
+        function topFunction() { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; }
+
+        renderUserInterface();
     </script>
 </body>
 </html>
