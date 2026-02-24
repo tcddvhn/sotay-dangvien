@@ -157,7 +157,7 @@
                 <div style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; flex-wrap: wrap;">
                     <h2 style="margin:0">Biên tập</h2>
                     <div style="margin-top: 10px;">
-                        <button class="btn btn-save" onclick="saveData()">💾 Lưu</button>
+                        <button id="btnSaveData" class="btn btn-save" onclick="saveData()">💾 Lưu</button>
                         <button class="btn btn-close" onclick="closeAdminPanel()">Đóng</button>
                     </div>
                 </div>
@@ -183,49 +183,81 @@
         </div>
     </div>
 
-    <script>
-        // DỮ LIỆU MẪU
+    <script type="module">
+        // 1. NHÚNG THƯ VIỆN FIREBASE
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // 2. CẤU HÌNH FIREBASE CỦA BẠN
+        const firebaseConfig = {
+            apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs",
+            authDomain: "sotay-dangvien.firebaseapp.com",
+            projectId: "sotay-dangvien",
+            storageBucket: "sotay-dangvien.firebasestorage.app",
+            messagingSenderId: "699788813951",
+            appId: "1:699788813951:web:14eb81183799f83e0f814a"
+        };
+
+        // 3. KHỞI TẠO DỊCH VỤ
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Trỏ tới Kho dữ liệu có tên là "sotay", file "dulieu"
+        const docRef = doc(db, "sotay", "dulieu"); 
+
+        // 4. DỮ LIỆU MẶC ĐỊNH
         const initialData = [
             {
-                id: 'r1', title: 'PHẦN 1: TỔ CHỨC ĐẢNG', tag: '', summary: '', detail: '', level: 0,
-                children: [
-                    {
-                        id: 'c1', title: 'I. Thành lập tổ chức', tag: 'Quy định', level: 1, summary: 'Điều kiện lập chi bộ...', detail: '', 
-                        children: [
-                            { id: 's1', title: 'Bước 1: Khảo sát', tag: 'Quy trình', level: 2, summary: 'Cấp ủy cấp trên khảo sát...', detail: 'Chi tiết hướng dẫn số 01...' }
-                        ] 
-                    }
-                ]
+                id: 'r1', title: 'Đang tải dữ liệu từ máy chủ...', tag: '', summary: '', detail: '', level: 0, children: []
             }
         ];
 
-        // --- KHẮC PHỤC LỖI TRẮNG TRANG TRÊN ĐIỆN THOẠI ---
-        let APP_DATA;
-        try {
-            // Cố gắng đọc dữ liệu
-            const storedData = localStorage.getItem('SOTAY_DATA_V7');
-            APP_DATA = storedData ? JSON.parse(storedData) : initialData;
-        } catch (e) {
-            // Nếu bị chặn (Safari/Incognito) thì dùng dữ liệu mặc định để không bị trắng trang
-            console.log("Chế độ Offline/Riêng tư: Không đọc được LocalStorage.");
-            APP_DATA = initialData;
-        }
+        // Biến toàn cục để hệ thống ghi nhớ
+        window.APP_DATA = initialData;
+        window.currentEditNode = null;
 
-        let currentEditNode = null;
+        // 5. CƠ CHẾ LẮNG NGHE DỮ LIỆU REAL-TIME (Tự động cập nhật khi có thay đổi)
+        onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                window.APP_DATA = docSnap.data().treeData || initialData;
+                window.renderUserInterface(); // Vẽ lại giao diện người dùng
+                // Nếu bảng admin đang mở thì vẽ lại cả bảng admin
+                if (document.getElementById('adminPanel').style.display === 'block') {
+                    window.renderAdminTree();
+                }
+            } else {
+                console.log("Database trống, sử dụng dữ liệu mặc định.");
+                window.APP_DATA = [
+                    {
+                        id: 'r1', title: 'PHẦN 1: TỔ CHỨC ĐẢNG', tag: '', summary: '', detail: '', level: 0,
+                        children: [
+                            { id: 'c1', title: 'I. Thành lập tổ chức', tag: 'Quy định', level: 1, summary: 'Cập nhật nội dung...', detail: '', children: [] }
+                        ]
+                    }
+                ];
+                window.renderUserInterface();
+            }
+        });
 
-        // --- LOGIC GIAO DIỆN ---
-        function checkAdminPassword() {
+        // ======================================================================
+        // CÁC HÀM XỬ LÝ GIAO DIỆN & QUẢN TRỊ (Đã gán vào đối tượng window)
+        // ======================================================================
+
+        window.checkAdminPassword = function() {
             let pass = prompt("Vui lòng nhập mật khẩu quản trị:", "");
             if (pass === "123456") {
                 document.getElementById('adminPanel').style.display = 'block';
-                renderAdminTree();
+                window.renderAdminTree();
             } else if (pass !== null) {
                 alert("Mật khẩu không đúng!");
             }
         }
-        function closeAdminPanel() { document.getElementById('adminPanel').style.display = 'none'; }
 
-        function renderUserInterface() {
+        window.closeAdminPanel = function() { 
+            document.getElementById('adminPanel').style.display = 'none'; 
+        }
+
+        window.renderUserInterface = function() {
             const menuEl = document.getElementById('menuList');
             const contentEl = document.getElementById('dynamicContent');
             menuEl.innerHTML = ''; contentEl.innerHTML = '';
@@ -235,7 +267,7 @@
                     if(item.level < 2) {
                         let li = document.createElement('li');
                         let indent = item.level === 1 ? '&nbsp;&nbsp;📂 ' : '';
-                        li.innerHTML = `<a href="#${item.id}" onclick="toggleMenu(false)">${indent}${item.title}</a>`;
+                        li.innerHTML = `<a href="#${item.id}" onclick="window.toggleMenu(false)">${indent}${item.title}</a>`;
                         menuEl.appendChild(li);
                     }
                     let div = document.createElement('div');
@@ -247,7 +279,7 @@
                         if(item.summary) div.innerHTML += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
                     } else {
                         let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
-                        let btnHtml = item.detail ? `<div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">Xem quy định chi tiết</div>` : '';
+                        let btnHtml = item.detail ? `<div class="btn-trich-dan" onclick="window.showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">Xem quy định chi tiết</div>` : '';
                         div.className = 'step-box';
                         div.innerHTML = `${tagHtml}<div class="step-number">${item.title}</div><p>${item.summary.replace(/\n/g, '<br>')}</p>${btnHtml}`;
                     }
@@ -255,90 +287,110 @@
                     if(item.children) processNode(item.children);
                 });
             }
-            processNode(APP_DATA);
+            processNode(window.APP_DATA);
         }
 
-        // --- LOGIC QUẢN TRỊ ---
-        function findNode(id, nodes) {
+        window.findNode = function(id, nodes) {
             for(let node of nodes) {
                 if(node.id === id) return node;
-                if(node.children) { let f = findNode(id, node.children); if(f) return f; }
-            } return null;
-        }
-        function findParent(id, nodes) {
-            for(let node of nodes) {
-                if(node.children && node.children.some(c => c.id === id)) return node;
-                let f = findParent(id, node.children || []); if(f) return f;
+                if(node.children) { let f = window.findNode(id, node.children); if(f) return f; }
             } return null;
         }
 
-        function renderAdminTree() {
+        window.findParent = function(id, nodes) {
+            for(let node of nodes) {
+                if(node.children && node.children.some(c => c.id === id)) return node;
+                let f = window.findParent(id, node.children || []); if(f) return f;
+            } return null;
+        }
+
+        window.renderAdminTree = function() {
             const tree = document.getElementById('adminTree');
             tree.innerHTML = '';
             function buildHtml(nodes) {
                 let html = '';
                 nodes.forEach(node => {
-                    let active = (currentEditNode && currentEditNode.id === node.id) ? 'active' : '';
+                    let active = (window.currentEditNode && window.currentEditNode.id === node.id) ? 'active' : '';
                     let icon = node.level === 0 ? '📚' : (node.level === 1 ? '📂' : '📄');
-                    html += `<div class="tree-item level-${node.level} ${active}" onclick="selectItem('${node.id}')">${icon} ${node.title}</div>`;
+                    html += `<div class="tree-item level-${node.level} ${active}" onclick="window.selectItem('${node.id}')">${icon} ${node.title}</div>`;
                     if(node.children) html += buildHtml(node.children);
                 });
                 return html;
             }
-            tree.innerHTML = buildHtml(APP_DATA);
+            tree.innerHTML = buildHtml(window.APP_DATA);
         }
 
-        function selectItem(id) {
-            currentEditNode = findNode(id, APP_DATA);
-            renderAdminTree();
+        window.selectItem = function(id) {
+            window.currentEditNode = window.findNode(id, window.APP_DATA);
+            window.renderAdminTree();
             document.getElementById('editorPlaceholder').style.display = 'none';
             document.getElementById('editorArea').style.display = 'block';
-            document.getElementById('inpTag').value = currentEditNode.tag || '';
-            document.getElementById('inpTitle').value = currentEditNode.title || '';
-            document.getElementById('inpSummary').value = currentEditNode.summary || '';
-            document.getElementById('inpDetail').value = currentEditNode.detail || '';
+            document.getElementById('inpTag').value = window.currentEditNode.tag || '';
+            document.getElementById('inpTitle').value = window.currentEditNode.title || '';
+            document.getElementById('inpSummary').value = window.currentEditNode.summary || '';
+            document.getElementById('inpDetail').value = window.currentEditNode.detail || '';
         }
 
+        // Bắt sự kiện người dùng gõ phím để lưu vào bộ nhớ tạm thời
         ['inpTag', 'inpTitle', 'inpSummary', 'inpDetail'].forEach(fid => {
             document.getElementById(fid).addEventListener('input', function() {
-                if(!currentEditNode) return;
+                if(!window.currentEditNode) return;
                 let prop = fid.replace('inp','').toLowerCase();
-                if(prop === 'tag') currentEditNode.tag = this.value;
-                if(prop === 'title') currentEditNode.title = this.value;
-                if(prop === 'summary') currentEditNode.summary = this.value;
-                if(prop === 'detail') currentEditNode.detail = this.value;
-                if(prop === 'title') renderAdminTree();
+                if(prop === 'tag') window.currentEditNode.tag = this.value;
+                if(prop === 'title') window.currentEditNode.title = this.value;
+                if(prop === 'summary') window.currentEditNode.summary = this.value;
+                if(prop === 'detail') window.currentEditNode.detail = this.value;
+                if(prop === 'title') window.renderAdminTree();
             });
         });
 
-        function addNewRoot() {
-            APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]});
-            renderAdminTree();
-        }
-        function addSubItem() {
-            if(!currentEditNode) return;
-            if(!currentEditNode.children) currentEditNode.children = [];
-            currentEditNode.children.push({id: 'n'+Date.now(), title:'Mục mới', tag:'', summary:'', detail:'', level: currentEditNode.level+1, children:[]});
-            renderAdminTree();
-        }
-        function deleteCurrentItem() {
-            if(!currentEditNode || !confirm('Xóa mục này?')) return;
-            let p = findParent(currentEditNode.id, APP_DATA);
-            if(p) { let idx = p.children.findIndex(c=>c.id === currentEditNode.id); p.children.splice(idx,1); }
-            else { let idx = APP_DATA.findIndex(c=>c.id === currentEditNode.id); APP_DATA.splice(idx,1); }
-            currentEditNode = null; document.getElementById('editorArea').style.display='none'; renderAdminTree();
-        }
-        function saveData() {
-            try {
-                localStorage.setItem('SOTAY_DATA_V7', JSON.stringify(APP_DATA));
-                alert('Đã lưu dữ liệu!');
-            } catch (e) {
-                alert('Không thể lưu trên thiết bị này (Chế độ riêng tư/Offline).');
-            }
-            renderUserInterface(); 
+        window.addNewRoot = function() {
+            window.APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]});
+            window.renderAdminTree();
         }
 
-        function toggleMenu(forceState) {
+        window.addSubItem = function() {
+            if(!window.currentEditNode) return;
+            if(!window.currentEditNode.children) window.currentEditNode.children = [];
+            window.currentEditNode.children.push({id: 'n'+Date.now(), title:'Mục mới', tag:'', summary:'', detail:'', level: window.currentEditNode.level+1, children:[]});
+            window.renderAdminTree();
+        }
+
+        window.deleteCurrentItem = function() {
+            if(!window.currentEditNode || !confirm('Bạn có chắc chắn muốn xóa mục này?')) return;
+            let p = window.findParent(window.currentEditNode.id, window.APP_DATA);
+            if(p) { let idx = p.children.findIndex(c=>c.id === window.currentEditNode.id); p.children.splice(idx,1); }
+            else { let idx = window.APP_DATA.findIndex(c=>c.id === window.currentEditNode.id); window.APP_DATA.splice(idx,1); }
+            window.currentEditNode = null; 
+            document.getElementById('editorArea').style.display='none'; 
+            window.renderAdminTree();
+        }
+
+        // 6. HÀM LƯU LÊN FIREBASE
+        window.saveData = async function() {
+            const btnSave = document.getElementById('btnSaveData');
+            try {
+                // Đổi trạng thái nút bấm
+                btnSave.innerText = "⏳ Đang lưu...";
+                btnSave.disabled = true;
+
+                // Gửi dữ liệu lên Google Firestore
+                await setDoc(docRef, { treeData: window.APP_DATA });
+                
+                // Khôi phục nút bấm
+                btnSave.innerText = "💾 Lưu";
+                btnSave.disabled = false;
+                alert('Đã lưu dữ liệu thành công! Mọi người dùng sẽ thấy cập nhật ngay lập tức.');
+            } catch (error) {
+                console.error("Lỗi khi lưu dữ liệu: ", error);
+                btnSave.innerText = "💾 Lưu";
+                btnSave.disabled = false;
+                alert("Lỗi: Không thể kết nối với máy chủ. Vui lòng kiểm tra quyền truy cập Firestore (Rules) hoặc kết nối mạng.");
+            }
+        }
+
+        // --- CÁC HÀM TIỆN ÍCH UI ---
+        window.toggleMenu = function(forceState) {
             const sb = document.getElementById('sidebar');
             const ov = document.querySelector('.overlay');
             if (typeof forceState !== 'undefined') {
@@ -349,19 +401,29 @@
             }
         }
         
-        function showPopup(html) {
+        window.showPopup = function(html) {
             document.getElementById('noi-dung-chi-tiet').innerHTML = html;
             document.getElementById('modalTrichDan').style.display = 'flex';
         }
-        function dongModalButton() { document.getElementById('modalTrichDan').style.display = 'none'; }
-        function dongModal(e) { if(e.target.id === 'modalTrichDan') dongModalButton(); }
+
+        window.dongModalButton = function() { 
+            document.getElementById('modalTrichDan').style.display = 'none'; 
+        }
+
+        window.dongModal = function(e) { 
+            if(e.target.id === 'modalTrichDan') window.dongModalButton(); 
+        }
         
         window.onscroll = function() {
             document.getElementById("backToTop").style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none";
         };
-        function topFunction() { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; }
 
-        renderUserInterface();
+        window.topFunction = function() { 
+            document.body.scrollTop = 0; document.documentElement.scrollTop = 0; 
+        }
+
+        // Khởi chạy vẽ giao diện lần đầu với dữ liệu đang tải
+        window.renderUserInterface();
     </script>
 </body>
 </html>
