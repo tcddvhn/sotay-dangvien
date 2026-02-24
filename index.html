@@ -16,6 +16,7 @@
         :root {
             --primary-color: #cc0000;
             --primary-dark: #a30000;
+            --yellow-party: #f1c40f;
             --text-color: #333;
             --bg-sidebar: #2c3e50;
             --header-height: 50px;
@@ -23,10 +24,10 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: var(--text-color); margin: 0; background-color: #f4f4f4; }
         
-        .sidebar { width: 280px; background-color: var(--bg-sidebar); color: white; padding: 20px; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 1000; transition: transform 0.3s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .sidebar { width: 280px; background-color: var(--bg-sidebar); color: white; padding: 20px; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 1000; transition: transform 0.3s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         @media (max-width: 992px) { .sidebar { transform: translateX(-100%); width: 85%; max-width: 320px; } .sidebar.active { transform: translateX(0); } }
-        .sidebar h3 { border-bottom: 1px solid #555; padding-bottom: 15px; margin-top: 40px; text-transform: uppercase; font-size: 1.1rem; text-align: center; color: #f1c40f; }
-        .sidebar ul { list-style: none; padding: 0; }
+        .sidebar h3 { border-bottom: 1px solid #555; padding-bottom: 15px; margin-top: 40px; text-transform: uppercase; font-size: 1.1rem; text-align: center; color: var(--yellow-party); }
+        .sidebar ul { list-style: none; padding: 0; flex: 1; }
         .sidebar li { margin-bottom: 5px; }
         .sidebar a { color: #ecf0f1; text-decoration: none; display: block; padding: 12px 15px; border-radius: 4px; transition: 0.2s; font-size: 0.95rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sidebar a:hover { background-color: var(--primary-color); padding-left: 20px; }
@@ -61,7 +62,7 @@
 
         #backToTop { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 90; border: none; background-color: var(--primary-color); color: white; cursor: pointer; padding: 12px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 1.2rem; }
 
-        /* CSS Quản trị */
+        /* CSS Admin */
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; overflow-y: auto; }
         .admin-layout { display: flex; height: 100%; flex-direction: column; }
         @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
@@ -76,7 +77,85 @@
         .btn { padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; width: 100%; margin-bottom: 10px; }
         @media (min-width: 768px) { .btn { width: auto; margin-right: 10px; margin-bottom: 0; } }
         .btn-save { background: #28a745; } .btn-close { background: #6c757d; } .btn-delete { background: #dc3545; } .btn-add { background: #007bff; }
-        .admin-trigger { margin-top: 30px; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.3); cursor: pointer; padding: 20px; }
+        
+        /* Nút Mở Form Đăng Nhập ở Sidebar */
+        .admin-trigger { margin-top: 20px; text-align: center; font-size: 0.9rem; color: #bdc3c7; cursor: pointer; padding: 15px; border-top: 1px solid #444; background: rgba(0,0,0,0.1); transition: 0.3s; }
+        .admin-trigger:hover { color: white; background: var(--primary-color); }
+
+        /* ==================================================================
+           CSS FORM ĐĂNG NHẬP (GIAO DIỆN MỚI CHUYÊN NGHIỆP)
+           ================================================================== */
+        #loginOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000;
+            align-items: center; justify-content: center; overflow: hidden;
+            /* Tạo nền đỏ tối */
+            background-color: #8c0000;
+        }
+
+        /* Hiệu ứng hoa văn Trống Đồng mờ bằng CSS Pattern */
+        .trong-dong-bg {
+            position: absolute; width: 200%; height: 200%; top: -50%; left: -50%; z-index: -1;
+            background: 
+                /* Tia nắng mặt trời ở giữa */
+                repeating-conic-gradient(from 0deg, rgba(255, 215, 0, 0.05) 0deg 8deg, transparent 8deg 16deg),
+                /* Các vòng tròn đồng tâm */
+                repeating-radial-gradient(circle, transparent, transparent 35px, rgba(255, 215, 0, 0.08) 35px, rgba(255, 215, 0, 0.08) 38px);
+            animation: xoayTrongDong 120s linear infinite; /* Xoay nhẹ nhàng */
+        }
+        @keyframes xoayTrongDong { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Thẻ Card Đăng nhập */
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            width: 90%; max-width: 420px; padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            position: relative; animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+        }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* Nút Đóng Form Đăng nhập */
+        .close-login {
+            position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999;
+            cursor: pointer; transition: 0.2s;
+        }
+        .close-login:hover { color: var(--primary-color); transform: scale(1.1); }
+
+        /* Biểu tượng Búa Liềm & Header */
+        .login-header { text-align: center; margin-bottom: 30px; }
+        .party-logo {
+            width: 70px; height: 70px; background: var(--primary-color); border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 15px rgba(204,0,0,0.4); border: 2px solid var(--yellow-party);
+            margin-bottom: 10px;
+        }
+        .party-logo span { color: var(--yellow-party); font-size: 35px; line-height: 1; } /* Ký tự Búa Liềm */
+        .login-header h2 { margin: 0; color: var(--primary-dark); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
+        .login-header p { margin: 5px 0 0 0; color: #666; font-size: 0.9rem; }
+
+        /* Các ô nhập liệu */
+        .input-group {
+            display: flex; align-items: center; background: #f0f2f5;
+            border: 1px solid #e4e6eb; border-radius: 10px; margin-bottom: 20px; padding: 5px 15px;
+            transition: 0.3s;
+        }
+        .input-group:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(204,0,0,0.1); background: #fff; }
+        .input-icon { color: #888; font-size: 18px; margin-right: 10px; }
+        .input-group input { border: none; background: transparent; padding: 12px 0; width: 100%; font-size: 16px; outline: none; color: #333; }
+        
+        /* Hiển thị lỗi */
+        .login-error { color: #dc3545; font-size: 0.85rem; text-align: center; margin-top: -10px; margin-bottom: 15px; display: none; font-weight: bold; }
+
+        /* Nút Đăng Nhập */
+        .btn-login {
+            width: 100%; background: linear-gradient(135deg, #cc0000, #a30000); color: white;
+            border: none; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(204,0,0,0.3);
+        }
+        .btn-login:hover { background: linear-gradient(135deg, #e60000, #cc0000); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(204,0,0,0.4); }
+        .btn-login:active { transform: translateY(0); }
     </style>
 </head>
 <body>
@@ -93,7 +172,9 @@
         </div>
         <h3 style="margin-top:0">MỤC LỤC</h3>
         <ul id="menuList"></ul>
-        <div class="admin-trigger" onclick="checkAdminPassword()">🔒 Quản trị hệ thống</div>
+        <div style="margin-top: auto;"></div> <div class="admin-trigger" onclick="openLoginForm()">
+            <span style="font-size: 18px; vertical-align: middle;">⚙️</span> Đăng nhập Quản trị
+        </div>
     </div>
 
     <div class="main-content">
@@ -114,20 +195,49 @@
 
     <button id="backToTop" onclick="topFunction()">⬆</button>
 
+    <div id="loginOverlay">
+        <div class="trong-dong-bg"></div> <div class="login-card">
+            <div class="close-login" onclick="closeLoginForm()">✕</div>
+            
+            <div class="login-header">
+                <div class="party-logo">
+                    <span>☭</span> </div>
+                <h2>ĐĂNG NHẬP</h2>
+                <p>Hệ thống Quản trị Sổ tay</p>
+            </div>
+            
+            <div class="login-body">
+                <div class="input-group">
+                    <span class="input-icon">👤</span>
+                    <input type="text" id="username" placeholder="Tên đăng nhập" autocomplete="off">
+                </div>
+                
+                <div class="input-group">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="password" placeholder="Mật khẩu">
+                </div>
+                
+                <div class="login-error" id="loginError">Tài khoản hoặc mật khẩu không đúng!</div>
+                
+                <button class="btn-login" onclick="processLogin()">VÀO TRANG QUẢN TRỊ</button>
+            </div>
+        </div>
+    </div>
+
     <div id="adminPanel">
         <div class="admin-layout">
             <div class="admin-sidebar">
-                <div style="font-weight:bold; margin-bottom:10px">DANH SÁCH MỤC</div>
+                <div style="font-weight:bold; margin-bottom:10px; color: var(--primary-color);">DANH SÁCH MỤC</div>
                 <button class="btn btn-add" onclick="addNewRoot()">+ Thêm Phần Lớn</button>
                 <div class="tree-container" id="adminTree"></div>
             </div>
 
             <div class="admin-main">
                 <div style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; flex-wrap: wrap;">
-                    <h2 style="margin:0">Biên tập</h2>
+                    <h2 style="margin:0; color: var(--primary-color);">Biên tập Nội dung</h2>
                     <div style="margin-top: 10px;">
-                        <button id="btnSaveData" class="btn btn-save" onclick="saveData()">💾 Lưu lên máy chủ</button>
-                        <button class="btn btn-close" onclick="closeAdminPanel()">Đóng</button>
+                        <button id="btnSaveData" class="btn btn-save" onclick="saveData()">💾 LƯU LÊN MÁY CHỦ</button>
+                        <button class="btn btn-close" onclick="closeAdminPanel()">Thoát Quản trị</button>
                     </div>
                 </div>
 
@@ -135,19 +245,26 @@
                     <div style="text-align: right; margin-bottom: 10px;">
                         <button class="btn btn-delete" style="width: auto; font-size: 0.8rem;" onclick="deleteCurrentItem()">Xóa mục này</button>
                     </div>
-                    <label>Loại (Tag):</label>
-                    <input type="text" id="inpTag" class="form-control" placeholder="VD: Quy trình, Hướng dẫn...">
-                    <label>Tiêu đề:</label>
-                    <input type="text" id="inpTitle" class="form-control" placeholder="Nhập tiêu đề...">
-                    <label>Nội dung tóm tắt:</label>
-                    <textarea id="inpSummary" class="form-control" rows="5" placeholder="Nội dung hiển thị..."></textarea>
-                    <label>Trích dẫn (Chi tiết):</label>
-                    <textarea id="inpDetail" class="form-control" rows="5" placeholder="Nội dung trong popup..."></textarea>
+                    <label style="font-weight: bold; color: #555;">Loại (Tag):</label>
+                    <input type="text" id="inpTag" class="form-control" placeholder="VD: Quy trình, Hướng dẫn, Quy định...">
+                    
+                    <label style="font-weight: bold; color: #555;">Tiêu đề:</label>
+                    <input type="text" id="inpTitle" class="form-control" placeholder="Nhập tiêu đề mục...">
+                    
+                    <label style="font-weight: bold; color: #555;">Nội dung tóm tắt (Hiển thị bên ngoài):</label>
+                    <textarea id="inpSummary" class="form-control" rows="5" placeholder="Gõ nội dung hướng dẫn ngắn gọn tại đây..."></textarea>
+                    
+                    <label style="font-weight: bold; color: #555;">Trích dẫn gốc (Hiển thị khi bấm xem chi tiết):</label>
+                    <textarea id="inpDetail" class="form-control" rows="5" placeholder="Dán nguyên văn quy định, nghị quyết vào đây..."></textarea>
+                    
                     <div style="margin-top:20px; border-top:1px dashed #ccc; padding-top:20px">
                         <button class="btn btn-add" style="background:#17a2b8" onclick="addSubItem()">+ Thêm mục con cấp dưới</button>
                     </div>
                 </div>
-                <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px;">Chọn một mục ở cột trái để sửa</div>
+                <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px;">
+                    <span style="font-size: 40px; color: #ddd;">👈</span><br>
+                    Hãy chọn một mục ở cột bên trái để bắt đầu chỉnh sửa
+                </div>
             </div>
         </div>
     </div>
@@ -156,7 +273,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // 1. CẤU HÌNH API FIREBASE CỦA BẠN
+        // 1. CẤU HÌNH API FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs",
             authDomain: "sotay-dangvien.firebaseapp.com",
@@ -170,31 +287,25 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Xóa hoàn toàn rác LocalStorage cũ để tránh lỗi đơ web
-        localStorage.removeItem('SOTAY_DATA_V7');
-
-        // Khai báo biến cục bộ
+        // Khai báo biến
         let APP_DATA = [
-            { id: 'loading', title: 'Đang tải dữ liệu từ máy chủ...', tag: '', summary: 'Vui lòng chờ giây lát...', detail: '', level: 0, children: [] }
+            { id: 'loading', title: 'Đang tải dữ liệu từ hệ thống...', tag: '', summary: 'Vui lòng chờ giây lát...', detail: '', level: 0, children: [] }
         ];
         let currentEditNode = null;
 
         // 3. TỰ ĐỘNG KÉO DỮ LIỆU TỪ MÁY CHỦ
         db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
             if (doc.exists) {
-                // Nếu máy chủ có dữ liệu, cập nhật ngay
                 APP_DATA = doc.data().treeData || [];
                 renderUserInterface();
-                if (document.getElementById('adminPanel').style.display === 'block') {
-                    renderAdminTree();
-                }
+                if (document.getElementById('adminPanel').style.display === 'block') renderAdminTree();
             } else {
-                // Nếu máy chủ trống rỗng (lần đầu tiên chạy)
+                // Dữ liệu mẫu khi trống
                 APP_DATA = [
                     {
                         id: 'r1', title: 'PHẦN 1: TỔ CHỨC ĐẢNG', tag: '', summary: '', detail: '', level: 0,
                         children: [
-                            { id: 'c1', title: 'I. Thành lập tổ chức', tag: 'Quy định', level: 1, summary: 'Nội dung tóm tắt...', detail: 'Nội dung popup', children: [] }
+                            { id: 'c1', title: 'I. Thành lập tổ chức', tag: 'Quy định', level: 1, summary: 'Tóm tắt quy định lập chi bộ...', detail: 'Nội dung chi tiết...', children: [] }
                         ]
                     }
                 ];
@@ -202,39 +313,69 @@
             }
         });
 
-        // 4. LƯU DỮ LIỆU LÊN MÁY CHỦ FIREBASE
+        // 4. LƯU DỮ LIỆU LÊN MÁY CHỦ
         function saveData() {
             const btn = document.getElementById('btnSaveData');
-            btn.innerText = "⏳ Đang lưu...";
-            btn.disabled = true;
+            btn.innerText = "⏳ Đang lưu..."; btn.disabled = true;
 
-            db.collection("sotay").doc("dulieu").set({
-                treeData: APP_DATA
-            }).then(() => {
-                btn.innerText = "💾 Lưu lên máy chủ";
-                btn.disabled = false;
-                alert('Tuyệt vời! Đã lưu thành công dữ liệu lên máy chủ Google.');
+            db.collection("sotay").doc("dulieu").set({ treeData: APP_DATA })
+            .then(() => {
+                btn.innerText = "💾 LƯU LÊN MÁY CHỦ"; btn.disabled = false;
+                alert('Tuyệt vời! Đã lưu thành công dữ liệu lên máy chủ Google. 500 người dùng sẽ thấy cập nhật ngay lập tức.');
             }).catch((error) => {
-                btn.innerText = "💾 Lưu lên máy chủ";
-                btn.disabled = false;
-                alert("Lỗi kết nối hoặc bạn chưa phân quyền Firebase (Firestore Rules) để lưu. Hãy kiểm tra lại!");
-                console.error("Firebase Error:", error);
+                btn.innerText = "💾 LƯU LÊN MÁY CHỦ"; btn.disabled = false;
+                alert("Lỗi kết nối. Hãy kiểm tra lại!");
+                console.error(error);
             });
         }
 
         // ==================================================================
-        // LOGIC CHỨC NĂNG (GIAO DIỆN & QUẢN TRỊ)
+        // LOGIC ĐĂNG NHẬP (MỚI)
         // ==================================================================
-        function checkAdminPassword() {
-            let pass = prompt("Vui lòng nhập mật khẩu quản trị:", "");
-            if (pass === "1234567") {
+        function openLoginForm() {
+            toggleMenu(false); // Đóng menu bên trái lại cho gọn
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('username').focus();
+        }
+
+        function closeLoginForm() {
+            document.getElementById('loginOverlay').style.display = 'none';
+        }
+
+        function processLogin() {
+            let user = document.getElementById('username').value.trim().toLowerCase();
+            let pass = document.getElementById('password').value;
+            let errorMsg = document.getElementById('loginError');
+
+            // Cấu hình tài khoản (Tài khoản: admin / Mật khẩu: 123456)
+            if (user === "admin" && pass === "btctuhn@123") {
+                // Thành công
+                closeLoginForm();
                 document.getElementById('adminPanel').style.display = 'block';
                 renderAdminTree();
-            } else if (pass !== null) {
-                alert("Mật khẩu không đúng!");
+            } else {
+                // Thất bại
+                errorMsg.style.display = 'block';
+                document.getElementById('password').value = ''; // Xóa pass nhập sai
+                document.getElementById('password').focus();
             }
         }
 
+        // Lắng nghe sự kiện bấm phím Enter khi đang gõ mật khẩu
+        document.getElementById('password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') processLogin();
+        });
+        document.getElementById('username').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') document.getElementById('password').focus();
+        });
+
+
+        // ==================================================================
+        // LOGIC GIAO DIỆN & QUẢN TRỊ (GIỮ NGUYÊN)
+        // ==================================================================
         function closeAdminPanel() { document.getElementById('adminPanel').style.display = 'none'; }
 
         function renderUserInterface() {
@@ -276,7 +417,6 @@
                 if(node.children) { let f = findNode(id, node.children); if(f) return f; }
             } return null;
         }
-
         function findParent(id, nodes) {
             for(let node of nodes) {
                 if(node.children && node.children.some(c => c.id === id)) return node;
@@ -327,16 +467,14 @@
             APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]});
             renderAdminTree();
         }
-
         function addSubItem() {
             if(!currentEditNode) return;
             if(!currentEditNode.children) currentEditNode.children = [];
             currentEditNode.children.push({id: 'n'+Date.now(), title:'Mục mới', tag:'', summary:'', detail:'', level: currentEditNode.level+1, children:[]});
             renderAdminTree();
         }
-
         function deleteCurrentItem() {
-            if(!currentEditNode || !confirm('Xóa mục này?')) return;
+            if(!currentEditNode || !confirm('Cảnh báo: Bạn có chắc chắn muốn xóa mục này?')) return;
             let p = findParent(currentEditNode.id, APP_DATA);
             if(p) { let idx = p.children.findIndex(c=>c.id === currentEditNode.id); p.children.splice(idx,1); }
             else { let idx = APP_DATA.findIndex(c=>c.id === currentEditNode.id); APP_DATA.splice(idx,1); }
@@ -366,7 +504,6 @@
         };
         function topFunction() { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; }
 
-        renderUserInterface();
     </script>
 </body>
 </html>
