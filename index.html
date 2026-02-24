@@ -47,14 +47,23 @@
         .step-number { background: var(--primary-color); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 10px; font-size: 0.95rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #666; font-weight: bold; margin-bottom: 5px; display: block; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         
-        .step-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        .btn-trich-dan { display: inline-flex; align-items: center; background-color: #e3f2fd; color: #0d47a1; padding: 10px 15px; border-radius: 6px; border: 1px solid #90caf9; font-size: 0.95em; cursor: pointer; font-weight: 600; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
+        .step-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; margin-bottom: 5px;}
+        .btn-trich-dan { display: inline-flex; align-items: center; background-color: #e3f2fd; color: #0d47a1; padding: 8px 15px; border-radius: 6px; border: 1px solid #90caf9; font-size: 0.9em; cursor: pointer; font-weight: 600; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         .btn-trich-dan:active { background-color: #bbdefb; }
         
-        .btn-download { display: inline-flex; align-items: center; background-color: #e8f5e9; color: #2e7d32; padding: 10px 15px; border-radius: 6px; border: 1px solid #a5d6a7; font-size: 0.95em; cursor: pointer; font-weight: 600; text-decoration: none; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
-        .btn-download:hover { background-color: #c8e6c9; }
+        /* CSS CHO NÚT TẢI FILE SIÊU NHỎ GỌN (INLINE PILL) MỚI */
+        .inline-download {
+            display: inline-flex; align-items: center; justify-content: center;
+            background-color: #e8f5e9; color: #2e7d32;
+            padding: 4px 10px; border-radius: 12px; border: 1px solid #a5d6a7;
+            font-size: 0.85rem; font-weight: bold; text-decoration: none;
+            margin-left: 10px; vertical-align: middle; white-space: nowrap;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s;
+        }
+        .inline-download:hover { background-color: #c8e6c9; transform: translateY(-1px); }
 
-        @media (max-width: 768px) { .btn-trich-dan, .btn-download { width: 100%; } }
+        @media (max-width: 768px) { .btn-trich-dan { width: 100%; } }
 
         .modal-user { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); padding: 10px; align-items: center; justify-content: center; }
         .modal-user-content { background-color: #fefefe; width: 100%; max-width: 700px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; max-height: 85vh; animation: slideUp 0.3s; }
@@ -208,11 +217,10 @@
                     
                     <div style="background: #e8f5e9; border: 1px dashed #4caf50; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                         <label style="font-weight: bold; color: #2e7d32; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; display: block; margin-bottom: 5px;">📎 Link đính kèm biểu mẫu (Google Drive)</label>
-                        <p style="font-size: 0.9rem; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin-top: 0;">Bạn hãy tải file Word/Excel lên Google Drive của bạn, mở quyền "Bất kỳ ai có liên kết", rồi copy link dán vào ô bên dưới:</p>
+                        <p style="font-size: 0.9rem; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin-top: 0;">Tải file lên Google Drive, mở quyền "Bất kỳ ai có liên kết", rồi copy link dán vào ô bên dưới:</p>
                         
                         <input type="text" id="inpFileUrl" class="form-control" style="border-color: #81c784; margin-bottom: 10px;" placeholder="Dán link Google Drive vào đây...">
-                        
-                        <input type="text" id="inpFileName" class="form-control" style="border-color: #81c784;" placeholder="Nhập tên file (VD: Mẫu 01-ĐV.docx)">
+                        <input type="text" id="inpFileName" class="form-control" style="border-color: #81c784;" placeholder="Nhập tên file (Hiển thị khi đưa chuột vào nút tải)">
                     </div>
 
                     <div style="margin-top:20px; border-top:1px dashed #ccc; padding-top:20px">
@@ -230,7 +238,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // 1. CẤU HÌNH API FIREBASE (Hãy nhớ thay đoạn Config này nếu bạn tạo dự án mới)
         const firebaseConfig = {
             apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs",
             authDomain: "sotay-dangvien.firebaseapp.com",
@@ -250,7 +257,6 @@
 
         localStorage.removeItem('SOTAY_DATA_V7');
 
-        // 2. KÉO DỮ LIỆU
         db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
             if (doc.exists) {
                 let serverData = doc.data().treeData;
@@ -269,7 +275,7 @@
             }
         });
 
-        // 3. VẼ GIAO DIỆN CHÍNH
+        // 3. VẼ GIAO DIỆN CHÍNH (Đã tối ưu hóa nút tải file thành dạng viên thuốc nhỏ)
         function renderUserInterface() {
             const menuEl = document.getElementById('menuList');
             const contentEl = document.getElementById('dynamicContent');
@@ -279,6 +285,7 @@
 
             function processNode(items) {
                 items.forEach(item => {
+                    // Cây thư mục bên trái
                     if(item.level <= 3) {
                         let li = document.createElement('li');
                         let indent = '';
@@ -292,36 +299,44 @@
                     let div = document.createElement('div');
                     div.id = item.id;
                     
-                    if(item.level === 0) {
-                        div.innerHTML = `<h2 class="phan-header">${item.title || 'Chưa đặt tên'}</h2>`;
-                    } else if (item.level === 1) {
-                        div.innerHTML = `<h3 class="muc-header">${item.title || 'Chưa đặt tên'}</h3>`;
-                        if(item.summary) div.innerHTML += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
-                    } else if (item.level === 2) {
-                        div.innerHTML = `<h4 class="tieu-muc-header">${item.title || 'Chưa đặt tên'}</h4>`;
-                        if(item.summary) div.innerHTML += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
-                    } else if (item.level === 3) {
-                        div.innerHTML = `<h5 class="sub-tieu-muc-header">${item.title || 'Chưa đặt tên'}</h5>`;
-                        if(item.summary) div.innerHTML += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
-                    } else {
-                        // Khối hộp Step Box có Link Google Drive
-                        let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
-                        let summaryStr = item.summary ? item.summary.replace(/\n/g, '<br>') : '';
-                        
-                        let btnHtml = item.detail ? `<div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div>` : '';
-                        
-                        let downloadBtn = '';
-                        if (item.fileUrl) {
-                            downloadBtn = `<a href="${item.fileUrl}" target="_blank" class="btn-download">📥 Tải về: ${item.fileName || 'Mẫu đính kèm'}</a>`;
-                        }
-
-                        let actionsHtml = (btnHtml !== '' || downloadBtn !== '') ? `<div class="step-actions">${downloadBtn}${btnHtml}</div>` : '';
-
-                        div.className = 'step-box';
-                        div.innerHTML = `${tagHtml}<div class="step-number">${item.title || 'Chưa đặt tên'}</div><p>${summaryStr}</p>${actionsHtml}`;
+                    let innerContent = '';
+                    
+                    // Tạo nút bấm Tải file SIÊU NHỎ GỌN (Pill button)
+                    let downloadBtn = '';
+                    if (item.fileUrl) {
+                        downloadBtn = `<a href="${item.fileUrl}" target="_blank" class="inline-download" title="${item.fileName || 'Tải biểu mẫu'}">📥 Tải mẫu</a>`;
                     }
+                    
+                    // Xử lý tiêu đề theo cấp độ và GẮP NÚT TẢI FILE VÀO CUỐI DÒNG TIÊU ĐỀ
+                    if(item.level === 0) {
+                        innerContent += `<h2 class="phan-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h2>`;
+                    } else if (item.level === 1) {
+                        innerContent += `<h3 class="muc-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h3>`;
+                    } else if (item.level === 2) {
+                        innerContent += `<h4 class="tieu-muc-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h4>`;
+                    } else if (item.level === 3) {
+                        innerContent += `<h5 class="sub-tieu-muc-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h5>`;
+                    } else {
+                        // Cấp 5 trở đi (Khối hộp nền trắng)
+                        let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
+                        innerContent += `${tagHtml}<div class="step-number">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
+                        div.className = 'step-box';
+                    }
+                    
+                    // Nội dung tóm tắt
+                    if (item.summary) {
+                        innerContent += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
+                    }
+                    
+                    // Nút xem quy định chi tiết (vẫn nằm bên dưới, gọn gàng)
+                    if (item.detail) {
+                        innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>`;
+                    }
+                    
+                    div.innerHTML = innerContent;
                     contentEl.appendChild(div);
                     
+                    // Lặp cho các mục con
                     if(item.children && item.children.length > 0) {
                         processNode(item.children);
                     }
@@ -349,47 +364,13 @@
         // ==================================================================
         // CÁC HÀM XỬ LÝ QUẢN TRỊ 
         // ==================================================================
-        function openLoginForm() {
-            toggleMenu(false); 
-            document.getElementById('loginOverlay').style.display = 'flex';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('loginError').style.display = 'none';
-            document.getElementById('username').focus();
-        }
-
+        function openLoginForm() { toggleMenu(false); document.getElementById('loginOverlay').style.display = 'flex'; document.getElementById('username').value = ''; document.getElementById('password').value = ''; document.getElementById('loginError').style.display = 'none'; document.getElementById('username').focus(); }
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
-
-        function processLogin() {
-            let user = document.getElementById('username').value.trim().toLowerCase();
-            let pass = document.getElementById('password').value;
-            if (user === "admin" && pass === "123456") {
-                closeLoginForm();
-                document.getElementById('adminPanel').style.display = 'block';
-                renderAdminTree();
-            } else {
-                document.getElementById('loginError').style.display = 'block';
-                document.getElementById('password').value = ''; document.getElementById('password').focus();
-            }
-        }
-
-        document.getElementById('password').addEventListener('keypress', function (e) { if (e.key === 'Enter') processLogin(); });
-        document.getElementById('username').addEventListener('keypress', function (e) { if (e.key === 'Enter') document.getElementById('password').focus(); });
-
+        function processLogin() { let user = document.getElementById('username').value.trim().toLowerCase(); let pass = document.getElementById('password').value; if (user === "admin" && pass === "btctuhn@123") { closeLoginForm(); document.getElementById('adminPanel').style.display = 'block'; renderAdminTree(); } else { document.getElementById('loginError').style.display = 'block'; document.getElementById('password').value = ''; document.getElementById('password').focus(); } }
+        document.getElementById('password').addEventListener('keypress', function (e) { if (e.key === 'Enter') processLogin(); }); document.getElementById('username').addEventListener('keypress', function (e) { if (e.key === 'Enter') document.getElementById('password').focus(); });
         function closeAdminPanel() { document.getElementById('adminPanel').style.display = 'none'; }
-
-        function findNode(id, nodes) {
-            for(let node of nodes) {
-                if(node.id === id) return node;
-                if(node.children) { let f = findNode(id, node.children); if(f) return f; }
-            } return null;
-        }
-        function findParent(id, nodes) {
-            for(let node of nodes) {
-                if(node.children && node.children.some(c => c.id === id)) return node;
-                let f = findParent(id, node.children || []); if(f) return f;
-            } return null;
-        }
+        function findNode(id, nodes) { for(let node of nodes) { if(node.id === id) return node; if(node.children) { let f = findNode(id, node.children); if(f) return f; } } return null; }
+        function findParent(id, nodes) { for(let node of nodes) { if(node.children && node.children.some(c => c.id === id)) return node; let f = findParent(id, node.children || []); if(f) return f; } return null; }
 
         function renderAdminTree() {
             const tree = document.getElementById('adminTree');
@@ -402,14 +383,8 @@
                     let icon = node.level === 0 ? '📚' : (node.level === 1 ? '📂' : (node.level === 2 ? '📄' : (node.level === 3 ? '📑' : '📝')));
                     let extraClass = node.level === 0 ? 'root-item' : 'sub-item';
                     
-                    html += `<div class="tree-node">
-                                <div class="tree-item ${extraClass} ${active}" onclick="selectItem('${node.id}')">
-                                    <span style="margin-right: 8px;">${icon}</span> <span>${node.title || 'Chưa đặt tên'}</span>
-                                </div>`;
-                    
-                    if(node.children && node.children.length > 0) {
-                        html += `<div class="tree-children">${buildHtml(node.children)}</div>`;
-                    }
+                    html += `<div class="tree-node"><div class="tree-item ${extraClass} ${active}" onclick="selectItem('${node.id}')"><span style="margin-right: 8px;">${icon}</span> <span>${node.title || 'Chưa đặt tên'}</span></div>`;
+                    if(node.children && node.children.length > 0) { html += `<div class="tree-children">${buildHtml(node.children)}</div>`; }
                     html += `</div>`;
                 });
                 return html;
@@ -428,12 +403,10 @@
             document.getElementById('inpSummary').value = currentEditNode.summary || '';
             document.getElementById('inpDetail').value = currentEditNode.detail || '';
             
-            // Hiện Link và Tên File nếu có
             document.getElementById('inpFileUrl').value = currentEditNode.fileUrl || '';
             document.getElementById('inpFileName').value = currentEditNode.fileName || '';
         }
 
-        // Lắng nghe thay đổi dữ liệu từ các ô nhập
         ['inpTag', 'inpTitle', 'inpSummary', 'inpDetail', 'inpFileUrl', 'inpFileName'].forEach(fid => {
             document.getElementById(fid).addEventListener('input', function() {
                 if(!currentEditNode) return;
@@ -443,56 +416,22 @@
                 if(fid === 'inpSummary') currentEditNode.summary = this.value;
                 if(fid === 'inpDetail') currentEditNode.detail = this.value;
                 
-                // Cập nhật URL Google Drive
                 if(fid === 'inpFileUrl') currentEditNode.fileUrl = this.value;
                 if(fid === 'inpFileName') currentEditNode.fileName = this.value;
             });
         });
 
-        function addNewRoot() {
-            APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]});
-            renderAdminTree(); renderUserInterface(); 
-        }
-        function addSubItem() {
-            if(!currentEditNode) return;
-            if(!currentEditNode.children) currentEditNode.children = [];
-            currentEditNode.children.push({id: 'n'+Date.now(), title:'Mục mới', tag:'', summary:'', detail:'', level: currentEditNode.level+1, children:[]});
-            renderAdminTree(); renderUserInterface(); 
-        }
-        function deleteCurrentItem() {
-            if(!currentEditNode || !confirm('Cảnh báo: Bạn có chắc chắn muốn xóa mục này? Toàn bộ mục con cũng sẽ bị xóa!')) return;
-            let p = findParent(currentEditNode.id, APP_DATA);
-            if(p) { let idx = p.children.findIndex(c=>c.id === currentEditNode.id); p.children.splice(idx,1); }
-            else { let idx = APP_DATA.findIndex(c=>c.id === currentEditNode.id); APP_DATA.splice(idx,1); }
-            currentEditNode = null; document.getElementById('editorArea').style.display='none'; 
-            renderAdminTree(); renderUserInterface(); 
-        }
-
-        function toggleMenu(forceState) {
-            const sb = document.getElementById('sidebar');
-            const ov = document.querySelector('.overlay');
-            if (typeof forceState !== 'undefined') {
-                if(forceState) { sb.classList.add('active'); ov.classList.add('active'); }
-                else { sb.classList.remove('active'); ov.classList.remove('active'); }
-            } else {
-                sb.classList.toggle('active'); ov.classList.toggle('active');
-            }
-        }
-        
-        function showPopup(html) {
-            document.getElementById('noi-dung-chi-tiet').innerHTML = html;
-            document.getElementById('modalTrichDan').style.display = 'flex';
-        }
+        function addNewRoot() { APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]}); renderAdminTree(); renderUserInterface(); }
+        function addSubItem() { if(!currentEditNode) return; if(!currentEditNode.children) currentEditNode.children = []; currentEditNode.children.push({id: 'n'+Date.now(), title:'Mục mới', tag:'', summary:'', detail:'', level: currentEditNode.level+1, children:[]}); renderAdminTree(); renderUserInterface(); }
+        function deleteCurrentItem() { if(!currentEditNode || !confirm('Cảnh báo: Bạn có chắc chắn muốn xóa mục này? Toàn bộ mục con cũng sẽ bị xóa!')) return; let p = findParent(currentEditNode.id, APP_DATA); if(p) { let idx = p.children.findIndex(c=>c.id === currentEditNode.id); p.children.splice(idx,1); } else { let idx = APP_DATA.findIndex(c=>c.id === currentEditNode.id); APP_DATA.splice(idx,1); } currentEditNode = null; document.getElementById('editorArea').style.display='none'; renderAdminTree(); renderUserInterface(); }
+        function toggleMenu(forceState) { const sb = document.getElementById('sidebar'); const ov = document.querySelector('.overlay'); if (typeof forceState !== 'undefined') { if(forceState) { sb.classList.add('active'); ov.classList.add('active'); } else { sb.classList.remove('active'); ov.classList.remove('active'); } } else { sb.classList.toggle('active'); ov.classList.toggle('active'); } }
+        function showPopup(html) { document.getElementById('noi-dung-chi-tiet').innerHTML = html; document.getElementById('modalTrichDan').style.display = 'flex'; }
         function dongModalButton() { document.getElementById('modalTrichDan').style.display = 'none'; }
         function dongModal(e) { if(e.target.id === 'modalTrichDan') dongModalButton(); }
-        
-        window.onscroll = function() {
-            document.getElementById("backToTop").style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none";
-        };
+        window.onscroll = function() { document.getElementById("backToTop").style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none"; };
         function topFunction() { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; }
         
         renderUserInterface();
-
     </script>
 </body>
 </html>
