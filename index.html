@@ -49,7 +49,7 @@
         .overlay.active { display: block; }
 
         /* NỘI DUNG CHÍNH */
-        .main-content { padding: 20px 20px; background-color: white; min-height: 100vh; transition: margin-left 0.3s ease; }
+       .main-content { font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; padding: 20px 20px; background-color: white; min-height: 100vh; transition: margin-left 0.3s ease; }
         @media (min-width: 992px) { .main-content { margin-left: 280px; padding: 40px 60px; } }
         @media (max-width: 992px) { .main-content { padding-top: 70px; } }
         
@@ -84,7 +84,7 @@
         /* Hình nền trống đồng. Bạn có thể thay đổi số 0.4 thành 0.2 nếu muốn sáng hơn */
         .trong-dong-bg {
             position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1;
-            background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('img_5-hinh-nen-powerpoint-trong-dong.jpg');
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img_5-hinh-nen-powerpoint-trong-dong.jpg');
             background-size: cover; background-position: center; background-repeat: no-repeat;
         }
 
@@ -125,7 +125,7 @@
         .tree-container { flex: 1; overflow-y: auto; border: 1px solid #eee; background: white; border-radius: 4px; margin: 10px 0; }
         .tree-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
         .tree-item.active { background: #e3f2fd; color: #007bff; font-weight: bold; border-left: 4px solid #007bff; }
-        .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; font-size: 16px; }
+        .form-control { font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; }
         .btn { padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; width: 100%; margin-bottom: 10px; }
         @media (min-width: 768px) { .btn { width: auto; margin-right: 10px; margin-bottom: 0; } }
         .btn-save { background: #28a745; } .btn-close { background: #6c757d; } .btn-delete { background: #dc3545; } .btn-add { background: #007bff; }
@@ -497,5 +497,4 @@
 
     </script>
 </body>
-
 </html>
