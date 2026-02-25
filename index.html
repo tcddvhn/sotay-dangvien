@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#cc0000">
 
     <style>
-        /* CSS GIAO DIỆN CHÍNH & KHỐI ACCORDION (Giữ nguyên giao diện Mẹ bồng con tuyệt đẹp) */
+        /* CSS GIAO DIỆN CHÍNH & KHỐI ACCORDION NGOÀI TRANG ĐỌC */
         :root { --primary-color: #cc0000; --primary-dark: #a30000; --yellow-party: #f1c40f; --text-color: #333; --bg-sidebar: #2c3e50; --header-height: 50px; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Times New Roman', Times, serif; line-height: 1.6; color: var(--text-color); margin: 0; background-color: #f4f4f4; font-size: 1.1rem; }
@@ -91,7 +91,7 @@
         .result-snippet { font-size: 0.95rem; color: #555; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
         .no-result { text-align: center; color: #999; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
 
-        /* CSS QUẢN TRỊ MỚI */
+        /* CSS QUẢN TRỊ ĐĂNG NHẬP */
         #loginOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000; align-items: center; justify-content: center; overflow: hidden; background-color: #8c0000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
         .trong-dong-bg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img_5-hinh-nen-powerpoint-trong-dong.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; }
         .login-card { background: rgba(255, 255, 255, 0.98); width: 90%; max-width: 400px; padding: 40px 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -106,21 +106,32 @@
         .login-error { color: #dc3545; font-size: 0.9rem; text-align: center; margin-top: -10px; margin-bottom: 15px; display: none; }
         .btn-login { width: 100%; background: linear-gradient(135deg, #cc0000, #a30000); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 10px rgba(204,0,0,0.3); }
 
+        /* ==================================================================
+           CSS NÂNG CẤP CHO CÂY THƯ MỤC QUẢN TRỊ (MỚI)
+           ================================================================== */
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; overflow-y: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         .admin-layout { display: flex; height: 100%; flex-direction: column; }
         @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
         .admin-sidebar { background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 10px; height: 40vh; display: flex; flex-direction: column; }
         @media (min-width: 768px) { .admin-sidebar { width: 350px; height: 100vh; border-right: 1px solid #ddd; border-bottom: none; } }
-        .admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 60vh; position: relative;}
-        @media (min-width: 768px) { .admin-main { height: 100vh; } }
+        
         .tree-container { flex: 1; overflow-y: auto; border: 1px solid #ddd; background: #fff; border-radius: 6px; padding: 10px; font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);}
         .tree-node { margin-bottom: 2px; }
+        
         .tree-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; transition: all 0.2s ease; border: 1px solid transparent; color: #444; }
         .tree-item.active { background: #e3f2fd; color: #0d47a1; font-weight: bold; border-left: 4px solid #007bff; }
         .root-item { font-weight: bold; background: #f8f9fa; border: 1px solid #eee; margin-top: 5px; color: var(--primary-dark); }
         .sub-item { position: relative; font-size: 1.05rem; }
-        .sub-item::before { content: ""; position: absolute; left: -12px; top: 50%; width: 10px; border-top: 1px dashed #aaa; }
-        .tree-children { margin-left: 12px; border-left: 1px dashed #aaa; padding-left: 12px; margin-top: 2px; }
+        
+        /* CSS Nút Thu Gọn / Mở Rộng */
+        .tree-toggle { display: inline-block; width: 24px; text-align: center; cursor: pointer; color: #999; font-size: 0.8rem; font-family: Arial, sans-serif; transition: 0.2s; user-select: none; }
+        .tree-toggle:hover { color: var(--primary-color); transform: scale(1.2); }
+        
+        .tree-children { margin-left: 20px; border-left: 1px dashed #ccc; padding-left: 10px; margin-top: 2px; }
+        .tree-children.collapsed { display: none; } /* Trạng thái ẩn mục con */
+
+        .admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 60vh; position: relative;}
+        @media (min-width: 768px) { .admin-main { height: 100vh; } }
         
         .form-control { font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; outline: none;}
         .form-control:focus { border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.25); }
@@ -134,7 +145,7 @@
 
     <div class="mobile-header">
         <button class="menu-toggle-btn" onclick="toggleMenu()">☰</button>
-        <span>SỔ TAY NGHIỆP VỤ CÔNG TÁC TCĐ, ĐV</span>
+        <span>SỔ TAY NGHIỆP VỤ TCĐ, ĐV</span>
     </div>
 
     <div class="overlay" onclick="toggleMenu(false)"></div>
@@ -148,7 +159,7 @@
     </div>
 
     <div class="main-content">
-        <h1>NGHIỆP VỤ CÔNG TÁC TỔ CHỨC ĐẢNG, ĐẢNG VIÊN</h1>
+        <h1>NGHIỆP VỤ CÔNG TÁC TỔ CHỨC ĐẢNG</h1>
         <div id="dynamicContent"></div>
         <br><br><br>
     </div>
@@ -195,7 +206,7 @@
                 <h2>ĐĂNG NHẬP</h2><p>Hệ thống Quản trị Đồng thời</p>
             </div>
             <div class="login-body">
-                <div class="input-group"><span class="input-icon">👤</span><input type="text" id="username" placeholder="Tên đăng nhập (VD: nguyenthithanhtam, ledinhkien)"></div>
+                <div class="input-group"><span class="input-icon">👤</span><input type="text" id="username" placeholder="Tên đăng nhập (VD: nguyenthithanhtam, ledinhien)"></div>
                 <div class="input-group"><span class="input-icon">🔒</span><input type="password" id="password" placeholder="Mật khẩu"></div>
                 <div class="login-error" id="loginError">Tài khoản hoặc mật khẩu không đúng!</div>
                 <button class="btn-login" onclick="processLogin()">VÀO TRANG QUẢN TRỊ</button>
@@ -273,7 +284,6 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
 
-        // DANH SÁCH TÀI KHOẢN (Đăng nhập cùng lúc thoải mái)
         const ADMIN_ACCOUNTS = {
             "admin": { pass: "123456", name: "Quản trị viên Hệ thống" },
             "nguyenthithanhtam": { pass: "123456", name: "Nguyễn Thị Thanh Tâm" },
@@ -286,8 +296,12 @@
         };
 
         let APP_DATA = [];
-        let currentEditNodeId = null; // Chỉ lưu ID để tránh bị lỗi tham chiếu khi người khác sửa
+        let currentEditNodeId = null; 
         let loggedInUser = null;
+
+        // BỘ NHỚ LƯU TRẠNG THÁI MỞ/ĐÓNG CỦA CÂY QUẢN TRỊ
+        let expandedAdminNodes = new Set();
+        let isFirstLoadAdmin = true;
 
         // LẮNG NGHE DỮ LIỆU THỜI GIAN THỰC (Real-time Sync)
         db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
@@ -297,26 +311,27 @@
                 APP_DATA = [{ id: 'r1', title: 'PHẦN 1', tag: '', summary: '', detail: '', level: 0, children: [] }];
             }
             
-            renderUserInterface(); // Cập nhật Sổ tay bên ngoài cho mọi người đọc
-            
-            // Nếu đang mở trang quản trị, cập nhật lại cây thư mục
+            // Nếu là lần đầu load, tự động mở thư mục gốc (Cấp 1) cho khỏi trống
+            if (isFirstLoadAdmin && APP_DATA.length > 0) {
+                APP_DATA.forEach(node => expandedAdminNodes.add(node.id));
+                isFirstLoadAdmin = false;
+            }
+
+            renderUserInterface(); 
             if (document.getElementById('adminPanel').style.display === 'block') { 
                 renderAdminTree(); 
             }
         });
 
         // ==================================================================
-        // CƠ CHẾ GIAO DỊCH (TRANSACTION) - CỐT LÕI ĐỂ LÀM VIỆC NHÓM
+        // CƠ CHẾ GIAO DỊCH (TRANSACTION) - LƯU DỮ LIỆU
         // ==================================================================
-        
-        // 1. Lưu thay đổi của 1 Mục cụ thể
         function saveCurrentNodeToServer() {
             if (!currentEditNodeId) return;
 
             const btn = document.getElementById('btnSaveSingle');
             btn.innerText = "⏳ Đang đồng bộ..."; btn.disabled = true;
 
-            // Gom dữ liệu người dùng vừa gõ trên form
             let updatedData = {
                 tag: document.getElementById('inpTag').value,
                 title: document.getElementById('inpTitle').value,
@@ -328,17 +343,14 @@
 
             const docRef = db.collection("sotay").doc("dulieu");
 
-            // Chạy Transaction (Tải bản mới nhất -> Hợp nhất -> Lưu lên)
             db.runTransaction((transaction) => {
                 return transaction.get(docRef).then((doc) => {
                     let serverTree = doc.data().treeData || [];
                     let isFound = false;
 
-                    // Thuật toán đệ quy tìm đúng ID trên server để đè dữ liệu mới vào
                     function updateNode(nodes) {
                         for(let i=0; i<nodes.length; i++) {
                             if(nodes[i].id === currentEditNodeId) {
-                                // Ghi đè thông tin mới, nhưng giữ nguyên các thuộc tính cấu trúc (như children, level)
                                 nodes[i] = { ...nodes[i], ...updatedData };
                                 isFound = true;
                                 return;
@@ -349,26 +361,18 @@
 
                     updateNode(serverTree);
 
-                    if (isFound) {
-                        // Chỉ lưu khi tìm thấy đúng mục đó (tránh lỗi ai đó vừa xóa mục này)
-                        transaction.update(docRef, { treeData: serverTree });
-                    } else {
-                        throw "Mục này có thể đã bị người khác xóa trước đó!";
-                    }
+                    if (isFound) { transaction.update(docRef, { treeData: serverTree }); } 
+                    else { throw "Mục này có thể đã bị người khác xóa trước đó!"; }
                 });
             }).then(() => {
                 btn.innerText = "💾 LƯU THAY ĐỔI CHO MỤC NÀY"; btn.disabled = false;
-                
-                // Nút chuyển sang xanh nháy nháy báo thành công
-                btn.style.background = "#27ae60";
-                setTimeout(() => { btn.style.background = "#28a745"; }, 2000);
+                btn.style.background = "#27ae60"; setTimeout(() => { btn.style.background = "#28a745"; }, 2000);
             }).catch((err) => {
                 btn.innerText = "💾 LƯU THAY ĐỔI CHO MỤC NÀY"; btn.disabled = false;
                 alert("Lỗi đồng bộ: " + err);
             });
         }
 
-        // 2. Thêm Phần lớn mới (Transaction)
         function addNewRoot() { 
             let newNode = {id: 'r'+Date.now(), title:'PHẦN MỚI TẠO', tag:'', summary:'', detail:'', level:0, children:[]};
             
@@ -382,14 +386,15 @@
             }).then(() => { selectItem(newNode.id); }); 
         }
 
-        // 3. Thêm Mục con (Transaction)
         function addSubItem() { 
             if(!currentEditNodeId) return;
-            // Tìm level của mục cha để tính level cho mục con
             let parentNode = findNode(currentEditNodeId, APP_DATA);
             if(!parentNode) return;
 
             let newNode = {id: 'n'+Date.now(), title:'Mục con mới', tag:'', summary:'', detail:'', level: parentNode.level + 1, children:[]};
+
+            // Tự động Mở thư mục Cha ra để nhìn thấy thư mục con vừa tạo
+            expandedAdminNodes.add(currentEditNodeId);
 
             const docRef = db.collection("sotay").doc("dulieu");
             db.runTransaction((transaction) => {
@@ -414,7 +419,6 @@
             }).then(() => { selectItem(newNode.id); }); 
         }
 
-        // 4. Xóa Mục (Transaction)
         function deleteCurrentItem() { 
             if(!currentEditNodeId || !confirm('Cảnh báo: Bạn có chắc chắn muốn xóa mục này? Toàn bộ mục con cũng sẽ bị xóa!')) return; 
 
@@ -422,17 +426,10 @@
             db.runTransaction((transaction) => {
                 return transaction.get(docRef).then((doc) => {
                     let serverTree = doc.data().treeData || [];
-                    
-                    // Tìm cha của mục cần xóa
                     function removeNode(nodes) {
                         let idx = nodes.findIndex(c => c.id === currentEditNodeId);
-                        if(idx > -1) {
-                            nodes.splice(idx, 1);
-                            return true;
-                        }
-                        for(let i=0; i<nodes.length; i++){
-                            if(nodes[i].children && removeNode(nodes[i].children)) return true;
-                        }
+                        if(idx > -1) { nodes.splice(idx, 1); return true; }
+                        for(let i=0; i<nodes.length; i++){ if(nodes[i].children && removeNode(nodes[i].children)) return true; }
                         return false;
                     }
 
@@ -448,8 +445,78 @@
 
 
         // ==================================================================
-        // CÁC HÀM XỬ LÝ GIAO DIỆN (UI) CÒN LẠI
+        // CÁC HÀM QUẢN LÝ GIAO DIỆN ADMIN (CÓ TÍNH NĂNG MỞ/ĐÓNG THƯ MỤC)
         // ==================================================================
+        
+        // Hàm đóng mở 1 mục bằng tay khi bấm vào Nút Mũi tên (▶)
+        function toggleAdminNode(event, id) {
+            event.stopPropagation(); // Ngăn sự kiện bấm nhầm sang việc chọn mục
+            if (expandedAdminNodes.has(id)) {
+                expandedAdminNodes.delete(id); // Đang mở -> Xóa khỏi danh sách -> Thành đóng
+            } else {
+                expandedAdminNodes.add(id); // Đang đóng -> Thêm vào danh sách -> Thành mở
+            }
+            renderAdminTree();
+        }
+
+        // Vẽ cây quản trị
+        function renderAdminTree() {
+            const tree = document.getElementById('adminTree');
+            tree.innerHTML = '';
+            
+            function buildHtml(nodes) {
+                let html = '';
+                nodes.forEach(node => {
+                    let active = (currentEditNodeId === node.id) ? 'active' : '';
+                    let icon = node.level === 0 ? '📚' : (node.level === 1 ? '📂' : (node.level === 2 ? '📄' : (node.level === 3 ? '📑' : '📝')));
+                    let extraClass = node.level === 0 ? 'root-item' : 'sub-item';
+                    
+                    let hasChildren = node.children && node.children.length > 0;
+                    let isExpanded = expandedAdminNodes.has(node.id);
+                    
+                    // Nếu có mục con thì hiển thị nút mũi tên, nếu không có thì để khoảng trống 24px cho thẳng hàng
+                    let toggleBtn = hasChildren 
+                        ? `<span class="tree-toggle" onclick="toggleAdminNode(event, '${node.id}')">${isExpanded ? '▼' : '▶'}</span>` 
+                        : `<span style="display:inline-block;width:24px;"></span>`;
+
+                    html += `
+                        <div class="tree-node">
+                            <div class="tree-item ${extraClass} ${active}" onclick="selectItem('${node.id}')">
+                                ${toggleBtn}
+                                <span style="margin-right: 5px;">${icon}</span> 
+                                <span>${node.title || 'Chưa đặt tên'}</span>
+                            </div>`;
+                            
+                    // Chỉ vẽ các mục con bên trong nếu nó đang ở trạng thái Expanded (Mở)
+                    if(hasChildren) { 
+                        html += `<div class="tree-children ${isExpanded ? '' : 'collapsed'}">${buildHtml(node.children)}</div>`; 
+                    }
+                    
+                    html += `</div>`;
+                });
+                return html;
+            }
+            tree.innerHTML = buildHtml(APP_DATA);
+        }
+
+        function selectItem(id) {
+            currentEditNodeId = id;
+            let nodeData = findNode(id, APP_DATA);
+            if(!nodeData) return;
+
+            renderAdminTree(); 
+            
+            document.getElementById('editorPlaceholder').style.display = 'none';
+            document.getElementById('editorArea').style.display = 'block';
+            
+            document.getElementById('inpTag').value = nodeData.tag || '';
+            document.getElementById('inpTitle').value = nodeData.title || '';
+            document.getElementById('inpSummary').value = nodeData.summary || '';
+            document.getElementById('inpDetail').value = nodeData.detail || '';
+            document.getElementById('inpFileUrl').value = nodeData.fileUrl || '';
+            document.getElementById('inpFileName').value = nodeData.fileName || '';
+        }
+
         function processLogin() { 
             let user = document.getElementById('username').value.trim().toLowerCase(); 
             let pass = document.getElementById('password').value; 
@@ -470,7 +537,6 @@
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
         function closeAdminPanel() { document.getElementById('adminPanel').style.display = 'none'; loggedInUser = null; }
 
-        // Tìm node trong cây
         function findNode(id, nodes) { 
             for(let node of nodes) { 
                 if(node.id === id) return node; 
@@ -478,45 +544,10 @@
             } return null; 
         }
 
-        function renderAdminTree() {
-            const tree = document.getElementById('adminTree');
-            tree.innerHTML = '';
-            function buildHtml(nodes) {
-                let html = '';
-                nodes.forEach(node => {
-                    let active = (currentEditNodeId === node.id) ? 'active' : '';
-                    let icon = node.level === 0 ? '📚' : (node.level === 1 ? '📂' : (node.level === 2 ? '📄' : (node.level === 3 ? '📑' : '📝')));
-                    let extraClass = node.level === 0 ? 'root-item' : 'sub-item';
-                    html += `<div class="tree-node"><div class="tree-item ${extraClass} ${active}" onclick="selectItem('${node.id}')"><span style="margin-right: 8px;">${icon}</span> <span>${node.title || 'Chưa đặt tên'}</span></div>`;
-                    if(node.children && node.children.length > 0) { html += `<div class="tree-children">${buildHtml(node.children)}</div>`; }
-                    html += `</div>`;
-                });
-                return html;
-            }
-            tree.innerHTML = buildHtml(APP_DATA);
-        }
 
-        // Đổ dữ liệu vào Form bên phải khi click vào 1 mục
-        function selectItem(id) {
-            currentEditNodeId = id;
-            let nodeData = findNode(id, APP_DATA);
-            if(!nodeData) return;
-
-            renderAdminTree(); // Làm xanh cái vừa bấm
-            
-            document.getElementById('editorPlaceholder').style.display = 'none';
-            document.getElementById('editorArea').style.display = 'block';
-            
-            // Xóa rỗng rồi đổ dữ liệu vào
-            document.getElementById('inpTag').value = nodeData.tag || '';
-            document.getElementById('inpTitle').value = nodeData.title || '';
-            document.getElementById('inpSummary').value = nodeData.summary || '';
-            document.getElementById('inpDetail').value = nodeData.detail || '';
-            document.getElementById('inpFileUrl').value = nodeData.fileUrl || '';
-            document.getElementById('inpFileName').value = nodeData.fileName || '';
-        }
-
-        // Logic Mẹ bồng con (Lồng ghép Accordion ngoài trang đọc)
+        // ==================================================================
+        // CÁC HÀM XỬ LÝ GIAO DIỆN FRONT-END (BÊN NGOÀI NGƯỜI ĐỌC)
+        // ==================================================================
         function toggleStep(headerEl, event) {
             if (event && (event.target.closest('a') || event.target.closest('.btn-trich-dan'))) return;
             if (event) event.stopPropagation();
