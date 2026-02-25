@@ -37,15 +37,34 @@
         h1 { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); padding-bottom: 15px; margin-top: 0; font-size: 1.6rem; text-transform: uppercase; line-height: 1.3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         
         .phan-header { background-color: #fcebeb; padding: 15px; border-left: 6px solid var(--primary-color); margin-top: 30px; color: var(--primary-dark); font-size: 1.3em; font-weight: bold; }
-        .muc-header { color: #b71c1c; margin-top: 25px; font-weight: 700; font-size: 1.15em; }
-        .tieu-muc-header { color: #2980b9; margin-top: 20px; font-weight: 700; font-size: 1.1em; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
-        .sub-tieu-muc-header { color: #27ae60; margin-top: 15px; font-weight: bold; font-size: 1.05em; border-left: 4px solid #27ae60; padding-left: 10px; }
+        .muc-header { color: #b71c1c; margin-top: 25px; margin-bottom: 15px; font-weight: 700; font-size: 1.15em; }
 
-        .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; margin-top: 15px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); position: relative; scroll-margin-top: 70px;}
-        .step-number { background: var(--primary-color); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 10px; font-size: 0.95rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
-        .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #666; font-weight: bold; margin-bottom: 5px; display: block; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
+        /* ==================================================================
+           CSS KHỐI ACCORDION CHO CẤP 3, CẤP 4, CẤP 5
+           ================================================================== */
+        .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 12px; margin-top: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; scroll-margin-top: 70px; transition: all 0.3s; overflow: hidden; }
         
-        .step-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; margin-bottom: 5px;}
+        /* PHÂN BIỆT MÀU SẮC CHO TỪNG CẤP ĐỘ */
+        .step-box.level-2 { border-left: 5px solid #2980b9; } /* Cấp 3 - Xanh dương */
+        .step-box.level-3 { border-left: 5px solid #27ae60; } /* Cấp 4 - Xanh lá */
+        .step-box.level-4 { border-left: 5px solid var(--primary-color); } /* Cấp 5 - Đỏ */
+
+        .step-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; transition: background 0.2s; }
+        .step-header:hover { background: #fdfdfd; }
+        .step-title-wrapper { flex: 1; padding-right: 15px; }
+        .step-icon { color: #999; transition: transform 0.3s ease; font-size: 0.9rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
+
+        .step-body { max-height: 0; overflow: hidden; padding: 0 20px; opacity: 0; transition: all 0.4s ease; }
+
+        /* Trạng thái mở */
+        .step-box.active { box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .step-box.active .step-body { max-height: 5000px; padding: 10px 20px 20px 20px; opacity: 1; border-top: 1px dashed #eee; }
+        .step-box.active .step-icon { transform: rotate(180deg); color: var(--text-color); }
+
+        .step-number { background: var(--primary-color); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; font-size: 0.95rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
+        .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #666; font-weight: bold; margin-bottom: 8px; display: block; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
+        
+        .step-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;}
         .btn-trich-dan { display: inline-flex; align-items: center; background-color: #e3f2fd; color: #0d47a1; padding: 8px 15px; border-radius: 6px; border: 1px solid #90caf9; font-size: 0.9em; cursor: pointer; font-weight: 600; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         .btn-trich-dan:active { background-color: #bbdefb; }
         
@@ -73,7 +92,6 @@
         .search-input-wrapper input { flex: 1; padding: 12px 15px; border: none; font-size: 1rem; outline: none;}
         .search-input-wrapper button { background: var(--primary-color); color: white; border: none; padding: 0 20px; font-weight: bold; cursor: pointer;}
         
-        /* GỢI Ý CÂU HỎI (MỚI) */
         .faq-suggestions { padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 10px; flex-shrink: 0;}
         .faq-suggestions p { margin: 0 0 10px 0; font-size: 0.95rem; color: #555; font-weight: bold; }
         .faq-chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -142,15 +160,11 @@
     <div class="overlay" onclick="toggleMenu(false)"></div>
     
     <div class="sidebar" id="sidebar">
-        <div class="close-sidebar-btn">
-             <span onclick="toggleMenu(false)" style="cursor:pointer; color:#fff; font-size:1.5rem; padding: 10px; display: inline-block;">✕</span>
-        </div>
+        <div class="close-sidebar-btn"><span onclick="toggleMenu(false)" style="cursor:pointer; color:#fff; font-size:1.5rem; padding: 10px; display: inline-block;">✕</span></div>
         <h3 style="margin-top:0">MỤC LỤC</h3>
         <ul id="menuList"></ul>
         <div style="margin-top: auto;"></div>
-        <div class="admin-trigger" onclick="openLoginForm()">
-            <span style="font-size: 18px; vertical-align: middle;">⚙️</span> Đăng nhập Quản trị
-        </div>
+        <div class="admin-trigger" onclick="openLoginForm()"><span style="font-size: 18px; vertical-align: middle;">⚙️</span> Đăng nhập Quản trị</div>
     </div>
 
     <div class="main-content">
@@ -160,7 +174,6 @@
     </div>
 
     <button id="btnSearchFab" onclick="openSearchModal()" title="Hỏi đáp & Tìm kiếm nghiệp vụ">🔍</button>
-
     <button id="backToTop" onclick="topFunction()" title="Lên đầu trang">⬆</button>
 
     <div id="modalSearch" class="modal-user" onclick="closeModalOnBgClick(event, 'modalSearch')">
@@ -176,7 +189,7 @@
                 </div>
                 
                 <div class="faq-suggestions" id="faqSuggestions">
-                    <p>💡 Gợi ý câu hỏi thường gặp (Bấm để xem nhanh):</p>
+                    <p>💡 Gợi ý câu hỏi thường gặp:</p>
                     <div class="faq-chips">
                         <div class="faq-chip" onclick="quickAsk('dự bị biểu quyết')">Đảng viên dự bị được biểu quyết không?</div>
                         <div class="faq-chip" onclick="quickAsk('mất thẻ đảng')">Thủ tục cấp lại thẻ Đảng bị mất?</div>
@@ -207,21 +220,12 @@
         <div class="login-card">
             <div class="close-login" onclick="closeLoginForm()">✕</div>
             <div class="login-header">
-                <div class="party-logo">
-                    <img src="image_359e62.png" alt="Cờ Đảng" onerror="this.src='https://i.postimg.cc/Qd05R7n2/image-359e62.png'">
-                </div>
-                <h2>ĐĂNG NHẬP</h2>
-                <p>Hệ thống Quản trị Sổ tay</p>
+                <div class="party-logo"><img src="image_359e62.png" alt="Cờ Đảng" onerror="this.src='https://i.postimg.cc/Qd05R7n2/image-359e62.png'"></div>
+                <h2>ĐĂNG NHẬP</h2><p>Hệ thống Quản trị Sổ tay</p>
             </div>
             <div class="login-body">
-                <div class="input-group">
-                    <span class="input-icon">👤</span>
-                    <input type="text" id="username" placeholder="Tên đăng nhập" autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <span class="input-icon">🔒</span>
-                    <input type="password" id="password" placeholder="Mật khẩu">
-                </div>
+                <div class="input-group"><span class="input-icon">👤</span><input type="text" id="username" placeholder="Tên đăng nhập" autocomplete="off"></div>
+                <div class="input-group"><span class="input-icon">🔒</span><input type="password" id="password" placeholder="Mật khẩu"></div>
                 <div class="login-error" id="loginError">Tài khoản hoặc mật khẩu không đúng!</div>
                 <button class="btn-login" onclick="processLogin()">VÀO TRANG QUẢN TRỊ</button>
             </div>
@@ -271,9 +275,7 @@
                         <button class="btn btn-add" style="background:#17a2b8" onclick="addSubItem()">+ Thêm mục con cấp dưới</button>
                     </div>
                 </div>
-                <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
-                    <span style="font-size: 40px; color: #ddd;">👈</span><br>Hãy chọn một mục ở cây thư mục bên trái để bắt đầu chỉnh sửa
-                </div>
+                <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;"><span style="font-size: 40px; color: #ddd;">👈</span><br>Hãy chọn một mục ở cây thư mục bên trái để bắt đầu chỉnh sửa</div>
             </div>
         </div>
     </div>
@@ -298,6 +300,7 @@
 
         let APP_DATA = [];
         let currentEditNode = null;
+        let currentOpenStep = null;
 
         db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
             if (doc.exists) {
@@ -315,7 +318,39 @@
             if (document.getElementById('adminPanel').style.display === 'block') { renderAdminTree(); }
         });
 
-        // VẼ GIAO DIỆN CHÍNH
+        // ==================================================================
+        // LOGIC ACCORDION (THU GỌN / MỞ RỘNG)
+        // ==================================================================
+        function toggleStep(element, event) {
+            if (event && event.target.closest('a')) return;
+            if (element.classList.contains('active')) {
+                element.classList.remove('active');
+                currentOpenStep = null;
+            } else {
+                if (currentOpenStep && currentOpenStep !== element) {
+                    currentOpenStep.classList.remove('active');
+                }
+                element.classList.add('active');
+                currentOpenStep = element;
+            }
+        }
+
+        // Tự động đóng thẻ Cấp 5 khi click ra vùng trống của trang web
+        document.addEventListener('click', function(e) {
+            if (currentOpenStep && 
+                !currentOpenStep.contains(e.target) && 
+                !e.target.closest('#sidebar') && 
+                !e.target.closest('.mobile-header') &&
+                !e.target.closest('#modalSearch') &&
+                !e.target.closest('#modalTrichDan')) {
+                currentOpenStep.classList.remove('active');
+                currentOpenStep = null;
+            }
+        });
+
+        // ==================================================================
+        // VẼ GIAO DIỆN CHÍNH (Đã đồng bộ Accordion cho Cấp 3, 4, 5)
+        // ==================================================================
         function renderUserInterface() {
             const menuEl = document.getElementById('menuList');
             const contentEl = document.getElementById('dynamicContent');
@@ -345,29 +380,60 @@
                     }
                     
                     if(item.level === 0) {
+                        // PHẦN LỚN (Cấp 1) - Luôn hiển thị rõ ràng
                         innerContent += `<h2 class="phan-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h2>`;
+                        if (item.summary) innerContent += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
+                        if (item.detail) innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>`;
+                        div.innerHTML = innerContent;
+                        contentEl.appendChild(div);
+                        
                     } else if (item.level === 1) {
+                        // MỤC LỚN (Cấp 2) - Luôn hiển thị rõ ràng
                         innerContent += `<h3 class="muc-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h3>`;
-                    } else if (item.level === 2) {
-                        innerContent += `<h4 class="tieu-muc-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h4>`;
-                    } else if (item.level === 3) {
-                        innerContent += `<h5 class="sub-tieu-muc-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h5>`;
+                        if (item.summary) innerContent += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
+                        if (item.detail) innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>`;
+                        div.innerHTML = innerContent;
+                        contentEl.appendChild(div);
+                        
                     } else {
+                        // TỪ CẤP 3, 4, 5 TRỞ ĐI -> CHUYỂN HẾT THÀNH KHỐI ACCORDION THU GỌN
+                        
+                        // Xác định CSS riêng cho từng cấp
+                        let levelClass = '';
+                        let titleHtml = '';
+                        
+                        if (item.level === 2) {
+                            levelClass = 'level-2'; // Cấp 3 (Viền Xanh Dương)
+                            titleHtml = `<div style="font-weight: 700; font-size: 1.15em; color: #2980b9; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
+                        } else if (item.level === 3) {
+                            levelClass = 'level-3'; // Cấp 4 (Viền Xanh Lá)
+                            titleHtml = `<div style="font-weight: 700; font-size: 1.05em; color: #27ae60; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
+                        } else {
+                            levelClass = 'level-4'; // Cấp 5 (Viền Đỏ)
+                            titleHtml = `<div class="step-number" style="margin-bottom:0">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
+                        }
+
+                        div.className = `step-box ${levelClass}`;
+                        
                         let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
-                        innerContent += `${tagHtml}<div class="step-number">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
-                        div.className = 'step-box';
+                        let summaryHtml = item.summary ? `<p>${item.summary.replace(/\n/g, '<br>')}</p>` : '';
+                        let detailBtn = item.detail ? `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>` : '';
+                        
+                        div.innerHTML = `
+                            <div class="step-header" onclick="toggleStep(this.parentElement, event)">
+                                <div class="step-title-wrapper">
+                                    ${tagHtml}
+                                    ${titleHtml}
+                                </div>
+                                <div class="step-icon">▼</div>
+                            </div>
+                            <div class="step-body">
+                                ${summaryHtml}
+                                ${detailBtn}
+                            </div>
+                        `;
+                        contentEl.appendChild(div);
                     }
-                    
-                    if (item.summary) {
-                        innerContent += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
-                    }
-                    
-                    if (item.detail) {
-                        innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>`;
-                    }
-                    
-                    div.innerHTML = innerContent;
-                    contentEl.appendChild(div);
                     
                     if(item.children && item.children.length > 0) {
                         processNode(item.children);
@@ -386,21 +452,18 @@
         }
 
         // ==================================================================
-        // LOGIC TRỢ LÝ TÌM KIẾM THÔNG MINH CÓ GỢI Ý CHATBOT
+        // TRỢ LÝ TÌM KIẾM
         // ==================================================================
         function openSearchModal() {
             document.getElementById('modalSearch').style.display = 'flex';
             document.getElementById('searchInput').value = '';
-            document.getElementById('faqSuggestions').style.display = 'block'; // Hiện lại gợi ý
+            document.getElementById('faqSuggestions').style.display = 'block'; 
             document.getElementById('searchResults').innerHTML = '<div class="no-result">Bạn cần tìm quy định gì? Hãy gõ từ khóa hoặc chọn gợi ý bên trên.</div>';
             document.getElementById('searchInput').focus();
         }
         
-        function closeSearchModal() {
-            document.getElementById('modalSearch').style.display = 'none';
-        }
+        function closeSearchModal() { document.getElementById('modalSearch').style.display = 'none'; }
 
-        // Người dùng bấm vào Gợi ý -> Tự động điền và Tìm kiếm luôn
         function quickAsk(keyword) {
             document.getElementById('searchInput').value = keyword;
             performSearch();
@@ -419,13 +482,11 @@
             
             if (kwNoAccent.length < 2) {
                 resultsContainer.innerHTML = '<div class="no-result">Vui lòng nhập ít nhất 2 ký tự để tìm kiếm.</div>';
-                faqDiv.style.display = 'block'; // Vẫn hiện gợi ý nếu chưa gõ đủ
+                faqDiv.style.display = 'block'; 
                 return;
             }
 
-            // Khi bắt đầu tìm kiếm, Ẩn phần gợi ý đi cho đỡ rối mắt
             faqDiv.style.display = 'none';
-
             let results = [];
 
             function traverseAndSearch(nodes, parentPath) {
@@ -441,9 +502,7 @@
                             snippet: n.summary || (n.detail ? 'Có nội dung chi tiết...' : 'Không có tóm tắt')
                         });
                     }
-                    if (n.children && n.children.length > 0) {
-                        traverseAndSearch(n.children, currentPath);
-                    }
+                    if (n.children && n.children.length > 0) traverseAndSearch(n.children, currentPath);
                 }
             }
             
@@ -475,10 +534,20 @@
             let element = document.getElementById(id);
             if (element) {
                 element.scrollIntoView({ behavior: "smooth", block: "start" });
+                
+                // NẾU LÀ KHỐI ACCORDION THÌ TỰ ĐỘNG MỞ RA
+                if (element.classList.contains('step-box')) {
+                    if (currentOpenStep && currentOpenStep !== element) {
+                        currentOpenStep.classList.remove('active');
+                    }
+                    element.classList.add('active');
+                    currentOpenStep = element;
+                }
+
                 let originalBg = element.style.backgroundColor;
                 element.style.transition = "background-color 0.5s";
-                element.style.backgroundColor = "#fff3cd"; // Nháy vàng nổi bật
-                setTimeout(() => { element.style.backgroundColor = originalBg; }, 2000);
+                element.style.backgroundColor = "#fff3cd"; 
+                setTimeout(() => { element.style.backgroundColor = originalBg || ''; }, 2000);
             }
         }
 
@@ -487,7 +556,7 @@
         // ==================================================================
         function openLoginForm() { toggleMenu(false); document.getElementById('loginOverlay').style.display = 'flex'; document.getElementById('username').value = ''; document.getElementById('password').value = ''; document.getElementById('loginError').style.display = 'none'; document.getElementById('username').focus(); }
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
-        function processLogin() { let user = document.getElementById('username').value.trim().toLowerCase(); let pass = document.getElementById('password').value; if (user === "admin" && pass === "btctuhn@123") { closeLoginForm(); document.getElementById('adminPanel').style.display = 'block'; renderAdminTree(); } else { document.getElementById('loginError').style.display = 'block'; document.getElementById('password').value = ''; document.getElementById('password').focus(); } }
+        function processLogin() { let user = document.getElementById('username').value.trim().toLowerCase(); let pass = document.getElementById('password').value; if (user === "admin" && pass === "123456") { closeLoginForm(); document.getElementById('adminPanel').style.display = 'block'; renderAdminTree(); } else { document.getElementById('loginError').style.display = 'block'; document.getElementById('password').value = ''; document.getElementById('password').focus(); } }
         document.getElementById('password').addEventListener('keypress', function (e) { if (e.key === 'Enter') processLogin(); }); document.getElementById('username').addEventListener('keypress', function (e) { if (e.key === 'Enter') document.getElementById('password').focus(); });
         function closeAdminPanel() { document.getElementById('adminPanel').style.display = 'none'; }
         function findNode(id, nodes) { for(let node of nodes) { if(node.id === id) return node; if(node.children) { let f = findNode(id, node.children); if(f) return f; } } return null; }
