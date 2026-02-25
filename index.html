@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#cc0000">
 
     <style>
-        /* CSS GIAO DIỆN CHÍNH */
+        /* CSS GIAO DIỆN CHÍNH & KHỐI ACCORDION (Giữ nguyên giao diện Mẹ bồng con tuyệt đẹp) */
         :root { --primary-color: #cc0000; --primary-dark: #a30000; --yellow-party: #f1c40f; --text-color: #333; --bg-sidebar: #2c3e50; --header-height: 50px; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Times New Roman', Times, serif; line-height: 1.6; color: var(--text-color); margin: 0; background-color: #f4f4f4; font-size: 1.1rem; }
@@ -39,30 +39,21 @@
         .phan-header { background-color: #fcebeb; padding: 15px; border-left: 6px solid var(--primary-color); margin-top: 30px; color: var(--primary-dark); font-size: 1.3em; font-weight: bold; }
         .muc-header { color: #b71c1c; margin-top: 25px; margin-bottom: 15px; font-weight: 700; font-size: 1.15em; }
 
-        /* ==================================================================
-           CSS KHỐI LỒNG GHÉP (NESTED ACCORDION) CHO CẤP 3, 4, 5
-           ================================================================== */
         .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px; margin-top: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); position: relative; scroll-margin-top: 70px; }
-        
-        /* Màu sắc đánh dấu các cấp bậc */
-        .step-box.level-2 { border-left: 5px solid #2980b9; } /* Cấp 3 - Xanh dương */
-        .step-box.level-3 { border-left: 4px solid #27ae60; } /* Cấp 4 - Xanh lá */
-        .step-box.level-4 { border-left: 3px solid var(--primary-color); } /* Cấp 5 - Đỏ */
+        .step-box.level-2 { border-left: 5px solid #2980b9; } 
+        .step-box.level-3 { border-left: 4px solid #27ae60; } 
+        .step-box.level-4 { border-left: 3px solid var(--primary-color); } 
 
         .step-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; border-radius: 8px; transition: background 0.2s; }
         .step-header:hover { background: #f9f9f9; }
         .step-title-wrapper { flex: 1; padding-right: 15px; }
         .step-icon { color: #888; transition: transform 0.3s ease; font-size: 0.85rem; font-family: -apple-system, sans-serif;}
 
-        /* Hiệu ứng trượt chiều cao bằng Grid - Cực mượt và xử lý được nội dung lồng nhau */
         .step-body-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s ease; }
         .step-box.active > .step-body-wrapper { grid-template-rows: 1fr; }
         .step-body { overflow: hidden; }
-        
-        /* Khoảng trống bên trong thân Accordion */
         .step-body-inner { padding: 0 15px 0 15px; }
         .step-box.active > .step-body-wrapper > .step-body > .step-body-inner { padding-top: 15px; padding-bottom: 15px; border-top: 1px dashed #eee; }
-
         .step-box.active > .step-header .step-icon { transform: rotate(180deg); color: var(--primary-color); }
 
         .step-number { background: var(--primary-color); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; display: inline-block; font-size: 0.9rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
@@ -70,17 +61,11 @@
         
         .step-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;}
         .btn-trich-dan { display: inline-flex; align-items: center; background-color: #e3f2fd; color: #0d47a1; padding: 8px 12px; border-radius: 6px; border: 1px solid #90caf9; font-size: 0.9em; cursor: pointer; font-weight: 600; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
-        .btn-trich-dan:active { background-color: #bbdefb; }
-        
         .inline-download { display: inline-flex; align-items: center; justify-content: center; background-color: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 12px; border: 1px solid #a5d6a7; font-size: 0.85rem; font-weight: bold; text-decoration: none; margin-left: 10px; vertical-align: middle; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s; }
-        .inline-download:hover { background-color: #c8e6c9; transform: translateY(-1px); }
-
         @media (max-width: 768px) { .btn-trich-dan { width: 100%; } }
 
         #backToTop { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 90; border: none; background-color: var(--primary-color); color: white; cursor: pointer; padding: 12px 15px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 1.2rem; }
-        
         #btnSearchFab { position: fixed; bottom: 20px; left: 20px; z-index: 90; border: none; background-color: var(--yellow-party); color: var(--primary-dark); cursor: pointer; padding: 12px 15px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 1.4rem; transition: 0.3s; display: flex; align-items: center; justify-content: center;}
-        #btnSearchFab:hover { transform: scale(1.1); background-color: #f39c12; }
         @media (min-width: 992px) { #btnSearchFab { left: 300px; } }
 
         /* MODAL POPUP CHUNG */
@@ -90,68 +75,59 @@
         .modal-user-body { font-family: 'Times New Roman', Times, serif; padding: 25px; line-height: 1.6; overflow-y: auto; text-align: justify; font-size: 1.15rem; }
         @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
 
-        /* CSS TRỢ LÝ TÌM KIẾM - CHATBOT */
+        /* CSS TRỢ LÝ TÌM KIẾM */
         .search-container { padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; display: flex; flex-direction: column; flex: 1; overflow: hidden;}
         .search-input-wrapper { display: flex; border: 2px solid var(--primary-color); border-radius: 8px; overflow: hidden; margin-bottom: 15px; flex-shrink: 0;}
         .search-input-wrapper input { flex: 1; padding: 12px 15px; border: none; font-size: 1rem; outline: none;}
         .search-input-wrapper button { background: var(--primary-color); color: white; border: none; padding: 0 20px; font-weight: bold; cursor: pointer;}
-        
         .faq-suggestions { padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 10px; flex-shrink: 0;}
         .faq-suggestions p { margin: 0 0 10px 0; font-size: 0.95rem; color: #555; font-weight: bold; }
         .faq-chips { display: flex; flex-wrap: wrap; gap: 8px; }
         .faq-chip { background: #f0f2f5; border: 1px solid #ddd; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; color: #333; cursor: pointer; transition: 0.2s; }
-        .faq-chip:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
-
         #searchResults { overflow-y: auto; flex: 1; font-family: 'Times New Roman', Times, serif;}
         .result-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s;}
-        .result-item:hover { background: #f9f9f9; border-left: 4px solid var(--primary-color); }
         .result-path { font-size: 0.85rem; color: #7f8c8d; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin-bottom: 5px;}
         .result-title { font-weight: bold; color: var(--primary-dark); font-size: 1.1rem; margin-bottom: 5px;}
         .result-snippet { font-size: 0.95rem; color: #555; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
         .no-result { text-align: center; color: #999; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
 
-        /* CSS FORM ĐĂNG NHẬP VÀ QUẢN TRỊ */
+        /* CSS QUẢN TRỊ MỚI */
         #loginOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000; align-items: center; justify-content: center; overflow: hidden; background-color: #8c0000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
         .trong-dong-bg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img_5-hinh-nen-powerpoint-trong-dong.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; }
         .login-card { background: rgba(255, 255, 255, 0.98); width: 90%; max-width: 400px; padding: 40px 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .close-login { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; transition: 0.2s; }
-        .close-login:hover { color: var(--primary-color); transform: scale(1.1); }
         .login-header { text-align: center; margin-bottom: 25px; }
-        .party-logo { margin-bottom: 10px; }
         .party-logo img { width: 110px; height: auto; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); }
-        .login-header h2 { margin: 0; color: var(--primary-dark); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
-        .login-header p { margin: 5px 0 0 0; color: #666; font-size: 0.9rem; }
+        .login-header h2 { margin: 0; color: var(--primary-dark); font-size: 1.5rem; text-transform: uppercase; }
         .input-group { display: flex; align-items: center; background: #f0f2f5; border: 1px solid #e4e6eb; border-radius: 10px; margin-bottom: 20px; padding: 5px 15px; transition: 0.3s; }
-        .input-group:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(204,0,0,0.1); background: #fff; }
         .input-icon { color: #888; font-size: 18px; margin-right: 10px; }
-        .input-group input { border: none; background: transparent; padding: 12px 0; width: 100%; font-size: 16px; outline: none; color: #333; }
-        .login-error { color: #dc3545; font-size: 0.85rem; text-align: center; margin-top: -10px; margin-bottom: 15px; display: none; font-weight: bold; }
-        .btn-login { width: 100%; background: linear-gradient(135deg, #cc0000, #a30000); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 4px 10px rgba(204,0,0,0.3); }
+        .input-group input { border: none; background: transparent; padding: 12px 0; width: 100%; font-size: 16px; outline: none; }
+        .login-error { color: #dc3545; font-size: 0.9rem; text-align: center; margin-top: -10px; margin-bottom: 15px; display: none; }
+        .btn-login { width: 100%; background: linear-gradient(135deg, #cc0000, #a30000); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 10px rgba(204,0,0,0.3); }
 
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; overflow-y: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         .admin-layout { display: flex; height: 100%; flex-direction: column; }
         @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
         .admin-sidebar { background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 10px; height: 40vh; display: flex; flex-direction: column; }
         @media (min-width: 768px) { .admin-sidebar { width: 350px; height: 100vh; border-right: 1px solid #ddd; border-bottom: none; } }
-        .admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 60vh; }
+        .admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 60vh; position: relative;}
         @media (min-width: 768px) { .admin-main { height: 100vh; } }
         .tree-container { flex: 1; overflow-y: auto; border: 1px solid #ddd; background: #fff; border-radius: 6px; padding: 10px; font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);}
         .tree-node { margin-bottom: 2px; }
         .tree-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; transition: all 0.2s ease; border: 1px solid transparent; color: #444; }
-        .tree-item:hover { background: #f0f8ff; border-color: #b8daff; }
-        .tree-item.active { background: #e3f2fd; color: #0d47a1; font-weight: bold; border-left: 4px solid #007bff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .tree-item.active { background: #e3f2fd; color: #0d47a1; font-weight: bold; border-left: 4px solid #007bff; }
         .root-item { font-weight: bold; background: #f8f9fa; border: 1px solid #eee; margin-top: 5px; color: var(--primary-dark); }
         .sub-item { position: relative; font-size: 1.05rem; }
         .sub-item::before { content: ""; position: absolute; left: -12px; top: 50%; width: 10px; border-top: 1px dashed #aaa; }
         .tree-children { margin-left: 12px; border-left: 1px dashed #aaa; padding-left: 12px; margin-top: 2px; }
         
-        .form-control { font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; transition: 0.3s; }
-        .form-control:focus { border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.25); outline: none; }
-        .btn { padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; margin-bottom: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
-        .btn-save { background: #28a745; } .btn-close { background: #6c757d; } .btn-delete { background: #dc3545; } .btn-add { background: #007bff; }
-        .admin-trigger { margin-top: 20px; text-align: center; font-size: 0.9rem; color: #bdc3c7; cursor: pointer; padding: 15px; border-top: 1px solid #444; background: rgba(0,0,0,0.1); transition: 0.3s; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
-        .admin-trigger:hover { color: white; background: var(--primary-color); }
+        .form-control { font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; outline: none;}
+        .form-control:focus { border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.25); }
+        .btn { padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; margin-bottom: 10px; font-family: -apple-system, sans-serif;}
+        .btn-save { background: #28a745; width: 100%; font-size: 1.1rem; padding: 15px;} .btn-save:hover{ background: #218838; }
+        .btn-close { background: #6c757d; } .btn-delete { background: #dc3545; } .btn-add { background: #007bff; }
+        .admin-trigger { margin-top: 20px; text-align: center; padding: 15px; border-top: 1px solid #444; background: rgba(0,0,0,0.1); cursor: pointer; color: #bdc3c7;}
     </style>
 </head>
 <body>
@@ -164,11 +140,11 @@
     <div class="overlay" onclick="toggleMenu(false)"></div>
     
     <div class="sidebar" id="sidebar">
-        <div class="close-sidebar-btn"><span onclick="toggleMenu(false)" style="cursor:pointer; color:#fff; font-size:1.5rem; padding: 10px; display: inline-block;">✕</span></div>
+        <div class="close-sidebar-btn"><span onclick="toggleMenu(false)" style="cursor:pointer; color:#fff; font-size:1.5rem; padding: 10px;">✕</span></div>
         <h3 style="margin-top:0">MỤC LỤC</h3>
         <ul id="menuList"></ul>
         <div style="margin-top: auto;"></div>
-        <div class="admin-trigger" onclick="openLoginForm()"><span style="font-size: 18px; vertical-align: middle;">⚙️</span> Đăng nhập Quản trị</div>
+        <div class="admin-trigger" onclick="openLoginForm()">⚙️ Đăng nhập Quản trị</div>
     </div>
 
     <div class="main-content">
@@ -177,44 +153,35 @@
         <br><br><br>
     </div>
 
-    <button id="btnSearchFab" onclick="openSearchModal()" title="Hỏi đáp & Tìm kiếm nghiệp vụ">🔍</button>
-    <button id="backToTop" onclick="topFunction()" title="Lên đầu trang">⬆</button>
+    <button id="btnSearchFab" onclick="openSearchModal()" title="Tìm kiếm">🔍</button>
+    <button id="backToTop" onclick="topFunction()">⬆</button>
 
     <div id="modalSearch" class="modal-user" onclick="closeModalOnBgClick(event, 'modalSearch')">
         <div class="modal-user-content" style="max-height: 90vh; height: 80vh;">
             <div class="modal-user-header">
                 <span>💬 Trợ lý Hỏi Đáp & Tìm kiếm</span>
-                <span onclick="closeSearchModal()" style="cursor:pointer; padding:10px; font-size:1.2rem">✕</span>
+                <span onclick="closeSearchModal()" style="cursor:pointer; padding:10px;">✕</span>
             </div>
             <div class="search-container">
                 <div class="search-input-wrapper">
-                    <input type="text" id="searchInput" placeholder="Gõ từ khóa hoặc câu hỏi của bạn..." autocomplete="off">
+                    <input type="text" id="searchInput" placeholder="Gõ từ khóa..." autocomplete="off">
                     <button onclick="performSearch()">TÌM</button>
                 </div>
-                
                 <div class="faq-suggestions" id="faqSuggestions">
                     <p>💡 Gợi ý câu hỏi thường gặp:</p>
                     <div class="faq-chips">
-                        <div class="faq-chip" onclick="quickAsk('dự bị biểu quyết')">Đảng viên dự bị được biểu quyết không?</div>
-                        <div class="faq-chip" onclick="quickAsk('mất thẻ đảng')">Thủ tục cấp lại thẻ Đảng bị mất?</div>
-                        <div class="faq-chip" onclick="quickAsk('chuyển sinh hoạt')">Chuyển sinh hoạt Đảng đi nơi khác?</div>
-                        <div class="faq-chip" onclick="quickAsk('tạm đình chỉ')">Khi nào bị tạm đình chỉ sinh hoạt?</div>
+                        <div class="faq-chip" onclick="quickAsk('dự bị biểu quyết')">Đảng viên dự bị biểu quyết?</div>
+                        <div class="faq-chip" onclick="quickAsk('mất thẻ đảng')">Mất thẻ Đảng?</div>
                     </div>
                 </div>
-
-                <div id="searchResults">
-                    <div class="no-result">Bạn cần tìm quy định gì? Hãy gõ từ khóa hoặc chọn gợi ý bên trên.</div>
-                </div>
+                <div id="searchResults"><div class="no-result">Gõ từ khóa để tìm kiếm...</div></div>
             </div>
         </div>
     </div>
 
     <div id="modalTrichDan" class="modal-user" onclick="closeModalOnBgClick(event, 'modalTrichDan')">
         <div class="modal-user-content">
-            <div class="modal-user-header">
-                <span>Nội dung chi tiết</span>
-                <span onclick="closePopup('modalTrichDan')" style="cursor:pointer; padding:10px; font-size:1.2rem">✕</span>
-            </div>
+            <div class="modal-user-header"><span>Nội dung chi tiết</span><span onclick="closePopup('modalTrichDan')" style="cursor:pointer; padding:10px;">✕</span></div>
             <div class="modal-user-body" id="noi-dung-chi-tiet"></div>
         </div>
     </div>
@@ -224,11 +191,11 @@
         <div class="login-card">
             <div class="close-login" onclick="closeLoginForm()">✕</div>
             <div class="login-header">
-                <div class="party-logo"><img src="image_359e62.png" alt="Cờ Đảng" onerror="this.src='https://i.postimg.cc/Qd05R7n2/image-359e62.png'"></div>
-                <h2>ĐĂNG NHẬP</h2><p>Hệ thống Quản trị Sổ tay</p>
+                <div class="party-logo"><img src="image_359e62.png" onerror="this.src='https://i.postimg.cc/Qd05R7n2/image-359e62.png'"></div>
+                <h2>ĐĂNG NHẬP</h2><p>Hệ thống Quản trị Đồng thời</p>
             </div>
             <div class="login-body">
-                <div class="input-group"><span class="input-icon">👤</span><input type="text" id="username" placeholder="Tên đăng nhập" autocomplete="off"></div>
+                <div class="input-group"><span class="input-icon">👤</span><input type="text" id="username" placeholder="Tên đăng nhập (VD: nguyenthithanhtam, ledinhkien)"></div>
                 <div class="input-group"><span class="input-icon">🔒</span><input type="password" id="password" placeholder="Mật khẩu"></div>
                 <div class="login-error" id="loginError">Tài khoản hoặc mật khẩu không đúng!</div>
                 <button class="btn-login" onclick="processLogin()">VÀO TRANG QUẢN TRỊ</button>
@@ -239,47 +206,53 @@
     <div id="adminPanel">
         <div class="admin-layout">
             <div class="admin-sidebar">
-                <div style="font-weight:bold; margin-bottom:10px; color: var(--primary-color);">CÂY THƯ MỤC NỘI DUNG</div>
+                <div style="font-weight:bold; margin-bottom:10px; color: var(--primary-color);">CÂY THƯ MỤC CHUNG</div>
                 <button class="btn btn-add" style="width: 100%;" onclick="addNewRoot()">+ Thêm Phần Lớn</button>
                 <div class="tree-container" id="adminTree"></div>
             </div>
 
             <div class="admin-main">
-                <div style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; flex-wrap: wrap;">
-                    <h2 style="margin:0; color: var(--primary-color);">Biên tập Nội dung</h2>
-                    <div style="margin-top: 10px;">
-                        <button id="btnSaveData" class="btn btn-save" onclick="saveData()">💾 LƯU LÊN MÁY CHỦ</button>
-                        <button class="btn btn-close" onclick="closeAdminPanel()">Thoát Quản trị</button>
+                <div style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="margin:0; color: var(--primary-color);">Biên tập Nội dung</h2>
+                        <div id="adminWelcome" style="color:#27ae60; font-weight:bold; font-size:0.9rem;"></div>
                     </div>
+                    <button class="btn btn-close" onclick="closeAdminPanel()">Thoát Quản trị</button>
                 </div>
 
-                <div id="editorArea" style="display:none">
+                <div id="editorArea" style="display:none; padding-bottom: 80px;">
                     <div style="text-align: right; margin-bottom: 10px;">
-                        <button class="btn btn-delete" style="font-size: 0.8rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;" onclick="deleteCurrentItem()">Xóa mục này</button>
+                        <button class="btn btn-delete" style="font-size: 0.8rem;" onclick="deleteCurrentItem()">Xóa mục này</button>
                     </div>
-                    <label style="font-weight: bold; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Loại (Tag):</label>
-                    <input type="text" id="inpTag" class="form-control" placeholder="VD: Hỏi đáp, Quy trình, Hướng dẫn...">
                     
-                    <label style="font-weight: bold; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Tiêu đề (Hoặc Câu hỏi):</label>
-                    <input type="text" id="inpTitle" class="form-control" placeholder="Nhập tiêu đề hoặc câu hỏi...">
+                    <label style="font-weight:bold; color:#555;">Loại (Tag):</label>
+                    <input type="text" id="inpTag" class="form-control" placeholder="VD: Hỏi đáp, Quy trình...">
                     
-                    <label style="font-weight: bold; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Nội dung tóm tắt (Hoặc Câu trả lời ngắn):</label>
-                    <textarea id="inpSummary" class="form-control" rows="4" placeholder="Gõ nội dung hướng dẫn hoặc câu trả lời tại đây..."></textarea>
+                    <label style="font-weight:bold; color:#555;">Tiêu đề:</label>
+                    <input type="text" id="inpTitle" class="form-control" placeholder="Nhập tiêu đề...">
                     
-                    <label style="font-weight: bold; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Trích dẫn gốc (Cơ sở pháp lý):</label>
-                    <textarea id="inpDetail" class="form-control" rows="5" placeholder="Dán nguyên văn quy định, điều lệ vào đây để làm bằng chứng..."></textarea>
+                    <label style="font-weight:bold; color:#555;">Nội dung tóm tắt:</label>
+                    <textarea id="inpSummary" class="form-control" rows="4"></textarea>
+                    
+                    <label style="font-weight:bold; color:#555;">Trích dẫn gốc:</label>
+                    <textarea id="inpDetail" class="form-control" rows="5"></textarea>
                     
                     <div style="background: #e8f5e9; border: 1px dashed #4caf50; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                        <label style="font-weight: bold; color: #2e7d32; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; display: block; margin-bottom: 5px;">📎 Link đính kèm biểu mẫu (Google Drive)</label>
-                        <input type="text" id="inpFileUrl" class="form-control" style="border-color: #81c784; margin-bottom: 10px;" placeholder="Dán link Google Drive vào đây...">
-                        <input type="text" id="inpFileName" class="form-control" style="border-color: #81c784;" placeholder="Nhập tên file (Hiển thị khi đưa chuột vào nút tải)">
+                        <label style="font-weight:bold; color:#2e7d32;">📎 Link Google Drive đính kèm</label>
+                        <input type="text" id="inpFileUrl" class="form-control" style="border-color:#81c784; margin-bottom:10px;" placeholder="Dán link vào đây...">
+                        <input type="text" id="inpFileName" class="form-control" style="border-color:#81c784;" placeholder="Tên file hiển thị">
                     </div>
 
-                    <div style="margin-top:20px; border-top:1px dashed #ccc; padding-top:20px">
-                        <button class="btn btn-add" style="background:#17a2b8" onclick="addSubItem()">+ Thêm mục con cấp dưới</button>
+                    <button class="btn btn-add" style="background:#17a2b8" onclick="addSubItem()">+ Thêm mục con cấp dưới trực tiếp</button>
+
+                    <div style="position: sticky; bottom: 0; background: rgba(255,255,255,0.9); padding: 15px 0; border-top: 1px solid #eee;">
+                        <button id="btnSaveSingle" class="btn btn-save" onclick="saveCurrentNodeToServer()">💾 LƯU THAY ĐỔI CHO MỤC NÀY</button>
                     </div>
                 </div>
-                <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;"><span style="font-size: 40px; color: #ddd;">👈</span><br>Hãy chọn một mục ở cây thư mục bên trái để bắt đầu chỉnh sửa</div>
+                
+                <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px;">
+                    <span style="font-size: 40px; color: #ddd;">👈</span><br>Hãy chọn một mục bên trái để chỉnh sửa độc lập
+                </div>
             </div>
         </div>
     </div>
@@ -288,6 +261,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
+        // CẤU HÌNH FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs",
             authDomain: "sotay-dangvien.firebaseapp.com",
@@ -296,279 +270,213 @@
             messagingSenderId: "699788813951",
             appId: "1:699788813951:web:14eb81183799f83e0f814a"
         };
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
 
-        let APP_DATA = [];
-        let currentEditNode = null;
+        // DANH SÁCH TÀI KHOẢN (Đăng nhập cùng lúc thoải mái)
+        const ADMIN_ACCOUNTS = {
+            "admin": { pass: "123456", name: "Quản trị viên Hệ thống" },
+            "nguyenthithanhtam": { pass: "123456", name: "Phạm Văn Kiên" },
+            "nguyenhuuhung": { pass: "123456", name: "Phạm Văn Kiên" },
+            "tranthikieuanh": { pass: "123456", name: "Phạm Văn Kiên" },
+            "tranphuongha": { pass: "123456", name: "Phạm Văn Kiên" },
+            "nguyensynghiem": { pass: "123456", name: "Phạm Văn Kiên" },
+            "nguyenthugiang": { pass: "123456", name: "Phạm Văn Kiên" },
+            "phamthithuhanh": { pass: "123456", name: "Trần Thị Phúc Hậu" }
+        };
 
+        let APP_DATA = [];
+        let currentEditNodeId = null; // Chỉ lưu ID để tránh bị lỗi tham chiếu khi người khác sửa
+        let loggedInUser = null;
+
+        // LẮNG NGHE DỮ LIỆU THỜI GIAN THỰC (Real-time Sync)
         db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
             if (doc.exists) {
-                let serverData = doc.data().treeData;
-                if (!serverData || serverData.length === 0) {
-                    APP_DATA = [{ id: 'empty', title: 'Chưa có dữ liệu', tag: '', summary: 'Vui lòng đăng nhập Quản trị để thêm mới.', detail: '', level: 0, children: [] }];
-                } else {
-                    APP_DATA = serverData;
-                }
+                APP_DATA = doc.data().treeData || [];
             } else {
-                APP_DATA = [{ id: 'r1', title: 'PHẦN 1: CÔNG TÁC TỔ CHỨC CƠ SỞ ĐẢNG', tag: '', summary: '', detail: '', level: 0, children: [] }];
+                APP_DATA = [{ id: 'r1', title: 'PHẦN 1', tag: '', summary: '', detail: '', level: 0, children: [] }];
             }
             
-            renderUserInterface();
-            if (document.getElementById('adminPanel').style.display === 'block') { renderAdminTree(); }
+            renderUserInterface(); // Cập nhật Sổ tay bên ngoài cho mọi người đọc
+            
+            // Nếu đang mở trang quản trị, cập nhật lại cây thư mục
+            if (document.getElementById('adminPanel').style.display === 'block') { 
+                renderAdminTree(); 
+            }
         });
 
         // ==================================================================
-        // LOGIC ACCORDION ĐA TẦNG
+        // CƠ CHẾ GIAO DỊCH (TRANSACTION) - CỐT LÕI ĐỂ LÀM VIỆC NHÓM
         // ==================================================================
-        function toggleStep(headerEl, event) {
-            // Ngăn chặn đóng/mở khi lỡ tay bấm vào nút Tải mẫu hoặc Xem chi tiết
-            if (event && (event.target.closest('a') || event.target.closest('.btn-trich-dan'))) return;
-            if (event) event.stopPropagation(); // Ngăn tín hiệu click chạy lên thư mục cha
-            
-            const stepBox = headerEl.parentElement;
-            
-            // Tự động đóng các thư mục "Anh em" cùng cấp để màn hình luôn gọn gàng
-            let parentInner = stepBox.parentElement;
-            if (parentInner) {
-                let siblings = parentInner.children;
-                for(let i=0; i<siblings.length; i++) {
-                    if (siblings[i] !== stepBox && siblings[i].classList.contains('step-box')) {
-                        siblings[i].classList.remove('active');
-                    }
-                }
-            }
-            
-            // Đảo trạng thái mở/đóng của chính nó
-            stepBox.classList.toggle('active');
-        }
-
-        // ==================================================================
-        // VẼ GIAO DIỆN CHÍNH (Thuật toán lồng ghép Đệ quy)
-        // ==================================================================
-        function renderUserInterface() {
-            const menuEl = document.getElementById('menuList');
-            const contentEl = document.getElementById('dynamicContent');
-            menuEl.innerHTML = ''; contentEl.innerHTML = '';
-
-            if (!APP_DATA || APP_DATA.length === 0) return;
-
-            // Hàm đệ quy: container là vị trí sẽ nhét phần tử vào (có thể lồng sâu bên trong phần tử khác)
-            function processNode(items, container) {
-                items.forEach(item => {
-                    // Menu Trái
-                    if(item.level <= 3) {
-                        let li = document.createElement('li');
-                        let indent = '';
-                        if (item.level === 1) indent = '&nbsp;&nbsp;📂 ';
-                        if (item.level === 2) indent = '&nbsp;&nbsp;&nbsp;&nbsp;📄 ';
-                        if (item.level === 3) indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🔹 ';
-                        // Bấm menu gọi luôn hàm jumpToResult để tự trượt và mở
-                        li.innerHTML = `<a onclick="toggleMenu(false); jumpToResult('${item.id}')">${indent}${item.title || 'Mục chưa có tên'}</a>`;
-                        menuEl.appendChild(li);
-                    }
-                    
-                    let div = document.createElement('div');
-                    div.id = item.id;
-                    
-                    let innerContent = '';
-                    let downloadBtn = item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="inline-download" title="${item.fileName || 'Tải biểu mẫu'}">📥 Tải mẫu</a>` : '';
-                    
-                    let nextContainer = container; // Mặc định là đổ chung với cha
-
-                    // CẤP 1 VÀ CẤP 2 LÀ TIÊU ĐỀ LỚN
-                    if(item.level === 0 || item.level === 1) {
-                        let hTag = item.level === 0 ? 'h2' : 'h3';
-                        let hClass = item.level === 0 ? 'phan-header' : 'muc-header';
-                        
-                        innerContent += `<${hTag} class="${hClass}">${item.title || 'Chưa đặt tên'} ${downloadBtn}</${hTag}>`;
-                        if (item.summary) innerContent += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
-                        if (item.detail) innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>`;
-                        
-                        div.innerHTML = innerContent;
-                        container.appendChild(div);
-                    } 
-                    // TỪ CẤP 3, 4, 5 LÀ CÁC HỘP ACCORDION LỒNG VÀO NHAU
-                    else {
-                        let levelClass = item.level === 2 ? 'level-2' : (item.level === 3 ? 'level-3' : 'level-4');
-                        let titleHtml = '';
-                        
-                        if (item.level === 2) {
-                            titleHtml = `<div style="font-weight: 700; font-size: 1.15em; color: #2980b9; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
-                        } else if (item.level === 3) {
-                            titleHtml = `<div style="font-weight: 700; font-size: 1.05em; color: #27ae60; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
-                        } else {
-                            titleHtml = `<div class="step-number" style="margin-bottom:0">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
-                        }
-
-                        div.className = `step-box ${levelClass}`;
-                        
-                        let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
-                        let summaryHtml = item.summary ? `<p style="margin-top:0">${item.summary.replace(/\n/g, '<br>')}</p>` : '';
-                        let detailBtn = item.detail ? `<div class="step-actions" style="margin-top:10px; margin-bottom:5px;"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>` : '';
-                        
-                        // Cấu trúc HTML Lồng ghép
-                        div.innerHTML = `
-                            <div class="step-header" onclick="toggleStep(this, event)">
-                                <div class="step-title-wrapper">
-                                    ${tagHtml}
-                                    ${titleHtml}
-                                </div>
-                                <div class="step-icon">▼</div>
-                            </div>
-                            <div class="step-body-wrapper">
-                                <div class="step-body">
-                                    <div class="step-body-inner" id="inner-${item.id}">
-                                        ${summaryHtml}
-                                        ${detailBtn}
-                                        </div>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(div);
-                        
-                        // Định tuyến: Nếu có mục con, mục con sẽ chui vào vùng "step-body-inner" của mục này
-                        nextContainer = div.querySelector(`#inner-${item.id}`);
-                    }
-                    
-                    if(item.children && item.children.length > 0) {
-                        processNode(item.children, nextContainer);
-                    }
-                });
-            }
-            processNode(APP_DATA, contentEl);
-        }
-
-        function saveData() {
-            const btn = document.getElementById('btnSaveData');
-            btn.innerText = "⏳ Đang lưu..."; btn.disabled = true;
-            db.collection("sotay").doc("dulieu").set({ treeData: APP_DATA })
-            .then(() => { btn.innerText = "💾 LƯU LÊN MÁY CHỦ"; btn.disabled = false; alert('Đã lưu thành công!'); })
-            .catch((error) => { btn.innerText = "💾 LƯU LÊN MÁY CHỦ"; btn.disabled = false; alert("Lỗi kết nối."); console.error(error); });
-        }
-
-        // ==================================================================
-        // TRỢ LÝ TÌM KIẾM
-        // ==================================================================
-        function openSearchModal() {
-            document.getElementById('modalSearch').style.display = 'flex';
-            document.getElementById('searchInput').value = '';
-            document.getElementById('faqSuggestions').style.display = 'block'; 
-            document.getElementById('searchResults').innerHTML = '<div class="no-result">Bạn cần tìm quy định gì? Hãy gõ từ khóa hoặc chọn gợi ý bên trên.</div>';
-            document.getElementById('searchInput').focus();
-        }
         
-        function closeSearchModal() { document.getElementById('modalSearch').style.display = 'none'; }
+        // 1. Lưu thay đổi của 1 Mục cụ thể
+        function saveCurrentNodeToServer() {
+            if (!currentEditNodeId) return;
 
-        function quickAsk(keyword) {
-            document.getElementById('searchInput').value = keyword;
-            performSearch();
-        }
+            const btn = document.getElementById('btnSaveSingle');
+            btn.innerText = "⏳ Đang đồng bộ..."; btn.disabled = true;
 
-        function removeAccents(str) {
-            if(!str) return "";
-            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-        }
+            // Gom dữ liệu người dùng vừa gõ trên form
+            let updatedData = {
+                tag: document.getElementById('inpTag').value,
+                title: document.getElementById('inpTitle').value,
+                summary: document.getElementById('inpSummary').value,
+                detail: document.getElementById('inpDetail').value,
+                fileUrl: document.getElementById('inpFileUrl').value,
+                fileName: document.getElementById('inpFileName').value
+            };
 
-        function performSearch() {
-            let keyword = document.getElementById('searchInput').value.trim();
-            let kwNoAccent = removeAccents(keyword);
-            let resultsContainer = document.getElementById('searchResults');
-            let faqDiv = document.getElementById('faqSuggestions');
-            
-            if (kwNoAccent.length < 2) {
-                resultsContainer.innerHTML = '<div class="no-result">Vui lòng nhập ít nhất 2 ký tự để tìm kiếm.</div>';
-                faqDiv.style.display = 'block'; 
-                return;
-            }
+            const docRef = db.collection("sotay").doc("dulieu");
 
-            faqDiv.style.display = 'none';
-            let results = [];
+            // Chạy Transaction (Tải bản mới nhất -> Hợp nhất -> Lưu lên)
+            db.runTransaction((transaction) => {
+                return transaction.get(docRef).then((doc) => {
+                    let serverTree = doc.data().treeData || [];
+                    let isFound = false;
 
-            function traverseAndSearch(nodes, parentPath) {
-                for(let n of nodes) {
-                    let currentPath = parentPath ? (parentPath + " > " + n.title) : (n.title || '');
-                    let textToSearch = removeAccents((n.title || '') + " " + (n.tag || '') + " " + (n.summary || '') + " " + (n.detail || ''));
-                    
-                    if (textToSearch.includes(kwNoAccent)) {
-                        results.push({
-                            id: n.id,
-                            path: parentPath || 'Mục chính',
-                            title: n.title,
-                            snippet: n.summary || (n.detail ? 'Có nội dung chi tiết...' : 'Không có tóm tắt')
-                        });
+                    // Thuật toán đệ quy tìm đúng ID trên server để đè dữ liệu mới vào
+                    function updateNode(nodes) {
+                        for(let i=0; i<nodes.length; i++) {
+                            if(nodes[i].id === currentEditNodeId) {
+                                // Ghi đè thông tin mới, nhưng giữ nguyên các thuộc tính cấu trúc (như children, level)
+                                nodes[i] = { ...nodes[i], ...updatedData };
+                                isFound = true;
+                                return;
+                            }
+                            if(nodes[i].children) updateNode(nodes[i].children);
+                        }
                     }
-                    if (n.children && n.children.length > 0) traverseAndSearch(n.children, currentPath);
-                }
-            }
-            
-            traverseAndSearch(APP_DATA, "");
 
-            if (results.length === 0) {
-                resultsContainer.innerHTML = '<div class="no-result">❌ Không tìm thấy kết quả nào phù hợp với từ khóa của bạn.</div>';
-            } else {
-                let html = '';
-                results.forEach(res => {
-                    html += `
-                        <div class="result-item" onclick="jumpToResult('${res.id}')">
-                            <div class="result-path">📂 ${res.path}</div>
-                            <div class="result-title">${res.title || 'Mục không tên'}</div>
-                            <div class="result-snippet">${res.snippet}</div>
-                        </div>
-                    `;
+                    updateNode(serverTree);
+
+                    if (isFound) {
+                        // Chỉ lưu khi tìm thấy đúng mục đó (tránh lỗi ai đó vừa xóa mục này)
+                        transaction.update(docRef, { treeData: serverTree });
+                    } else {
+                        throw "Mục này có thể đã bị người khác xóa trước đó!";
+                    }
                 });
-                resultsContainer.innerHTML = html;
-            }
-        }
-
-        document.getElementById('searchInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') performSearch();
-        });
-
-        function jumpToResult(id) {
-            closeSearchModal();
-            let element = document.getElementById(id);
-            if (element) {
-                // TỰ ĐỘNG MỞ TOANG TẤT CẢ CÁC THƯ MỤC CHA CHỨA NÓ BÊN TRONG
-                let parentNode = element.parentElement;
-                while (parentNode && parentNode.id !== 'dynamicContent') {
-                    if (parentNode.classList.contains('step-box')) {
-                        parentNode.classList.add('active'); // Mở cha
-                    }
-                    parentNode = parentNode.parentElement;
-                }
+            }).then(() => {
+                btn.innerText = "💾 LƯU THAY ĐỔI CHO MỤC NÀY"; btn.disabled = false;
                 
-                // TỰ ĐỘNG MỞ CHÍNH NÓ NẾU LÀ ACCORDION
-                if (element.classList.contains('step-box')) {
-                    element.classList.add('active');
-                }
-
-                // Chờ CSS animation mở ra 1 xíu rồi mới cuộn tới để chính xác vị trí
-                setTimeout(() => {
-                    element.scrollIntoView({ behavior: "smooth", block: "start" });
-                    
-                    // Nháy đèn làm nổi bật
-                    let originalBg = element.style.backgroundColor;
-                    element.style.transition = "background-color 0.5s";
-                    element.style.backgroundColor = "#fff3cd"; 
-                    setTimeout(() => { element.style.backgroundColor = originalBg || ''; }, 2000);
-                }, 150);
-            }
+                // Nút chuyển sang xanh nháy nháy báo thành công
+                btn.style.background = "#27ae60";
+                setTimeout(() => { btn.style.background = "#28a745"; }, 2000);
+            }).catch((err) => {
+                btn.innerText = "💾 LƯU THAY ĐỔI CHO MỤC NÀY"; btn.disabled = false;
+                alert("Lỗi đồng bộ: " + err);
+            });
         }
 
+        // 2. Thêm Phần lớn mới (Transaction)
+        function addNewRoot() { 
+            let newNode = {id: 'r'+Date.now(), title:'PHẦN MỚI TẠO', tag:'', summary:'', detail:'', level:0, children:[]};
+            
+            const docRef = db.collection("sotay").doc("dulieu");
+            db.runTransaction((transaction) => {
+                return transaction.get(docRef).then((doc) => {
+                    let serverTree = doc.data().treeData || [];
+                    serverTree.push(newNode);
+                    transaction.update(docRef, { treeData: serverTree });
+                });
+            }).then(() => { selectItem(newNode.id); }); 
+        }
+
+        // 3. Thêm Mục con (Transaction)
+        function addSubItem() { 
+            if(!currentEditNodeId) return;
+            // Tìm level của mục cha để tính level cho mục con
+            let parentNode = findNode(currentEditNodeId, APP_DATA);
+            if(!parentNode) return;
+
+            let newNode = {id: 'n'+Date.now(), title:'Mục con mới', tag:'', summary:'', detail:'', level: parentNode.level + 1, children:[]};
+
+            const docRef = db.collection("sotay").doc("dulieu");
+            db.runTransaction((transaction) => {
+                return transaction.get(docRef).then((doc) => {
+                    let serverTree = doc.data().treeData || [];
+                    
+                    function appendChild(nodes) {
+                        for(let i=0; i<nodes.length; i++) {
+                            if(nodes[i].id === currentEditNodeId) {
+                                if(!nodes[i].children) nodes[i].children = [];
+                                nodes[i].children.push(newNode);
+                                return true;
+                            }
+                            if(nodes[i].children && appendChild(nodes[i].children)) return true;
+                        }
+                        return false;
+                    }
+
+                    appendChild(serverTree);
+                    transaction.update(docRef, { treeData: serverTree });
+                });
+            }).then(() => { selectItem(newNode.id); }); 
+        }
+
+        // 4. Xóa Mục (Transaction)
+        function deleteCurrentItem() { 
+            if(!currentEditNodeId || !confirm('Cảnh báo: Bạn có chắc chắn muốn xóa mục này? Toàn bộ mục con cũng sẽ bị xóa!')) return; 
+
+            const docRef = db.collection("sotay").doc("dulieu");
+            db.runTransaction((transaction) => {
+                return transaction.get(docRef).then((doc) => {
+                    let serverTree = doc.data().treeData || [];
+                    
+                    // Tìm cha của mục cần xóa
+                    function removeNode(nodes) {
+                        let idx = nodes.findIndex(c => c.id === currentEditNodeId);
+                        if(idx > -1) {
+                            nodes.splice(idx, 1);
+                            return true;
+                        }
+                        for(let i=0; i<nodes.length; i++){
+                            if(nodes[i].children && removeNode(nodes[i].children)) return true;
+                        }
+                        return false;
+                    }
+
+                    removeNode(serverTree);
+                    transaction.update(docRef, { treeData: serverTree });
+                });
+            }).then(() => { 
+                currentEditNodeId = null; 
+                document.getElementById('editorArea').style.display='none'; 
+                document.getElementById('editorPlaceholder').style.display='block';
+            }); 
+        }
+
+
         // ==================================================================
-        // CÁC HÀM XỬ LÝ QUẢN TRỊ 
+        // CÁC HÀM XỬ LÝ GIAO DIỆN (UI) CÒN LẠI
         // ==================================================================
-        function openLoginForm() { toggleMenu(false); document.getElementById('loginOverlay').style.display = 'flex'; document.getElementById('username').value = ''; document.getElementById('password').value = ''; document.getElementById('loginError').style.display = 'none'; document.getElementById('username').focus(); }
+        function processLogin() { 
+            let user = document.getElementById('username').value.trim().toLowerCase(); 
+            let pass = document.getElementById('password').value; 
+            let errBox = document.getElementById('loginError');
+            
+            if (ADMIN_ACCOUNTS[user] && ADMIN_ACCOUNTS[user].pass === pass) { 
+                loggedInUser = user;
+                document.getElementById('loginOverlay').style.display = 'none'; 
+                document.getElementById('adminPanel').style.display = 'block'; 
+                document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b>${ADMIN_ACCOUNTS[user].name}</b> <br><span style='color:#666; font-size:0.8rem; font-weight:normal;'>* Hệ thống đã kích hoạt cơ chế Lưu độc lập. Nhiều người có thể sửa cùng lúc.</span>`;
+                renderAdminTree(); 
+            } else { 
+                errBox.style.display = 'block'; 
+                document.getElementById('password').value = ''; 
+            } 
+        }
+        function openLoginForm() { toggleMenu(false); document.getElementById('loginOverlay').style.display = 'flex'; }
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
-        function processLogin() { let user = document.getElementById('username').value.trim().toLowerCase(); let pass = document.getElementById('password').value; if (user === "admin" && pass === "123456") { closeLoginForm(); document.getElementById('adminPanel').style.display = 'block'; renderAdminTree(); } else { document.getElementById('loginError').style.display = 'block'; document.getElementById('password').value = ''; document.getElementById('password').focus(); } }
-        document.getElementById('password').addEventListener('keypress', function (e) { if (e.key === 'Enter') processLogin(); }); document.getElementById('username').addEventListener('keypress', function (e) { if (e.key === 'Enter') document.getElementById('password').focus(); });
-        function closeAdminPanel() { document.getElementById('adminPanel').style.display = 'none'; }
-        function findNode(id, nodes) { for(let node of nodes) { if(node.id === id) return node; if(node.children) { let f = findNode(id, node.children); if(f) return f; } } return null; }
-        function findParent(id, nodes) { for(let node of nodes) { if(node.children && node.children.some(c => c.id === id)) return node; let f = findParent(id, node.children || []); if(f) return f; } return null; }
+        function closeAdminPanel() { document.getElementById('adminPanel').style.display = 'none'; loggedInUser = null; }
+
+        // Tìm node trong cây
+        function findNode(id, nodes) { 
+            for(let node of nodes) { 
+                if(node.id === id) return node; 
+                if(node.children) { let f = findNode(id, node.children); if(f) return f; } 
+            } return null; 
+        }
 
         function renderAdminTree() {
             const tree = document.getElementById('adminTree');
@@ -576,7 +484,7 @@
             function buildHtml(nodes) {
                 let html = '';
                 nodes.forEach(node => {
-                    let active = (currentEditNode && currentEditNode.id === node.id) ? 'active' : '';
+                    let active = (currentEditNodeId === node.id) ? 'active' : '';
                     let icon = node.level === 0 ? '📚' : (node.level === 1 ? '📂' : (node.level === 2 ? '📄' : (node.level === 3 ? '📑' : '📝')));
                     let extraClass = node.level === 0 ? 'root-item' : 'sub-item';
                     html += `<div class="tree-node"><div class="tree-item ${extraClass} ${active}" onclick="selectItem('${node.id}')"><span style="margin-right: 8px;">${icon}</span> <span>${node.title || 'Chưa đặt tên'}</span></div>`;
@@ -588,45 +496,141 @@
             tree.innerHTML = buildHtml(APP_DATA);
         }
 
+        // Đổ dữ liệu vào Form bên phải khi click vào 1 mục
         function selectItem(id) {
-            currentEditNode = findNode(id, APP_DATA);
-            renderAdminTree();
+            currentEditNodeId = id;
+            let nodeData = findNode(id, APP_DATA);
+            if(!nodeData) return;
+
+            renderAdminTree(); // Làm xanh cái vừa bấm
+            
             document.getElementById('editorPlaceholder').style.display = 'none';
             document.getElementById('editorArea').style.display = 'block';
             
-            document.getElementById('inpTag').value = currentEditNode.tag || '';
-            document.getElementById('inpTitle').value = currentEditNode.title || '';
-            document.getElementById('inpSummary').value = currentEditNode.summary || '';
-            document.getElementById('inpDetail').value = currentEditNode.detail || '';
-            document.getElementById('inpFileUrl').value = currentEditNode.fileUrl || '';
-            document.getElementById('inpFileName').value = currentEditNode.fileName || '';
+            // Xóa rỗng rồi đổ dữ liệu vào
+            document.getElementById('inpTag').value = nodeData.tag || '';
+            document.getElementById('inpTitle').value = nodeData.title || '';
+            document.getElementById('inpSummary').value = nodeData.summary || '';
+            document.getElementById('inpDetail').value = nodeData.detail || '';
+            document.getElementById('inpFileUrl').value = nodeData.fileUrl || '';
+            document.getElementById('inpFileName').value = nodeData.fileName || '';
         }
 
-        ['inpTag', 'inpTitle', 'inpSummary', 'inpDetail', 'inpFileUrl', 'inpFileName'].forEach(fid => {
-            document.getElementById(fid).addEventListener('input', function() {
-                if(!currentEditNode) return;
-                if(fid === 'inpTag') currentEditNode.tag = this.value;
-                if(fid === 'inpTitle') { currentEditNode.title = this.value; renderAdminTree(); }
-                if(fid === 'inpSummary') currentEditNode.summary = this.value;
-                if(fid === 'inpDetail') currentEditNode.detail = this.value;
-                if(fid === 'inpFileUrl') currentEditNode.fileUrl = this.value;
-                if(fid === 'inpFileName') currentEditNode.fileName = this.value;
-            });
-        });
+        // Logic Mẹ bồng con (Lồng ghép Accordion ngoài trang đọc)
+        function toggleStep(headerEl, event) {
+            if (event && (event.target.closest('a') || event.target.closest('.btn-trich-dan'))) return;
+            if (event) event.stopPropagation();
+            const stepBox = headerEl.parentElement;
+            let parentInner = stepBox.parentElement;
+            if (parentInner) {
+                let siblings = parentInner.children;
+                for(let i=0; i<siblings.length; i++) {
+                    if (siblings[i] !== stepBox && siblings[i].classList.contains('step-box')) siblings[i].classList.remove('active');
+                }
+            }
+            stepBox.classList.toggle('active');
+        }
 
-        function addNewRoot() { APP_DATA.push({id: 'r'+Date.now(), title:'PHẦN MỚI', tag:'', summary:'', detail:'', level:0, children:[]}); renderAdminTree(); renderUserInterface(); }
-        function addSubItem() { if(!currentEditNode) return; if(!currentEditNode.children) currentEditNode.children = []; currentEditNode.children.push({id: 'n'+Date.now(), title:'Mục mới', tag:'', summary:'', detail:'', level: currentEditNode.level+1, children:[]}); renderAdminTree(); renderUserInterface(); }
-        function deleteCurrentItem() { if(!currentEditNode || !confirm('Cảnh báo: Bạn có chắc chắn muốn xóa mục này? Toàn bộ mục con cũng sẽ bị xóa!')) return; let p = findParent(currentEditNode.id, APP_DATA); if(p) { let idx = p.children.findIndex(c=>c.id === currentEditNode.id); p.children.splice(idx,1); } else { let idx = APP_DATA.findIndex(c=>c.id === currentEditNode.id); APP_DATA.splice(idx,1); } currentEditNode = null; document.getElementById('editorArea').style.display='none'; renderAdminTree(); renderUserInterface(); }
-        function toggleMenu(forceState) { const sb = document.getElementById('sidebar'); const ov = document.querySelector('.overlay'); if (typeof forceState !== 'undefined') { if(forceState) { sb.classList.add('active'); ov.classList.add('active'); } else { sb.classList.remove('active'); ov.classList.remove('active'); } } else { sb.classList.toggle('active'); ov.classList.toggle('active'); } }
+        function renderUserInterface() {
+            const menuEl = document.getElementById('menuList');
+            const contentEl = document.getElementById('dynamicContent');
+            menuEl.innerHTML = ''; contentEl.innerHTML = '';
+            if (!APP_DATA || APP_DATA.length === 0) return;
+
+            function processNode(items, container) {
+                items.forEach(item => {
+                    if(item.level <= 3) {
+                        let li = document.createElement('li');
+                        let indent = item.level === 1 ? '&nbsp;&nbsp;📂 ' : (item.level === 2 ? '&nbsp;&nbsp;&nbsp;&nbsp;📄 ' : '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🔹 ');
+                        li.innerHTML = `<a onclick="toggleMenu(false); jumpToResult('${item.id}')">${indent}${item.title || 'Mục chưa có tên'}</a>`;
+                        menuEl.appendChild(li);
+                    }
+                    
+                    let div = document.createElement('div'); div.id = item.id;
+                    let innerContent = '';
+                    let downloadBtn = item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="inline-download" title="${item.fileName || 'Tải biểu mẫu'}">📥 Tải mẫu</a>` : '';
+                    let nextContainer = container; 
+
+                    if(item.level === 0 || item.level === 1) {
+                        let hTag = item.level === 0 ? 'h2' : 'h3';
+                        let hClass = item.level === 0 ? 'phan-header' : 'muc-header';
+                        innerContent += `<${hTag} class="${hClass}">${item.title || 'Chưa đặt tên'} ${downloadBtn}</${hTag}>`;
+                        if (item.summary) innerContent += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
+                        if (item.detail) innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>`;
+                        div.innerHTML = innerContent;
+                        container.appendChild(div);
+                    } else {
+                        let levelClass = item.level === 2 ? 'level-2' : (item.level === 3 ? 'level-3' : 'level-4');
+                        let titleHtml = item.level === 2 ? `<div style="font-weight: 700; font-size: 1.15em; color: #2980b9; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>` : (item.level === 3 ? `<div style="font-weight: 700; font-size: 1.05em; color: #27ae60; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>` : `<div class="step-number" style="margin-bottom:0">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`);
+                        div.className = `step-box ${levelClass}`;
+                        let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
+                        let summaryHtml = item.summary ? `<p style="margin-top:0">${item.summary.replace(/\n/g, '<br>')}</p>` : '';
+                        let detailBtn = item.detail ? `<div class="step-actions" style="margin-top:10px; margin-bottom:5px;"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem chi tiết</div></div>` : '';
+                        
+                        div.innerHTML = `<div class="step-header" onclick="toggleStep(this, event)"><div class="step-title-wrapper">${tagHtml}${titleHtml}</div><div class="step-icon">▼</div></div><div class="step-body-wrapper"><div class="step-body"><div class="step-body-inner" id="inner-${item.id}">${summaryHtml}${detailBtn}</div></div></div>`;
+                        container.appendChild(div);
+                        nextContainer = div.querySelector(`#inner-${item.id}`);
+                    }
+                    if(item.children && item.children.length > 0) processNode(item.children, nextContainer);
+                });
+            }
+            processNode(APP_DATA, contentEl);
+        }
+
+        // Logic Tìm kiếm
+        function openSearchModal() { document.getElementById('modalSearch').style.display = 'flex'; document.getElementById('searchInput').value = ''; document.getElementById('faqSuggestions').style.display = 'block'; document.getElementById('searchResults').innerHTML = '<div class="no-result">Gõ từ khóa để tìm...</div>'; document.getElementById('searchInput').focus(); }
+        function closeSearchModal() { document.getElementById('modalSearch').style.display = 'none'; }
+        function quickAsk(keyword) { document.getElementById('searchInput').value = keyword; performSearch(); }
+        function removeAccents(str) { return str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : ""; }
+        function performSearch() {
+            let kwNoAccent = removeAccents(document.getElementById('searchInput').value.trim());
+            let resContainer = document.getElementById('searchResults');
+            let faqDiv = document.getElementById('faqSuggestions');
+            if (kwNoAccent.length < 2) { resContainer.innerHTML = '<div class="no-result">Vui lòng gõ ít nhất 2 ký tự.</div>'; faqDiv.style.display = 'block'; return; }
+            faqDiv.style.display = 'none';
+            let results = [];
+            function traverse(nodes, parentPath) {
+                for(let n of nodes) {
+                    let curPath = parentPath ? (parentPath + " > " + n.title) : (n.title || '');
+                    if (removeAccents((n.title||'')+" "+(n.tag||'')+" "+(n.summary||'')+" "+(n.detail||'')).includes(kwNoAccent)) {
+                        results.push({ id: n.id, path: parentPath || 'Mục chính', title: n.title, snippet: n.summary || 'Chi tiết...' });
+                    }
+                    if (n.children) traverse(n.children, curPath);
+                }
+            }
+            traverse(APP_DATA, "");
+            if (results.length === 0) resContainer.innerHTML = '<div class="no-result">❌ Không tìm thấy.</div>';
+            else {
+                let html = ''; results.forEach(r => html += `<div class="result-item" onclick="jumpToResult('${r.id}')"><div class="result-path">📂 ${r.path}</div><div class="result-title">${r.title}</div><div class="result-snippet">${r.snippet}</div></div>`);
+                resContainer.innerHTML = html;
+            }
+        }
+        document.getElementById('searchInput').addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(); });
         
+        function jumpToResult(id) {
+            closeSearchModal();
+            let el = document.getElementById(id);
+            if (el) {
+                let parentNode = el.parentElement;
+                while (parentNode && parentNode.id !== 'dynamicContent') {
+                    if (parentNode.classList.contains('step-box')) parentNode.classList.add('active');
+                    parentNode = parentNode.parentElement;
+                }
+                if (el.classList.contains('step-box')) el.classList.add('active');
+                setTimeout(() => {
+                    el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    let oBg = el.style.backgroundColor; el.style.backgroundColor = "#fff3cd"; setTimeout(() => el.style.backgroundColor = oBg || '', 2000);
+                }, 150);
+            }
+        }
+
+        // Tiện ích
+        function toggleMenu(f) { const sb = document.getElementById('sidebar'); const ov = document.querySelector('.overlay'); if (typeof f !== 'undefined') { if(f) { sb.classList.add('active'); ov.classList.add('active'); } else { sb.classList.remove('active'); ov.classList.remove('active'); } } else { sb.classList.toggle('active'); ov.classList.toggle('active'); } }
         function showPopup(html) { document.getElementById('noi-dung-chi-tiet').innerHTML = html; document.getElementById('modalTrichDan').style.display = 'flex'; }
         function closePopup(id) { document.getElementById(id).style.display = 'none'; }
-        function closeModalOnBgClick(e, modalId) { if(e.target.id === modalId) closePopup(modalId); }
-        
-        window.onscroll = function() { document.getElementById("backToTop").style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none"; };
+        function closeModalOnBgClick(e, id) { if(e.target.id === id) closePopup(id); }
+        window.onscroll = () => document.getElementById("backToTop").style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none";
         function topFunction() { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; }
-        
-        renderUserInterface();
     </script>
 </body>
 </html>
