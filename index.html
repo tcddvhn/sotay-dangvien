@@ -10,9 +10,7 @@
     <meta name="theme-color" content="#cc0000">
 
     <style>
-        /* ==================================================================
-           CSS GIAO DIỆN CHÍNH (Font Times New Roman)
-           ================================================================== */
+        /* CSS GIAO DIỆN CHÍNH */
         :root { --primary-color: #cc0000; --primary-dark: #a30000; --yellow-party: #f1c40f; --text-color: #333; --bg-sidebar: #2c3e50; --header-height: 50px; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Times New Roman', Times, serif; line-height: 1.6; color: var(--text-color); margin: 0; background-color: #f4f4f4; font-size: 1.1rem; }
@@ -43,7 +41,7 @@
         .tieu-muc-header { color: #2980b9; margin-top: 20px; font-weight: 700; font-size: 1.1em; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
         .sub-tieu-muc-header { color: #27ae60; margin-top: 15px; font-weight: bold; font-size: 1.05em; border-left: 4px solid #27ae60; padding-left: 10px; }
 
-        .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; margin-top: 15px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); position: relative; }
+        .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; margin-top: 15px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); position: relative; scroll-margin-top: 70px;}
         .step-number { background: var(--primary-color); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 10px; font-size: 0.95rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #666; font-weight: bold; margin-bottom: 5px; display: block; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         
@@ -51,28 +49,46 @@
         .btn-trich-dan { display: inline-flex; align-items: center; background-color: #e3f2fd; color: #0d47a1; padding: 8px 15px; border-radius: 6px; border: 1px solid #90caf9; font-size: 0.9em; cursor: pointer; font-weight: 600; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         .btn-trich-dan:active { background-color: #bbdefb; }
         
-        /* CSS CHO NÚT TẢI FILE SIÊU NHỎ GỌN (INLINE PILL) MỚI */
-        .inline-download {
-            display: inline-flex; align-items: center; justify-content: center;
-            background-color: #e8f5e9; color: #2e7d32;
-            padding: 4px 10px; border-radius: 12px; border: 1px solid #a5d6a7;
-            font-size: 0.85rem; font-weight: bold; text-decoration: none;
-            margin-left: 10px; vertical-align: middle; white-space: nowrap;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s;
-        }
+        .inline-download { display: inline-flex; align-items: center; justify-content: center; background-color: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 12px; border: 1px solid #a5d6a7; font-size: 0.85rem; font-weight: bold; text-decoration: none; margin-left: 10px; vertical-align: middle; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s; }
         .inline-download:hover { background-color: #c8e6c9; transform: translateY(-1px); }
 
         @media (max-width: 768px) { .btn-trich-dan { width: 100%; } }
 
+        #backToTop { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 90; border: none; background-color: var(--primary-color); color: white; cursor: pointer; padding: 12px 15px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 1.2rem; }
+        
+        #btnSearchFab { position: fixed; bottom: 20px; left: 20px; z-index: 90; border: none; background-color: var(--yellow-party); color: var(--primary-dark); cursor: pointer; padding: 12px 15px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 1.4rem; transition: 0.3s; display: flex; align-items: center; justify-content: center;}
+        #btnSearchFab:hover { transform: scale(1.1); background-color: #f39c12; }
+        @media (min-width: 992px) { #btnSearchFab { left: 300px; } }
+
+        /* MODAL POPUP CHUNG */
         .modal-user { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); padding: 10px; align-items: center; justify-content: center; }
         .modal-user-content { background-color: #fefefe; width: 100%; max-width: 700px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; max-height: 85vh; animation: slideUp 0.3s; }
         .modal-user-header { background-color: var(--primary-color); color: white; padding: 15px; border-radius: 12px 12px 0 0; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         .modal-user-body { font-family: 'Times New Roman', Times, serif; padding: 25px; line-height: 1.6; overflow-y: auto; text-align: justify; font-size: 1.15rem; }
         @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
-        #backToTop { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 90; border: none; background-color: var(--primary-color); color: white; cursor: pointer; padding: 12px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 1.2rem; }
 
-        /* CSS FORM ĐĂNG NHẬP */
+        /* CSS TRỢ LÝ TÌM KIẾM - CHATBOT */
+        .search-container { padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; display: flex; flex-direction: column; flex: 1; overflow: hidden;}
+        .search-input-wrapper { display: flex; border: 2px solid var(--primary-color); border-radius: 8px; overflow: hidden; margin-bottom: 15px; flex-shrink: 0;}
+        .search-input-wrapper input { flex: 1; padding: 12px 15px; border: none; font-size: 1rem; outline: none;}
+        .search-input-wrapper button { background: var(--primary-color); color: white; border: none; padding: 0 20px; font-weight: bold; cursor: pointer;}
+        
+        /* GỢI Ý CÂU HỎI (MỚI) */
+        .faq-suggestions { padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 10px; flex-shrink: 0;}
+        .faq-suggestions p { margin: 0 0 10px 0; font-size: 0.95rem; color: #555; font-weight: bold; }
+        .faq-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .faq-chip { background: #f0f2f5; border: 1px solid #ddd; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; color: #333; cursor: pointer; transition: 0.2s; }
+        .faq-chip:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        #searchResults { overflow-y: auto; flex: 1; font-family: 'Times New Roman', Times, serif;}
+        .result-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s;}
+        .result-item:hover { background: #f9f9f9; border-left: 4px solid var(--primary-color); }
+        .result-path { font-size: 0.85rem; color: #7f8c8d; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin-bottom: 5px;}
+        .result-title { font-weight: bold; color: var(--primary-dark); font-size: 1.1rem; margin-bottom: 5px;}
+        .result-snippet { font-size: 0.95rem; color: #555; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
+        .no-result { text-align: center; color: #999; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
+
+        /* CSS FORM ĐĂNG NHẬP VÀ QUẢN TRỊ */
         #loginOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000; align-items: center; justify-content: center; overflow: hidden; background-color: #8c0000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
         .trong-dong-bg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img_5-hinh-nen-powerpoint-trong-dong.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; }
         .login-card { background: rgba(255, 255, 255, 0.98); width: 90%; max-width: 400px; padding: 40px 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -91,7 +107,6 @@
         .login-error { color: #dc3545; font-size: 0.85rem; text-align: center; margin-top: -10px; margin-bottom: 15px; display: none; font-weight: bold; }
         .btn-login { width: 100%; background: linear-gradient(135deg, #cc0000, #a30000); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; box-shadow: 0 4px 10px rgba(204,0,0,0.3); }
 
-        /* CSS QUẢN TRỊ */
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; overflow-y: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         .admin-layout { display: flex; height: 100%; flex-direction: column; }
         @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
@@ -144,17 +159,48 @@
         <br><br><br>
     </div>
 
-    <div id="modalTrichDan" class="modal-user" onclick="dongModal(event)">
+    <button id="btnSearchFab" onclick="openSearchModal()" title="Hỏi đáp & Tìm kiếm nghiệp vụ">🔍</button>
+
+    <button id="backToTop" onclick="topFunction()" title="Lên đầu trang">⬆</button>
+
+    <div id="modalSearch" class="modal-user" onclick="closeModalOnBgClick(event, 'modalSearch')">
+        <div class="modal-user-content" style="max-height: 90vh; height: 80vh;">
+            <div class="modal-user-header">
+                <span>💬 Trợ lý Hỏi Đáp & Tìm kiếm</span>
+                <span onclick="closeSearchModal()" style="cursor:pointer; padding:10px; font-size:1.2rem">✕</span>
+            </div>
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <input type="text" id="searchInput" placeholder="Gõ từ khóa hoặc câu hỏi của bạn..." autocomplete="off">
+                    <button onclick="performSearch()">TÌM</button>
+                </div>
+                
+                <div class="faq-suggestions" id="faqSuggestions">
+                    <p>💡 Gợi ý câu hỏi thường gặp (Bấm để xem nhanh):</p>
+                    <div class="faq-chips">
+                        <div class="faq-chip" onclick="quickAsk('dự bị biểu quyết')">Đảng viên dự bị được biểu quyết không?</div>
+                        <div class="faq-chip" onclick="quickAsk('mất thẻ đảng')">Thủ tục cấp lại thẻ Đảng bị mất?</div>
+                        <div class="faq-chip" onclick="quickAsk('chuyển sinh hoạt')">Chuyển sinh hoạt Đảng đi nơi khác?</div>
+                        <div class="faq-chip" onclick="quickAsk('tạm đình chỉ')">Khi nào bị tạm đình chỉ sinh hoạt?</div>
+                    </div>
+                </div>
+
+                <div id="searchResults">
+                    <div class="no-result">Bạn cần tìm quy định gì? Hãy gõ từ khóa hoặc chọn gợi ý bên trên.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalTrichDan" class="modal-user" onclick="closeModalOnBgClick(event, 'modalTrichDan')">
         <div class="modal-user-content">
             <div class="modal-user-header">
                 <span>Nội dung chi tiết</span>
-                <span onclick="dongModalButton()" style="cursor:pointer; padding:10px; font-size:1.2rem">✕</span>
+                <span onclick="closePopup('modalTrichDan')" style="cursor:pointer; padding:10px; font-size:1.2rem">✕</span>
             </div>
             <div class="modal-user-body" id="noi-dung-chi-tiet"></div>
         </div>
     </div>
-
-    <button id="backToTop" onclick="topFunction()">⬆</button>
 
     <div id="loginOverlay">
         <div class="trong-dong-bg"></div>
@@ -162,7 +208,7 @@
             <div class="close-login" onclick="closeLoginForm()">✕</div>
             <div class="login-header">
                 <div class="party-logo">
-                    <img src="image_359e62.png" alt="Cờ Đảng và Cờ Tổ quốc" onerror="this.src='https://i.postimg.cc/Qd05R7n2/image-359e62.png'">
+                    <img src="image_359e62.png" alt="Cờ Đảng" onerror="this.src='https://i.postimg.cc/Qd05R7n2/image-359e62.png'">
                 </div>
                 <h2>ĐĂNG NHẬP</h2>
                 <p>Hệ thống Quản trị Sổ tay</p>
@@ -204,21 +250,19 @@
                         <button class="btn btn-delete" style="font-size: 0.8rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;" onclick="deleteCurrentItem()">Xóa mục này</button>
                     </div>
                     <label style="font-weight: bold; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Loại (Tag):</label>
-                    <input type="text" id="inpTag" class="form-control" placeholder="VD: Mẫu biểu, Quy trình, Hướng dẫn...">
+                    <input type="text" id="inpTag" class="form-control" placeholder="VD: Hỏi đáp, Quy trình, Hướng dẫn...">
                     
-                    <label style="font-weight: bold; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Tiêu đề:</label>
-                    <input type="text" id="inpTitle" class="form-control" placeholder="Nhập tiêu đề mục...">
+                    <label style="font-weight: bold; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Tiêu đề (Hoặc Câu hỏi):</label>
+                    <input type="text" id="inpTitle" class="form-control" placeholder="Nhập tiêu đề hoặc câu hỏi...">
                     
-                    <label style="font-weight: bold; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Nội dung tóm tắt (Hiển thị bên ngoài):</label>
-                    <textarea id="inpSummary" class="form-control" rows="4" placeholder="Gõ nội dung hướng dẫn ngắn gọn tại đây..."></textarea>
+                    <label style="font-weight: bold; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Nội dung tóm tắt (Hoặc Câu trả lời ngắn):</label>
+                    <textarea id="inpSummary" class="form-control" rows="4" placeholder="Gõ nội dung hướng dẫn hoặc câu trả lời tại đây..."></textarea>
                     
-                    <label style="font-weight: bold; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Trích dẫn gốc (Hiển thị khi bấm xem chi tiết):</label>
-                    <textarea id="inpDetail" class="form-control" rows="5" placeholder="Dán nguyên văn quy định vào đây (nếu có)..."></textarea>
+                    <label style="font-weight: bold; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Trích dẫn gốc (Cơ sở pháp lý):</label>
+                    <textarea id="inpDetail" class="form-control" rows="5" placeholder="Dán nguyên văn quy định, điều lệ vào đây để làm bằng chứng..."></textarea>
                     
                     <div style="background: #e8f5e9; border: 1px dashed #4caf50; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                         <label style="font-weight: bold; color: #2e7d32; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; display: block; margin-bottom: 5px;">📎 Link đính kèm biểu mẫu (Google Drive)</label>
-                        <p style="font-size: 0.9rem; color: #555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin-top: 0;">Tải file lên Google Drive, mở quyền "Bất kỳ ai có liên kết", rồi copy link dán vào ô bên dưới:</p>
-                        
                         <input type="text" id="inpFileUrl" class="form-control" style="border-color: #81c784; margin-bottom: 10px;" placeholder="Dán link Google Drive vào đây...">
                         <input type="text" id="inpFileName" class="form-control" style="border-color: #81c784;" placeholder="Nhập tên file (Hiển thị khi đưa chuột vào nút tải)">
                     </div>
@@ -255,8 +299,6 @@
         let APP_DATA = [];
         let currentEditNode = null;
 
-        localStorage.removeItem('SOTAY_DATA_V7');
-
         db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
             if (doc.exists) {
                 let serverData = doc.data().treeData;
@@ -270,12 +312,10 @@
             }
             
             renderUserInterface();
-            if (document.getElementById('adminPanel').style.display === 'block') {
-                renderAdminTree();
-            }
+            if (document.getElementById('adminPanel').style.display === 'block') { renderAdminTree(); }
         });
 
-        // 3. VẼ GIAO DIỆN CHÍNH (Đã tối ưu hóa nút tải file thành dạng viên thuốc nhỏ)
+        // VẼ GIAO DIỆN CHÍNH
         function renderUserInterface() {
             const menuEl = document.getElementById('menuList');
             const contentEl = document.getElementById('dynamicContent');
@@ -285,7 +325,6 @@
 
             function processNode(items) {
                 items.forEach(item => {
-                    // Cây thư mục bên trái
                     if(item.level <= 3) {
                         let li = document.createElement('li');
                         let indent = '';
@@ -300,14 +339,11 @@
                     div.id = item.id;
                     
                     let innerContent = '';
-                    
-                    // Tạo nút bấm Tải file SIÊU NHỎ GỌN (Pill button)
                     let downloadBtn = '';
                     if (item.fileUrl) {
                         downloadBtn = `<a href="${item.fileUrl}" target="_blank" class="inline-download" title="${item.fileName || 'Tải biểu mẫu'}">📥 Tải mẫu</a>`;
                     }
                     
-                    // Xử lý tiêu đề theo cấp độ và GẮP NÚT TẢI FILE VÀO CUỐI DÒNG TIÊU ĐỀ
                     if(item.level === 0) {
                         innerContent += `<h2 class="phan-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h2>`;
                     } else if (item.level === 1) {
@@ -317,18 +353,15 @@
                     } else if (item.level === 3) {
                         innerContent += `<h5 class="sub-tieu-muc-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h5>`;
                     } else {
-                        // Cấp 5 trở đi (Khối hộp nền trắng)
                         let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
                         innerContent += `${tagHtml}<div class="step-number">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
                         div.className = 'step-box';
                     }
                     
-                    // Nội dung tóm tắt
                     if (item.summary) {
                         innerContent += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
                     }
                     
-                    // Nút xem quy định chi tiết (vẫn nằm bên dưới, gọn gàng)
                     if (item.detail) {
                         innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>`;
                     }
@@ -336,7 +369,6 @@
                     div.innerHTML = innerContent;
                     contentEl.appendChild(div);
                     
-                    // Lặp cho các mục con
                     if(item.children && item.children.length > 0) {
                         processNode(item.children);
                     }
@@ -345,20 +377,109 @@
             processNode(APP_DATA);
         }
 
-        // 4. LƯU LÊN MÁY CHỦ
         function saveData() {
             const btn = document.getElementById('btnSaveData');
             btn.innerText = "⏳ Đang lưu..."; btn.disabled = true;
-
             db.collection("sotay").doc("dulieu").set({ treeData: APP_DATA })
-            .then(() => {
-                btn.innerText = "💾 LƯU LÊN MÁY CHỦ"; btn.disabled = false;
-                alert('Đã lưu dữ liệu thành công lên máy chủ Google!');
-            }).catch((error) => {
-                btn.innerText = "💾 LƯU LÊN MÁY CHỦ"; btn.disabled = false;
-                alert("Lỗi kết nối. Hãy kiểm tra lại!");
-                console.error(error);
-            });
+            .then(() => { btn.innerText = "💾 LƯU LÊN MÁY CHỦ"; btn.disabled = false; alert('Đã lưu thành công!'); })
+            .catch((error) => { btn.innerText = "💾 LƯU LÊN MÁY CHỦ"; btn.disabled = false; alert("Lỗi kết nối."); console.error(error); });
+        }
+
+        // ==================================================================
+        // LOGIC TRỢ LÝ TÌM KIẾM THÔNG MINH CÓ GỢI Ý CHATBOT
+        // ==================================================================
+        function openSearchModal() {
+            document.getElementById('modalSearch').style.display = 'flex';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('faqSuggestions').style.display = 'block'; // Hiện lại gợi ý
+            document.getElementById('searchResults').innerHTML = '<div class="no-result">Bạn cần tìm quy định gì? Hãy gõ từ khóa hoặc chọn gợi ý bên trên.</div>';
+            document.getElementById('searchInput').focus();
+        }
+        
+        function closeSearchModal() {
+            document.getElementById('modalSearch').style.display = 'none';
+        }
+
+        // Người dùng bấm vào Gợi ý -> Tự động điền và Tìm kiếm luôn
+        function quickAsk(keyword) {
+            document.getElementById('searchInput').value = keyword;
+            performSearch();
+        }
+
+        function removeAccents(str) {
+            if(!str) return "";
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        }
+
+        function performSearch() {
+            let keyword = document.getElementById('searchInput').value.trim();
+            let kwNoAccent = removeAccents(keyword);
+            let resultsContainer = document.getElementById('searchResults');
+            let faqDiv = document.getElementById('faqSuggestions');
+            
+            if (kwNoAccent.length < 2) {
+                resultsContainer.innerHTML = '<div class="no-result">Vui lòng nhập ít nhất 2 ký tự để tìm kiếm.</div>';
+                faqDiv.style.display = 'block'; // Vẫn hiện gợi ý nếu chưa gõ đủ
+                return;
+            }
+
+            // Khi bắt đầu tìm kiếm, Ẩn phần gợi ý đi cho đỡ rối mắt
+            faqDiv.style.display = 'none';
+
+            let results = [];
+
+            function traverseAndSearch(nodes, parentPath) {
+                for(let n of nodes) {
+                    let currentPath = parentPath ? (parentPath + " > " + n.title) : (n.title || '');
+                    let textToSearch = removeAccents((n.title || '') + " " + (n.tag || '') + " " + (n.summary || '') + " " + (n.detail || ''));
+                    
+                    if (textToSearch.includes(kwNoAccent)) {
+                        results.push({
+                            id: n.id,
+                            path: parentPath || 'Mục chính',
+                            title: n.title,
+                            snippet: n.summary || (n.detail ? 'Có nội dung chi tiết...' : 'Không có tóm tắt')
+                        });
+                    }
+                    if (n.children && n.children.length > 0) {
+                        traverseAndSearch(n.children, currentPath);
+                    }
+                }
+            }
+            
+            traverseAndSearch(APP_DATA, "");
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-result">❌ Không tìm thấy kết quả nào phù hợp với từ khóa của bạn.</div>';
+            } else {
+                let html = '';
+                results.forEach(res => {
+                    html += `
+                        <div class="result-item" onclick="jumpToResult('${res.id}')">
+                            <div class="result-path">📂 ${res.path}</div>
+                            <div class="result-title">${res.title || 'Mục không tên'}</div>
+                            <div class="result-snippet">${res.snippet}</div>
+                        </div>
+                    `;
+                });
+                resultsContainer.innerHTML = html;
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        function jumpToResult(id) {
+            closeSearchModal();
+            let element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth", block: "start" });
+                let originalBg = element.style.backgroundColor;
+                element.style.transition = "background-color 0.5s";
+                element.style.backgroundColor = "#fff3cd"; // Nháy vàng nổi bật
+                setTimeout(() => { element.style.backgroundColor = originalBg; }, 2000);
+            }
         }
 
         // ==================================================================
@@ -375,14 +496,12 @@
         function renderAdminTree() {
             const tree = document.getElementById('adminTree');
             tree.innerHTML = '';
-            
             function buildHtml(nodes) {
                 let html = '';
                 nodes.forEach(node => {
                     let active = (currentEditNode && currentEditNode.id === node.id) ? 'active' : '';
                     let icon = node.level === 0 ? '📚' : (node.level === 1 ? '📂' : (node.level === 2 ? '📄' : (node.level === 3 ? '📑' : '📝')));
                     let extraClass = node.level === 0 ? 'root-item' : 'sub-item';
-                    
                     html += `<div class="tree-node"><div class="tree-item ${extraClass} ${active}" onclick="selectItem('${node.id}')"><span style="margin-right: 8px;">${icon}</span> <span>${node.title || 'Chưa đặt tên'}</span></div>`;
                     if(node.children && node.children.length > 0) { html += `<div class="tree-children">${buildHtml(node.children)}</div>`; }
                     html += `</div>`;
@@ -402,7 +521,6 @@
             document.getElementById('inpTitle').value = currentEditNode.title || '';
             document.getElementById('inpSummary').value = currentEditNode.summary || '';
             document.getElementById('inpDetail').value = currentEditNode.detail || '';
-            
             document.getElementById('inpFileUrl').value = currentEditNode.fileUrl || '';
             document.getElementById('inpFileName').value = currentEditNode.fileName || '';
         }
@@ -410,12 +528,10 @@
         ['inpTag', 'inpTitle', 'inpSummary', 'inpDetail', 'inpFileUrl', 'inpFileName'].forEach(fid => {
             document.getElementById(fid).addEventListener('input', function() {
                 if(!currentEditNode) return;
-                
                 if(fid === 'inpTag') currentEditNode.tag = this.value;
                 if(fid === 'inpTitle') { currentEditNode.title = this.value; renderAdminTree(); }
                 if(fid === 'inpSummary') currentEditNode.summary = this.value;
                 if(fid === 'inpDetail') currentEditNode.detail = this.value;
-                
                 if(fid === 'inpFileUrl') currentEditNode.fileUrl = this.value;
                 if(fid === 'inpFileName') currentEditNode.fileName = this.value;
             });
@@ -425,9 +541,11 @@
         function addSubItem() { if(!currentEditNode) return; if(!currentEditNode.children) currentEditNode.children = []; currentEditNode.children.push({id: 'n'+Date.now(), title:'Mục mới', tag:'', summary:'', detail:'', level: currentEditNode.level+1, children:[]}); renderAdminTree(); renderUserInterface(); }
         function deleteCurrentItem() { if(!currentEditNode || !confirm('Cảnh báo: Bạn có chắc chắn muốn xóa mục này? Toàn bộ mục con cũng sẽ bị xóa!')) return; let p = findParent(currentEditNode.id, APP_DATA); if(p) { let idx = p.children.findIndex(c=>c.id === currentEditNode.id); p.children.splice(idx,1); } else { let idx = APP_DATA.findIndex(c=>c.id === currentEditNode.id); APP_DATA.splice(idx,1); } currentEditNode = null; document.getElementById('editorArea').style.display='none'; renderAdminTree(); renderUserInterface(); }
         function toggleMenu(forceState) { const sb = document.getElementById('sidebar'); const ov = document.querySelector('.overlay'); if (typeof forceState !== 'undefined') { if(forceState) { sb.classList.add('active'); ov.classList.add('active'); } else { sb.classList.remove('active'); ov.classList.remove('active'); } } else { sb.classList.toggle('active'); ov.classList.toggle('active'); } }
+        
         function showPopup(html) { document.getElementById('noi-dung-chi-tiet').innerHTML = html; document.getElementById('modalTrichDan').style.display = 'flex'; }
-        function dongModalButton() { document.getElementById('modalTrichDan').style.display = 'none'; }
-        function dongModal(e) { if(e.target.id === 'modalTrichDan') dongModalButton(); }
+        function closePopup(id) { document.getElementById(id).style.display = 'none'; }
+        function closeModalOnBgClick(e, modalId) { if(e.target.id === modalId) closePopup(modalId); }
+        
         window.onscroll = function() { document.getElementById("backToTop").style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "block" : "none"; };
         function topFunction() { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; }
         
