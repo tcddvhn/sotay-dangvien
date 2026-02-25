@@ -40,32 +40,36 @@
         .muc-header { color: #b71c1c; margin-top: 25px; margin-bottom: 15px; font-weight: 700; font-size: 1.15em; }
 
         /* ==================================================================
-           CSS KHỐI ACCORDION CHO CẤP 3, CẤP 4, CẤP 5
+           CSS KHỐI LỒNG GHÉP (NESTED ACCORDION) CHO CẤP 3, 4, 5
            ================================================================== */
-        .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 12px; margin-top: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; scroll-margin-top: 70px; transition: all 0.3s; overflow: hidden; }
+        .step-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px; margin-top: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); position: relative; scroll-margin-top: 70px; }
         
-        /* PHÂN BIỆT MÀU SẮC CHO TỪNG CẤP ĐỘ */
+        /* Màu sắc đánh dấu các cấp bậc */
         .step-box.level-2 { border-left: 5px solid #2980b9; } /* Cấp 3 - Xanh dương */
-        .step-box.level-3 { border-left: 5px solid #27ae60; } /* Cấp 4 - Xanh lá */
-        .step-box.level-4 { border-left: 5px solid var(--primary-color); } /* Cấp 5 - Đỏ */
+        .step-box.level-3 { border-left: 4px solid #27ae60; } /* Cấp 4 - Xanh lá */
+        .step-box.level-4 { border-left: 3px solid var(--primary-color); } /* Cấp 5 - Đỏ */
 
-        .step-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; transition: background 0.2s; }
-        .step-header:hover { background: #fdfdfd; }
+        .step-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; border-radius: 8px; transition: background 0.2s; }
+        .step-header:hover { background: #f9f9f9; }
         .step-title-wrapper { flex: 1; padding-right: 15px; }
-        .step-icon { color: #999; transition: transform 0.3s ease; font-size: 0.9rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
+        .step-icon { color: #888; transition: transform 0.3s ease; font-size: 0.85rem; font-family: -apple-system, sans-serif;}
 
-        .step-body { max-height: 0; overflow: hidden; padding: 0 20px; opacity: 0; transition: all 0.4s ease; }
-
-        /* Trạng thái mở */
-        .step-box.active { box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .step-box.active .step-body { max-height: 5000px; padding: 10px 20px 20px 20px; opacity: 1; border-top: 1px dashed #eee; }
-        .step-box.active .step-icon { transform: rotate(180deg); color: var(--text-color); }
-
-        .step-number { background: var(--primary-color); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; font-size: 0.95rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
-        .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #666; font-weight: bold; margin-bottom: 8px; display: block; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
+        /* Hiệu ứng trượt chiều cao bằng Grid - Cực mượt và xử lý được nội dung lồng nhau */
+        .step-body-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s ease; }
+        .step-box.active > .step-body-wrapper { grid-template-rows: 1fr; }
+        .step-body { overflow: hidden; }
         
-        .step-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;}
-        .btn-trich-dan { display: inline-flex; align-items: center; background-color: #e3f2fd; color: #0d47a1; padding: 8px 15px; border-radius: 6px; border: 1px solid #90caf9; font-size: 0.9em; cursor: pointer; font-weight: 600; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
+        /* Khoảng trống bên trong thân Accordion */
+        .step-body-inner { padding: 0 15px 0 15px; }
+        .step-box.active > .step-body-wrapper > .step-body > .step-body-inner { padding-top: 15px; padding-bottom: 15px; border-top: 1px dashed #eee; }
+
+        .step-box.active > .step-header .step-icon { transform: rotate(180deg); color: var(--primary-color); }
+
+        .step-number { background: var(--primary-color); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; display: inline-block; font-size: 0.9rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
+        .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #666; font-weight: bold; margin-bottom: 6px; display: block; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
+        
+        .step-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;}
+        .btn-trich-dan { display: inline-flex; align-items: center; background-color: #e3f2fd; color: #0d47a1; padding: 8px 12px; border-radius: 6px; border: 1px solid #90caf9; font-size: 0.9em; cursor: pointer; font-weight: 600; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;}
         .btn-trich-dan:active { background-color: #bbdefb; }
         
         .inline-download { display: inline-flex; align-items: center; justify-content: center; background-color: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 12px; border: 1px solid #a5d6a7; font-size: 0.85rem; font-weight: bold; text-decoration: none; margin-left: 10px; vertical-align: middle; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s; }
@@ -300,7 +304,6 @@
 
         let APP_DATA = [];
         let currentEditNode = null;
-        let currentOpenStep = null;
 
         db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
             if (doc.exists) {
@@ -319,37 +322,32 @@
         });
 
         // ==================================================================
-        // LOGIC ACCORDION (THU GỌN / MỞ RỘNG)
+        // LOGIC ACCORDION ĐA TẦNG
         // ==================================================================
-        function toggleStep(element, event) {
-            if (event && event.target.closest('a')) return;
-            if (element.classList.contains('active')) {
-                element.classList.remove('active');
-                currentOpenStep = null;
-            } else {
-                if (currentOpenStep && currentOpenStep !== element) {
-                    currentOpenStep.classList.remove('active');
+        function toggleStep(headerEl, event) {
+            // Ngăn chặn đóng/mở khi lỡ tay bấm vào nút Tải mẫu hoặc Xem chi tiết
+            if (event && (event.target.closest('a') || event.target.closest('.btn-trich-dan'))) return;
+            if (event) event.stopPropagation(); // Ngăn tín hiệu click chạy lên thư mục cha
+            
+            const stepBox = headerEl.parentElement;
+            
+            // Tự động đóng các thư mục "Anh em" cùng cấp để màn hình luôn gọn gàng
+            let parentInner = stepBox.parentElement;
+            if (parentInner) {
+                let siblings = parentInner.children;
+                for(let i=0; i<siblings.length; i++) {
+                    if (siblings[i] !== stepBox && siblings[i].classList.contains('step-box')) {
+                        siblings[i].classList.remove('active');
+                    }
                 }
-                element.classList.add('active');
-                currentOpenStep = element;
             }
+            
+            // Đảo trạng thái mở/đóng của chính nó
+            stepBox.classList.toggle('active');
         }
 
-        // Tự động đóng thẻ Cấp 5 khi click ra vùng trống của trang web
-        document.addEventListener('click', function(e) {
-            if (currentOpenStep && 
-                !currentOpenStep.contains(e.target) && 
-                !e.target.closest('#sidebar') && 
-                !e.target.closest('.mobile-header') &&
-                !e.target.closest('#modalSearch') &&
-                !e.target.closest('#modalTrichDan')) {
-                currentOpenStep.classList.remove('active');
-                currentOpenStep = null;
-            }
-        });
-
         // ==================================================================
-        // VẼ GIAO DIỆN CHÍNH (Đã đồng bộ Accordion cho Cấp 3, 4, 5)
+        // VẼ GIAO DIỆN CHÍNH (Thuật toán lồng ghép Đệ quy)
         // ==================================================================
         function renderUserInterface() {
             const menuEl = document.getElementById('menuList');
@@ -358,15 +356,18 @@
 
             if (!APP_DATA || APP_DATA.length === 0) return;
 
-            function processNode(items) {
+            // Hàm đệ quy: container là vị trí sẽ nhét phần tử vào (có thể lồng sâu bên trong phần tử khác)
+            function processNode(items, container) {
                 items.forEach(item => {
+                    // Menu Trái
                     if(item.level <= 3) {
                         let li = document.createElement('li');
                         let indent = '';
                         if (item.level === 1) indent = '&nbsp;&nbsp;📂 ';
                         if (item.level === 2) indent = '&nbsp;&nbsp;&nbsp;&nbsp;📄 ';
                         if (item.level === 3) indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🔹 ';
-                        li.innerHTML = `<a href="#${item.id}" onclick="toggleMenu(false)">${indent}${item.title || 'Mục chưa có tên'}</a>`;
+                        // Bấm menu gọi luôn hàm jumpToResult để tự trượt và mở
+                        li.innerHTML = `<a onclick="toggleMenu(false); jumpToResult('${item.id}')">${indent}${item.title || 'Mục chưa có tên'}</a>`;
                         menuEl.appendChild(li);
                     }
                     
@@ -374,73 +375,71 @@
                     div.id = item.id;
                     
                     let innerContent = '';
-                    let downloadBtn = '';
-                    if (item.fileUrl) {
-                        downloadBtn = `<a href="${item.fileUrl}" target="_blank" class="inline-download" title="${item.fileName || 'Tải biểu mẫu'}">📥 Tải mẫu</a>`;
-                    }
+                    let downloadBtn = item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="inline-download" title="${item.fileName || 'Tải biểu mẫu'}">📥 Tải mẫu</a>` : '';
                     
-                    if(item.level === 0) {
-                        // PHẦN LỚN (Cấp 1) - Luôn hiển thị rõ ràng
-                        innerContent += `<h2 class="phan-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h2>`;
+                    let nextContainer = container; // Mặc định là đổ chung với cha
+
+                    // CẤP 1 VÀ CẤP 2 LÀ TIÊU ĐỀ LỚN
+                    if(item.level === 0 || item.level === 1) {
+                        let hTag = item.level === 0 ? 'h2' : 'h3';
+                        let hClass = item.level === 0 ? 'phan-header' : 'muc-header';
+                        
+                        innerContent += `<${hTag} class="${hClass}">${item.title || 'Chưa đặt tên'} ${downloadBtn}</${hTag}>`;
                         if (item.summary) innerContent += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
                         if (item.detail) innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>`;
+                        
                         div.innerHTML = innerContent;
-                        contentEl.appendChild(div);
-                        
-                    } else if (item.level === 1) {
-                        // MỤC LỚN (Cấp 2) - Luôn hiển thị rõ ràng
-                        innerContent += `<h3 class="muc-header">${item.title || 'Chưa đặt tên'} ${downloadBtn}</h3>`;
-                        if (item.summary) innerContent += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
-                        if (item.detail) innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>`;
-                        div.innerHTML = innerContent;
-                        contentEl.appendChild(div);
-                        
-                    } else {
-                        // TỪ CẤP 3, 4, 5 TRỞ ĐI -> CHUYỂN HẾT THÀNH KHỐI ACCORDION THU GỌN
-                        
-                        // Xác định CSS riêng cho từng cấp
-                        let levelClass = '';
+                        container.appendChild(div);
+                    } 
+                    // TỪ CẤP 3, 4, 5 LÀ CÁC HỘP ACCORDION LỒNG VÀO NHAU
+                    else {
+                        let levelClass = item.level === 2 ? 'level-2' : (item.level === 3 ? 'level-3' : 'level-4');
                         let titleHtml = '';
                         
                         if (item.level === 2) {
-                            levelClass = 'level-2'; // Cấp 3 (Viền Xanh Dương)
                             titleHtml = `<div style="font-weight: 700; font-size: 1.15em; color: #2980b9; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
                         } else if (item.level === 3) {
-                            levelClass = 'level-3'; // Cấp 4 (Viền Xanh Lá)
                             titleHtml = `<div style="font-weight: 700; font-size: 1.05em; color: #27ae60; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
                         } else {
-                            levelClass = 'level-4'; // Cấp 5 (Viền Đỏ)
                             titleHtml = `<div class="step-number" style="margin-bottom:0">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
                         }
 
                         div.className = `step-box ${levelClass}`;
                         
                         let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
-                        let summaryHtml = item.summary ? `<p>${item.summary.replace(/\n/g, '<br>')}</p>` : '';
-                        let detailBtn = item.detail ? `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>` : '';
+                        let summaryHtml = item.summary ? `<p style="margin-top:0">${item.summary.replace(/\n/g, '<br>')}</p>` : '';
+                        let detailBtn = item.detail ? `<div class="step-actions" style="margin-top:10px; margin-bottom:5px;"><div class="btn-trich-dan" onclick="showPopup('${item.detail.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>')} ')">📖 Xem quy định chi tiết</div></div>` : '';
                         
+                        // Cấu trúc HTML Lồng ghép
                         div.innerHTML = `
-                            <div class="step-header" onclick="toggleStep(this.parentElement, event)">
+                            <div class="step-header" onclick="toggleStep(this, event)">
                                 <div class="step-title-wrapper">
                                     ${tagHtml}
                                     ${titleHtml}
                                 </div>
                                 <div class="step-icon">▼</div>
                             </div>
-                            <div class="step-body">
-                                ${summaryHtml}
-                                ${detailBtn}
+                            <div class="step-body-wrapper">
+                                <div class="step-body">
+                                    <div class="step-body-inner" id="inner-${item.id}">
+                                        ${summaryHtml}
+                                        ${detailBtn}
+                                        </div>
+                                </div>
                             </div>
                         `;
-                        contentEl.appendChild(div);
+                        container.appendChild(div);
+                        
+                        // Định tuyến: Nếu có mục con, mục con sẽ chui vào vùng "step-body-inner" của mục này
+                        nextContainer = div.querySelector(`#inner-${item.id}`);
                     }
                     
                     if(item.children && item.children.length > 0) {
-                        processNode(item.children);
+                        processNode(item.children, nextContainer);
                     }
                 });
             }
-            processNode(APP_DATA);
+            processNode(APP_DATA, contentEl);
         }
 
         function saveData() {
@@ -533,21 +532,30 @@
             closeSearchModal();
             let element = document.getElementById(id);
             if (element) {
-                element.scrollIntoView({ behavior: "smooth", block: "start" });
-                
-                // NẾU LÀ KHỐI ACCORDION THÌ TỰ ĐỘNG MỞ RA
-                if (element.classList.contains('step-box')) {
-                    if (currentOpenStep && currentOpenStep !== element) {
-                        currentOpenStep.classList.remove('active');
+                // TỰ ĐỘNG MỞ TOANG TẤT CẢ CÁC THƯ MỤC CHA CHỨA NÓ BÊN TRONG
+                let parentNode = element.parentElement;
+                while (parentNode && parentNode.id !== 'dynamicContent') {
+                    if (parentNode.classList.contains('step-box')) {
+                        parentNode.classList.add('active'); // Mở cha
                     }
+                    parentNode = parentNode.parentElement;
+                }
+                
+                // TỰ ĐỘNG MỞ CHÍNH NÓ NẾU LÀ ACCORDION
+                if (element.classList.contains('step-box')) {
                     element.classList.add('active');
-                    currentOpenStep = element;
                 }
 
-                let originalBg = element.style.backgroundColor;
-                element.style.transition = "background-color 0.5s";
-                element.style.backgroundColor = "#fff3cd"; 
-                setTimeout(() => { element.style.backgroundColor = originalBg || ''; }, 2000);
+                // Chờ CSS animation mở ra 1 xíu rồi mới cuộn tới để chính xác vị trí
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: "smooth", block: "start" });
+                    
+                    // Nháy đèn làm nổi bật
+                    let originalBg = element.style.backgroundColor;
+                    element.style.transition = "background-color 0.5s";
+                    element.style.backgroundColor = "#fff3cd"; 
+                    setTimeout(() => { element.style.backgroundColor = originalBg || ''; }, 2000);
+                }, 150);
             }
         }
 
