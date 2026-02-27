@@ -12,15 +12,12 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 
     <style>
-        /* CSS GIAO DIỆN CHÍNH & KIẾN TRÚC MÀU BIẾN THIÊN (DARK MODE) */
         :root { 
             --primary-color: #cc0000; 
             --primary-dark: #a30000; 
             --yellow-party: #f1c40f; 
             --bg-sidebar: #2c3e50; 
             --header-height: 55px;
-            
-            /* Biến màu cho Light Mode */
             --bg-main: #f4f4f4;
             --bg-box: #ffffff;
             --bg-header: #fdfdfd;
@@ -32,10 +29,9 @@
             --bg-phan: #fcebeb;
             --text-phan: #a30000;
             --text-muc: #b71c1c;
-            --shadow-color: rgba(0,0,0,0.04);
+            --shadow-color: rgba(0,0,0,0.05);
         }
 
-        /* Biến màu cho Dark Mode */
         body.dark-mode {
             --bg-main: #121212;
             --bg-box: #1e1e1e;
@@ -52,12 +48,11 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Times New Roman', Times, serif; line-height: 1.6; color: var(--text-main); margin: 0; background-color: var(--bg-main); font-size: 1.1rem; transition: background-color 0.3s, color 0.3s; }
         
-        /* THANH TIẾN TRÌNH ĐỌC */
+        body { font-family: 'Times New Roman', Times, serif; line-height: 1.6; color: var(--text-main); margin: 0; background-color: var(--bg-main); font-size: 1.15rem; transition: background-color 0.3s, color 0.3s; }
+        
         #readingProgress { position: fixed; top: 0; left: 0; height: 3px; background: var(--yellow-party); width: 0%; z-index: 9999; transition: width 0.1s; }
 
-        /* BREADCRUMB */
         #breadcrumbBar { position: sticky; top: var(--header-height); background: var(--bg-main); padding: 10px 15px; font-size: 0.85rem; color: var(--text-muted); z-index: 800; font-family: -apple-system, sans-serif; border-bottom: 1px solid var(--border-color); display: none; white-space: nowrap; overflow-x: auto; font-weight: bold;}
         #breadcrumbBar span { cursor: pointer; color: var(--primary-color); }
         #breadcrumbBar span:hover { text-decoration: underline; }
@@ -66,9 +61,12 @@
         .toggle-btn { background: var(--bg-box); color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 4px var(--shadow-color); transition: 0.3s; font-family: -apple-system, sans-serif; font-weight: bold;}
         .toggle-btn:hover { background: var(--bg-hover); }
 
-        /* SIDEBAR & HEADER */
         .sidebar { width: 320px; background-color: var(--bg-sidebar); color: white; padding: 20px 0; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 1000; transition: transform 0.3s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         .sidebar h3 { border-bottom: 1px solid #555; padding-bottom: 15px; margin-top: 20px; text-transform: uppercase; font-size: 1.1rem; text-align: center; color: var(--yellow-party); font-family: -apple-system, sans-serif; }
+        
+        /* ========================================================= */
+        /* FIX LỖI DASHBOARD (CẢI THIỆN TOOLTIP BIỂU ĐỒ)             */
+        /* ========================================================= */
         .mini-dashboard { background: rgba(0,0,0,0.15); margin: 0 10px 15px 10px; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); font-family: -apple-system, sans-serif;}
         .stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #ecf0f1; margin-bottom: 6px; white-space: nowrap; }
         .stat-row b { color: var(--yellow-party); font-size: 0.85rem; margin-left: 5px;}
@@ -76,9 +74,12 @@
         .chart-container { display: flex; align-items: flex-end; gap: 4px; height: 45px; margin-top: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 2px; }
         .chart-bar { flex: 1; background: #5dade2; border-radius: 4px 4px 0 0; position: relative; cursor: pointer; transition: height 0.4s ease, background 0.2s;}
         .chart-bar:hover { background: var(--yellow-party); }
-        .chart-tooltip { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; font-size: 0.7rem; padding: 3px 6px; border-radius: 4px; display: none; white-space: nowrap; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; pointer-events: none;}
+        
+        /* ĐÂY LÀ ĐOẠN CSS BỊ MẤT KHIẾN CHỮ TRÀN RA: Cấu hình Bong bóng hiển thị số liệu */
+        .chart-tooltip { position: absolute; top: -26px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; font-size: 0.7rem; padding: 3px 6px; border-radius: 4px; display: none; white-space: nowrap; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 10; pointer-events: none;}
         .chart-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -4px; border-width: 4px; border-style: solid; border-color: #fff transparent transparent transparent;}
         .chart-bar:hover .chart-tooltip { display: block; }
+        
         .chart-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: #aaa; margin-top: 4px; font-weight: bold;}
 
         .sidebar-menu-tree { font-family: -apple-system, sans-serif; font-size: 0.95rem; padding: 0 10px;}
@@ -89,8 +90,10 @@
         .menu-item-row:hover { background-color: rgba(255,255,255,0.1); }
         .menu-toggle { display: inline-block; width: 20px; text-align: center; cursor: pointer; color: #aaa; user-select: none; font-size: 0.75rem; padding-top: 3px;}
         .menu-toggle:hover { color: var(--yellow-party); }
-        .menu-link { flex: 1; cursor: pointer; text-decoration: none; color: inherit; padding-left: 5px;}
+        .menu-link { flex: 1; cursor: pointer; text-decoration: none; color: inherit; padding-left: 5px; border-radius: 4px; transition: 0.2s;}
         .menu-link:hover { color: white; text-shadow: 0 0 5px rgba(255,255,255,0.5); }
+        .menu-link.active-menu { color: var(--yellow-party) !important; font-weight: bold; background: rgba(255,255,255,0.1); padding: 2px 8px; border-left: 3px solid var(--yellow-party); }
+
         .close-sidebar-btn { text-align: right; margin-bottom: 10px; display: none; padding-right: 15px;}
         
         .top-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); background: var(--primary-color); z-index: 990; display: flex; align-items: center; padding: 0 15px; justify-content: space-between; color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-family: -apple-system, sans-serif; }
@@ -110,17 +113,22 @@
         .phan-header { background-color: var(--bg-phan); padding: 15px; border-left: 6px solid var(--primary-color); margin-top: 30px; color: var(--text-phan); font-size: 1.25em; font-weight: bold; border-radius: 4px; transition: background-color 0.3s;}
         .muc-header { color: var(--text-muc); margin-top: 25px; margin-bottom: 15px; font-weight: 700; font-size: 1.15em; transition: color 0.3s; }
         
-        .step-box { background: var(--bg-box); margin-bottom: 10px; margin-top: 10px; position: relative; scroll-margin-top: 100px; transition: background-color 0.3s, border-color 0.3s; }
-        .main-content > div > .step-box { border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 2px 4px var(--shadow-color); }
-        .step-body .step-box { border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); margin: 0; padding: 0;}
-
-        .step-box.level-2 > .step-header { border-left: 5px solid #2980b9; } 
-        .step-box.level-3 > .step-header { border-left: 4px solid #27ae60; } 
-        .step-box.level-4 > .step-header { border-left: 3px solid var(--primary-color); } 
-
-        .step-header { padding: 12px 10px 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s; }
+        /* KHÔI PHỤC CẤU TRÚC PHẲNG - KHÔNG "MẸ BỒNG CON" */
+        .step-box { background: var(--bg-box); margin-bottom: 10px; position: relative; scroll-margin-top: 100px; transition: background-color 0.3s; }
+        
+        .main-content > div > .step-box { border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 2px 4px var(--shadow-color); margin-top: 15px; }
         .main-content > div > .step-box > .step-header { border-radius: 8px; }
-        .step-body .step-box > .step-header { border-radius: 0; background-color: var(--bg-header); }
+        .main-content > div > .step-box.active > .step-header { border-radius: 8px 8px 0 0; border-bottom: 1px solid var(--border-light); background-color: var(--bg-header); }
+
+        .step-body .step-box { border: none; border-top: 1px dashed var(--border-light); margin: 0; padding: 0; box-shadow: none; border-radius: 0; background: transparent;}
+        .step-body .step-box > .step-header { background: transparent; border-radius: 0; }
+        .step-body .step-box.active > .step-header { background-color: var(--bg-hover); }
+
+        .step-body .step-box.level-2 > .step-header { border-left: 4px solid #2980b9; padding-left: 20px; } 
+        .step-body .step-box.level-3 > .step-header { border-left: 3px solid #27ae60; padding-left: 35px; } 
+        .step-body .step-box.level-4 > .step-header { border-left: 2px solid var(--primary-color); padding-left: 50px; } 
+
+        .step-header { padding: 14px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s; background-color: var(--bg-box);}
         .step-header:hover { background: var(--bg-hover); }
         .step-title-wrapper { flex: 1; padding-right: 10px; }
         .step-icon { color: var(--text-muted); transition: transform 0.3s ease; font-size: 0.85rem; padding-left: 5px;}
@@ -129,9 +137,13 @@
         .step-box.active > .step-body-wrapper { grid-template-rows: 1fr; }
         .step-body { overflow: hidden; opacity: 0; transform: translateY(-5px); transition: opacity 0.35s ease, transform 0.35s ease; }
         .step-box.active > .step-body-wrapper > .step-body { opacity: 1; transform: translateY(0); }
-        .content-text { padding: 15px 10px 15px 15px; border-top: 1px dashed var(--border-light); text-align: justify; }
-        .step-box.active > .step-header .step-icon { transform: rotate(180deg); color: var(--primary-color); }
+        
+        .content-text { padding: 15px; text-align: justify; }
+        .content-text p, .modal-user-body p { margin-top: 0; margin-bottom: 10px; }
+        .content-text p:last-child, .modal-user-body p:last-child { margin-bottom: 0; }
+        .content-text ul, .content-text ol, .modal-user-body ul, .modal-user-body ol { margin: 10px 0; padding-left: 25px; }
 
+        .step-box.active > .step-header .step-icon { transform: rotate(180deg); color: var(--primary-color); }
         .step-number { background: #3498db; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; display: inline-block; font-size: 0.9rem; font-family: -apple-system, sans-serif;}
         .tag-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; display: block; letter-spacing: 0.5px; font-family: -apple-system, sans-serif;}
         
@@ -147,33 +159,21 @@
         #backToTop { display: none; position: fixed; bottom: 30px; right: 20px; z-index: 90; border: none; background: transparent; color: var(--primary-color); cursor: pointer; font-size: 2.2rem; transition: 0.3s; padding: 0; font-weight: bold; filter: drop-shadow(2px 2px 2px rgba(255,255,255,0.9)); }
         #backToTop:hover { transform: translateY(-5px); color: var(--primary-dark); }
 
-        /* MODAL CHUNG */
         .modal-user { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); padding: 10px; align-items: center; justify-content: center; backdrop-filter: blur(3px);}
         .modal-user-content { background-color: var(--bg-box); color: var(--text-main); width: 100%; max-width: 800px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 85vh; animation: slideUp 0.3s; }
         .modal-user-header { background-color: var(--primary-color); color: white; padding: 15px; border-radius: 12px 12px 0 0; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-family: -apple-system, sans-serif;}
         .modal-user-body { padding: 25px 15px; line-height: 1.6; overflow-y: auto; text-align: justify; font-size: 1.15rem; }
         @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
-
-        /* ĐÃ THÊM: NÚT TẮT MODAL (X) TO RÕ RÀNG */
-        .btn-close-modal {
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
-            font-size: 1rem;
-        }
+        .btn-close-modal { cursor: pointer; background: rgba(255, 255, 255, 0.2); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: 0.2s; font-size: 1rem; }
         .btn-close-modal:hover { background: rgba(255, 255, 255, 0.4); transform: scale(1.1); }
 
-        /* SEARCH CONTAINER */
         .search-container { padding: 20px 15px; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; flex: 1; overflow: hidden;}
-        .search-input-wrapper { display: flex; border: 2px solid var(--primary-color); border-radius: 8px; overflow: hidden; margin-bottom: 15px; flex-shrink: 0;}
-        .search-input-wrapper input { flex: 1; padding: 12px 15px; border: none; font-size: 1rem; outline: none; background: var(--bg-box); color: var(--text-main);}
-        .search-input-wrapper button { background: var(--primary-color); color: white; border: none; padding: 0 15px; font-weight: bold; cursor: pointer;}
+        .search-input-wrapper { display: flex; gap: 10px; border: none; border-radius: 8px; margin-bottom: 15px; flex-shrink: 0; flex-wrap: wrap;}
+        .search-input-wrapper select { padding: 12px; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 0.95rem; outline: none; background: var(--bg-box); color: var(--text-main); font-weight:bold;}
+        .search-input-core { display: flex; flex: 1; border: 2px solid var(--primary-color); border-radius: 8px; overflow: hidden; min-width: 200px;}
+        .search-input-core input { flex: 1; padding: 12px 15px; border: none; font-size: 1rem; outline: none; background: var(--bg-box); color: var(--text-main);}
+        .search-input-core button { background: var(--primary-color); color: white; border: none; padding: 0 20px; font-weight: bold; cursor: pointer;}
+        
         .faq-suggestions { padding-bottom: 15px; border-bottom: 1px solid var(--border-light); margin-bottom: 10px; flex-shrink: 0;}
         .faq-suggestions p { margin: 0 0 10px 0; font-size: 0.95rem; color: var(--text-muted); font-weight: bold; }
         .faq-chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -188,22 +188,23 @@
         .no-result { text-align: center; color: var(--text-muted); padding: 20px; font-family: -apple-system, sans-serif;}
 
         @media (max-width: 768px) { 
-            body { font-size: 1rem; }
-            .sidebar { transform: translateX(-100%); width: 80%; max-width: 300px; } 
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 1.05rem; }
+            .sidebar { transform: translateX(-100%); width: 85%; max-width: 320px; } 
             .sidebar.active { transform: translateX(0); } 
             .close-sidebar-btn { display: block; }
             #btnSearchFab, #backToTop { bottom: 20px; } 
             .step-header { padding: 16px 15px; } 
             .btn-trich-dan { width: 100%; margin-bottom: 5px;}
             #breadcrumbBar { top: 55px; }
-            
-            /* ĐÃ FIX: TRẢ LẠI TRẠNG THÁI CỬA SỔ NỔI TRÊN MOBILE, KHÔNG TRÀN VIỀN NỮA */
             .modal-user { padding: 15px; }
             .modal-user-content { height: 90vh !important; max-height: 90vh !important; border-radius: 12px !important; }
             .modal-user-header { border-radius: 12px 12px 0 0 !important; }
+            
+            .step-body .step-box.level-2 > .step-header { padding-left: 15px; }
+            .step-body .step-box.level-3 > .step-header { padding-left: 25px; }
+            .step-body .step-box.level-4 > .step-header { padding-left: 35px; }
         }
 
-        /* ADMIN PANEL & LOGIN */
         #loginOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000; align-items: center; justify-content: center; overflow: hidden; background-color: #8c0000; font-family: -apple-system, sans-serif; }
         .trong-dong-bg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img_5-hinh-nen-powerpoint-trong-dong.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; }
         .login-card { background: rgba(255, 255, 255, 0.98); width: 90%; max-width: 400px; padding: 40px 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); color: #333;}
@@ -223,14 +224,13 @@
         @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
         .admin-sidebar { background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 10px; height: 40vh; display: flex; flex-direction: column; }
         @media (min-width: 768px) { .admin-sidebar { width: 350px; min-width: 200px; max-width: 60vw; height: 100vh; border-right: 3px solid #ccc; border-bottom: none; resize: horizontal; overflow: auto; } }
+        
         .tree-container { flex: 1; overflow-y: auto; border: 1px solid #ddd; background: #fff; border-radius: 6px; padding: 10px; font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);}
         .tree-node { margin-bottom: 2px; }
         .tree-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; transition: all 0.2s ease; border: 1px solid transparent; color: #444; }
         .tree-item.active { background: #e3f2fd; color: #0d47a1; font-weight: bold; border-left: 4px solid #007bff; }
-        
         .tree-item.drag-over { border: 2px dashed #e67e22 !important; background-color: #fdf2e9 !important; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3); transform: scale(1.02); z-index: 10; transition: all 0.2s;} 
         .tree-item.dragging { opacity: 0.5; background-color: #ecf0f1; border: 1px dashed #999; }
-
         .root-item { font-weight: bold; background: #f8f9fa; border: 1px solid #eee; margin-top: 5px; color: var(--primary-dark); }
         .sub-item { position: relative; font-size: 1.05rem; }
         .tree-toggle { display: inline-block; width: 24px; text-align: center; cursor: pointer; color: #999; font-size: 0.8rem; font-family: Arial, sans-serif; transition: 0.2s; user-select: none; }
@@ -240,16 +240,15 @@
         .btn-order { font-size: 0.9rem; padding: 2px 5px; background: rgba(0,0,0,0.05); border-radius: 4px; border: none; cursor: pointer; color: #666; display: none; }
         .btn-order:hover { background: rgba(0,0,0,0.1); color: var(--primary-color); }
         .tree-item:hover .btn-order { display: inline-block; }
+        
         .admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 60vh; position: relative;}
         @media (min-width: 768px) { .admin-main { height: 100vh; } }
-        
         .form-control { font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; outline: none; color:#333;}
         .form-control:focus { border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.25); }
         .btn { padding: 12px 20px; border: none; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; margin-bottom: 10px; font-family: -apple-system, sans-serif;}
         .btn-close { background: #6c757d; } .btn-delete { background: #dc3545; } .btn-add { background: #007bff; }
         .admin-trigger { margin-top: 20px; text-align: center; padding: 15px; border-top: 1px solid rgba(255,255,255,0.2); cursor: pointer; color: #bdc3c7;}
 
-        /* CSS TÙY CHỈNH CHO QUILL EDITOR */
         .ql-toolbar { border-radius: 6px 6px 0 0; font-family: -apple-system, sans-serif; background: #f8f9fa; border-color:#ccc !important;}
         .ql-container { border-radius: 0 0 6px 6px; font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; background: #fff; margin-bottom: 15px; border-color:#ccc !important;}
         .ql-editor { min-height: 120px; }
@@ -281,6 +280,8 @@
         <div class="mini-dashboard" id="miniDashboard">
             <div style="text-align:center; color:#aaa; font-size:0.8rem;">Đang tải dữ liệu...</div>
         </div>
+        
+        <div id="recentViews" class="mini-dashboard" style="display:none; background:rgba(241, 196, 15, 0.1); border-color: rgba(241, 196, 15, 0.3);"></div>
 
         <div class="sidebar-menu-tree" id="menuList"></div>
         <div style="margin-top: auto;"></div>
@@ -310,8 +311,17 @@
             </div>
             <div class="search-container">
                 <div class="search-input-wrapper">
-                    <input type="text" id="searchInput" placeholder="Nhập từ khóa cần tìm..." autocomplete="off">
-                    <button onclick="performSearch()">TÌM</button>
+                    <select id="searchTagFilter">
+                        <option value="">📂 Tất cả danh mục</option>
+                        <option value="hỏi đáp">❓ Hỏi đáp</option>
+                        <option value="quy trình">📋 Quy trình</option>
+                        <option value="biểu mẫu">📝 Biểu mẫu</option>
+                        <option value="quy định">⚖️ Quy định</option>
+                    </select>
+                    <div class="search-input-core">
+                        <input type="text" id="searchInput" placeholder="Nhập từ khóa cần tìm..." autocomplete="off">
+                        <button onclick="performSearch()">TÌM</button>
+                    </div>
                 </div>
                 <div class="faq-suggestions" id="faqSuggestions">
                     <p>💡 Gợi ý nhanh:</p>
@@ -357,6 +367,9 @@
             <div class="admin-sidebar">
                 <div style="font-weight:bold; margin-bottom:5px; color: var(--primary-color);">CÂY THƯ MỤC CHUNG</div>
                 <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 10px; font-style: italic;">Mẹo: Kéo thả thư mục để chuyển cấp</div>
+                
+                <input type="text" id="adminSearchInput" class="form-control" style="padding: 8px; font-size: 0.95rem; font-family: -apple-system, sans-serif; margin-bottom: 10px;" placeholder="🔍 Lọc nhanh thư mục để sửa..." oninput="filterAdminTree()">
+
                 <button class="btn btn-add" style="width: 100%;" onclick="addNewRoot()">+ Thêm Phần Lớn</button>
                 <div class="tree-container" id="adminTree"></div>
             </div>
@@ -411,18 +424,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // ==================================================================
-        // 0. KHỞI TẠO QUILL JS (RICH TEXT EDITOR) & TRẠNG THÁI "CHƯA LƯU"
-        // ==================================================================
         let hasUnsavedChanges = false;
         let isSystemChangingContent = false; 
 
-        var toolbarOptions = [
-            ['bold', 'italic', 'underline'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            ['link', 'clean']
-        ];
-        
+        var toolbarOptions = [['bold', 'italic', 'underline'], [{'list': 'ordered'}, {'list': 'bullet'}], ['link', 'clean']];
         var quillSummary = new Quill('#inpSummary', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Nhập nội dung tóm tắt...' });
         var quillDetail = new Quill('#inpDetail', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Soạn thảo trích dẫn gốc...' });
 
@@ -430,34 +435,31 @@
             if (isSystemChangingContent || !currentEditNodeId || hasUnsavedChanges) return;
             hasUnsavedChanges = true;
             const btn = document.getElementById('btnSaveSingle');
-            btn.style.background = "#f1c40f"; 
-            btn.style.color = "#000";
-            btn.innerHTML = "⚠️ ĐANG CHỈNH SỬA (Bấm để Lưu)";
+            btn.style.background = "#f1c40f"; btn.style.color = "#000"; btn.innerHTML = "⚠️ ĐANG CHỈNH SỬA (Bấm để Lưu)";
         }
 
         function resetSaveButton() {
             hasUnsavedChanges = false;
             const btn = document.getElementById('btnSaveSingle');
-            btn.style.background = "#28a745"; 
-            btn.style.color = "#fff";
-            btn.innerHTML = "💾 LƯU MỤC NÀY";
+            btn.style.background = "#28a745"; btn.style.color = "#fff"; btn.innerHTML = "💾 LƯU MỤC NÀY";
         }
 
-        quillSummary.on('text-change', markAsUnsaved);
-        quillDetail.on('text-change', markAsUnsaved);
-        ['inpTag', 'inpTitle', 'inpFileUrl', 'inpFileName'].forEach(id => {
-            document.getElementById(id).addEventListener('input', markAsUnsaved);
-        });
+        quillSummary.on('text-change', markAsUnsaved); quillDetail.on('text-change', markAsUnsaved);
+        ['inpTag', 'inpTitle', 'inpFileUrl', 'inpFileName'].forEach(id => { document.getElementById(id).addEventListener('input', markAsUnsaved); });
 
-        // ==================================================================
-        // 1. KHỞI TẠO UX NÂNG CAO
-        // ==================================================================
+        function processLegacyText(text) {
+            if (!text) return '';
+            if (text.indexOf('<p') === -1 && text.indexOf('<br') === -1 && text.indexOf('<ul') === -1 && text.indexOf('<ol') === -1) {
+                return text.replace(/\n/g, '<br>');
+            }
+            return text;
+        }
+
         function initTheme() {
             const savedTheme = localStorage.getItem('sotay_theme');
             if (savedTheme === 'dark') document.body.classList.add('dark-mode');
             else if (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches) document.body.classList.add('dark-mode');
-        }
-        initTheme();
+        } initTheme();
 
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
@@ -472,50 +474,42 @@
             document.getElementById("backToTop").style.display = scrollTop > 300 ? "block" : "none";
         });
 
-        // ==================================================================
-        // 2. CẤU HÌNH HỆ THỐNG
-        // ==================================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs",
-            authDomain: "sotay-dangvien.firebaseapp.com",
-            projectId: "sotay-dangvien",
-            storageBucket: "sotay-dangvien.firebasestorage.app",
-            messagingSenderId: "699788813951",
-            appId: "1:699788813951:web:14eb81183799f83e0f814a"
-        };
+        function addRecentView(id, title) {
+            if(!id || !title) return;
+            let recents = JSON.parse(localStorage.getItem('sotay_recents') || '[]');
+            recents = recents.filter(item => item.id !== id);
+            recents.unshift({id, title});
+            if(recents.length > 5) recents.pop();
+            localStorage.setItem('sotay_recents', JSON.stringify(recents));
+            renderRecentViews();
+        }
+
+        function renderRecentViews() {
+            let recents = JSON.parse(localStorage.getItem('sotay_recents') || '[]');
+            let container = document.getElementById('recentViews');
+            if(recents.length === 0) { container.style.display = 'none'; return; }
+            container.style.display = 'block';
+            let html = '<div style="font-size:0.75rem; color:#f39c12; margin-bottom:5px; text-transform:uppercase; font-weight:bold;">🕒 Vừa xem gần đây:</div>';
+            recents.forEach(item => {
+                html += `<div style="font-size:0.85rem; padding:4px 0; cursor:pointer; color:#ecf0f1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" onclick="toggleMenu(false); jumpToResult('${item.id}')">▪ ${item.title}</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        const firebaseConfig = { apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs", authDomain: "sotay-dangvien.firebaseapp.com", projectId: "sotay-dangvien", storageBucket: "sotay-dangvien.firebasestorage.app", messagingSenderId: "699788813951", appId: "1:699788813951:web:14eb81183799f83e0f814a" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
 
-        const ADMIN_ACCOUNTS = {
-            "admin": { pass: "123456", name: "Quản trị viên Hệ thống" },
-            "tranphuongha": { pass: "123456", name: "Trần Phương Hà-Chuyên viên" },
-            "ledinhkien": { pass: "123456", name: "Lê Đình Kiên-Chuyên viên" },
-            "nguyenhuuhung": { pass: "123456", name: "Nguyễn Hữu Hùng-chuyên viên chính" },
-            "tranthikieuanh": { pass: "123456", name: "Trần Thị Kiều Anh-Chuyên viên" },
-            "trithingoc": { pass: "123456", name: "Triệu Thị Ngọc- Phó Trưởng Ban Thường trực" },
-            "nguyensinghiem": { pass: "123456", name: "Nguyễn Sĩ Nghiêm-Phó Trưởng phòng" },
-            "nguyenthugiang": { pass: "123456", name: "Nguyễn Thu Giang-Phó Trưởng phòng" },
-            "phamthithuhanh": { pass: "123456", name: "Phạm Thi Thu Hạnh-Phó Trưởng phòng" } 
-        };
+        const ADMIN_ACCOUNTS = { "admin": { pass: "123456", name: "Quản trị viên Hệ thống" }, "tranphuongha": { pass: "123456", name: "Trần Phương Hà-Chuyên viên" }, "ledinhkien": { pass: "123456", name: "Lê Đình Kiên-Chuyên viên" }, "nguyenhuuhung": { pass: "123456", name: "Nguyễn Hữu Hùng-chuyên viên chính" }, "tranthikieuanh": { pass: "123456", name: "Trần Thị Kiều Anh-Chuyên viên" }, "trithingoc": { pass: "123456", name: "Triệu Thị Ngọc- Phó Trưởng Ban Thường trực" }, "nguyensinghiem": { pass: "123456", name: "Nguyễn Sĩ Nghiêm-Phó Trưởng phòng" }, "nguyenthugiang": { pass: "123456", name: "Nguyễn Thu Giang-Phó Trưởng phòng" }, "phamthithuhanh": { pass: "123456", name: "Phạm Thi Thu Hạnh-Phó Trưởng phòng" } };
 
-        let APP_DATA = [];
-        let currentEditNodeId = null; 
-        let loggedInUser = null;
-        let expandedAdminNodes = new Set();
-        let isFirstLoadAdmin = true;
-        let expandedUserMenuNodes = new Set();
-        let lastSearchKeyword = "";
+        let APP_DATA = []; let currentEditNodeId = null; let loggedInUser = null; let expandedAdminNodes = new Set(); let isFirstLoadAdmin = true; let expandedUserMenuNodes = new Set(); let lastSearchKeyword = "";
         const thongKeRef = db.collection("sotay").doc("thongke");
 
         function getLocalTodayString() { return new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
 
         function fetchAndRenderDashboard() {
-            thongKeRef.get().then((doc) => {
-                if (doc.exists) renderDashboard(doc.data()); else renderDashboard({ totalVisits: 0, searchCount: 0, dailyVisits: {} });
-            }).catch(err => console.log(err));
-        }
-
-        setInterval(fetchAndRenderDashboard, 3600000);
+            thongKeRef.get().then((doc) => { if (doc.exists) renderDashboard(doc.data()); else renderDashboard({ totalVisits: 0, searchCount: 0, dailyVisits: {} }); }).catch(err => console.log(err));
+        } setInterval(fetchAndRenderDashboard, 3600000);
 
         function recordVisit() {
             if (!sessionStorage.getItem('visited_sotay')) {
@@ -523,8 +517,7 @@
                 thongKeRef.set({ totalVisits: firebase.firestore.FieldValue.increment(1), dailyVisits: { [today]: firebase.firestore.FieldValue.increment(1) } }, { merge: true }).then(fetchAndRenderDashboard);
                 sessionStorage.setItem('visited_sotay', 'true');
             } else { fetchAndRenderDashboard(); }
-        }
-        recordVisit();
+        } recordVisit();
 
         function renderDashboard(data) {
             let total = data.totalVisits || 0; let search = data.searchCount || 0; let daily = data.dailyVisits || {};
@@ -532,34 +525,20 @@
             for (let i = 6; i >= 0; i--) {
                 let d = new Date(todayDate.getTime()); d.setDate(d.getDate() - i);
                 let local = new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
-                let dateStr = local.toISOString().split('T')[0];
-                let displayStr = local.getDate() + '/' + (local.getMonth()+1);
+                let dateStr = local.toISOString().split('T')[0]; let displayStr = local.getDate() + '/' + (local.getMonth()+1);
                 let visits = daily[dateStr] || data[`dailyVisits.${dateStr}`] || 0; 
-                sum7Days += visits; if (visits > maxDaily) maxDaily = visits;
-                last7Days.push({ date: displayStr, visits: visits });
+                sum7Days += visits; if (visits > maxDaily) maxDaily = visits; last7Days.push({ date: displayStr, visits: visits });
             }
-            let todayVisits = last7Days[6].visits;
-            let chartHtml = '<div class="chart-container">';
-            last7Days.forEach(day => {
-                let h = maxDaily > 0 ? (day.visits / maxDaily * 100) : 0; if(h < 5 && day.visits > 0) h = 5; 
-                chartHtml += `<div class="chart-bar" style="height:${h}%;"><span class="chart-tooltip">${day.date}: ${day.visits} lượt</span></div>`;
-            });
+            let todayVisits = last7Days[6].visits; let chartHtml = '<div class="chart-container">';
+            last7Days.forEach(day => { let h = maxDaily > 0 ? (day.visits / maxDaily * 100) : 0; if(h < 5 && day.visits > 0) h = 5; chartHtml += `<div class="chart-bar" style="height:${h}%;"><span class="chart-tooltip">${day.date}: ${day.visits} lượt</span></div>`; });
             chartHtml += `</div><div class="chart-labels"><span>${last7Days[0].date}</span><span>Hôm nay</span></div>`;
             document.getElementById('miniDashboard').innerHTML = `<div class="stat-row"><span>👁 Tổng truy cập:</span> <b>${total}</b></div><div class="stat-row"><span>📅 Hôm nay:</span> <b>${todayVisits}</b></div><div class="stat-row"><span>📈 7 ngày qua:</span> <b>${sum7Days}</b></div><div class="stat-row"><span>🔍 Lượt tìm kiếm:</span> <b>${search}</b></div> ${chartHtml}`;
         }
 
-        // ==================================================================
-        // 4. LẤY DỮ LIỆU & RENDER FRONT-END
-        // ==================================================================
         db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
-            if (doc.exists) { APP_DATA = doc.data().treeData || []; } 
-            else { APP_DATA = [{ id: 'r1', title: 'PHẦN 1', tag: '', summary: '', detail: '', level: 0, children: [] }]; }
-            
-            if (isFirstLoadAdmin && APP_DATA.length > 0) { 
-                APP_DATA.forEach(node => { expandedAdminNodes.add(node.id); expandedUserMenuNodes.add(node.id); }); 
-                isFirstLoadAdmin = false; 
-            }
-            renderUserInterface(); 
+            if (doc.exists) { APP_DATA = doc.data().treeData || []; } else { APP_DATA = [{ id: 'r1', title: 'PHẦN 1', tag: '', summary: '', detail: '', level: 0, children: [] }]; }
+            if (isFirstLoadAdmin && APP_DATA.length > 0) { APP_DATA.forEach(node => { expandedAdminNodes.add(node.id); expandedUserMenuNodes.add(node.id); }); isFirstLoadAdmin = false; }
+            renderUserInterface(); renderRecentViews();
             if (document.getElementById('adminPanel').style.display === 'block') { renderAdminTree(); }
         });
 
@@ -572,8 +551,7 @@
 
         function renderUserInterface() {
             renderSidebarMenu(); 
-            const contentEl = document.getElementById('dynamicContent'); 
-            contentEl.innerHTML = ''; 
+            const contentEl = document.getElementById('dynamicContent'); contentEl.innerHTML = ''; 
             if (!APP_DATA || APP_DATA.length === 0) return;
             
             function processNode(items, container) {
@@ -583,7 +561,9 @@
                     let nextContainer = container; 
                     
                     let displayTitle = highlightText(item.title || 'Chưa đặt tên', lastSearchKeyword);
-                    let displaySummary = highlightText(item.summary, lastSearchKeyword);
+                    
+                    let safeSummary = processLegacyText(item.summary);
+                    let displaySummary = highlightText(safeSummary, lastSearchKeyword);
 
                     if(item.level === 0 || item.level === 1) {
                         let hTag = item.level === 0 ? 'h2' : 'h3'; let hClass = item.level === 0 ? 'phan-header' : 'muc-header';
@@ -605,12 +585,18 @@
                         let hasChildren = item.children && item.children.length > 0; 
                         let iconHtml = hasChildren ? `<div class="step-icon">▼</div>` : '';
                         
-                        div.innerHTML = `<div class="step-header" onclick="toggleStep(this, event, '${item.id}')"><div class="step-title-wrapper">${tagHtml}${titleHtml}</div>${iconHtml}</div><div class="step-body-wrapper"><div class="step-body"><div class="step-body-inner" id="inner-${item.id}">${summaryHtml}${detailBtn}</div></div></div>`;
+                        div.innerHTML = `<div class="step-header" onclick="toggleStep(this, event, '${item.id}', '${item.title ? item.title.replace(/'/g, "\\'") : ''}')"><div class="step-title-wrapper">${tagHtml}${titleHtml}</div>${iconHtml}</div><div class="step-body-wrapper"><div class="step-body"><div class="step-body-inner" id="inner-${item.id}">${summaryHtml}${detailBtn}</div></div></div>`;
                         container.appendChild(div); nextContainer = div.querySelector(`#inner-${item.id}`);
                     }
                     if(item.children && item.children.length > 0) processNode(item.children, nextContainer);
                 });
             } processNode(APP_DATA, contentEl);
+        }
+
+        function highlightSidebarMenu(id) {
+            document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active-menu'));
+            let target = document.querySelector(`.menu-link[data-id="${id}"]`);
+            if(target) { target.classList.add('active-menu'); target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
         }
 
         function updateBreadcrumb(targetId) {
@@ -628,7 +614,7 @@
             bar.innerHTML = html; bar.style.display = 'block';
         }
 
-        function toggleStep(headerEl, event, id) {
+        function toggleStep(headerEl, event, id, title) {
             if (event && (event.target.closest('a') || event.target.closest('.btn-trich-dan'))) return; 
             if (event) event.stopPropagation();
             const stepBox = headerEl.parentElement; let parentInner = stepBox.parentElement;
@@ -639,7 +625,11 @@
                 } 
             }
             stepBox.classList.toggle('active');
-            if(stepBox.classList.contains('active')) updateBreadcrumb(id);
+            if(stepBox.classList.contains('active')) {
+                updateBreadcrumb(id);
+                highlightSidebarMenu(id);
+                if(title) addRecentView(id, title);
+            }
         }
 
         function expandAll() { document.querySelectorAll('.step-box').forEach(box => box.classList.add('active')); }
@@ -654,7 +644,7 @@
                     let hasValidChildren = item.children && item.children.some(c => c.level <= 3); let isExpanded = expandedUserMenuNodes.has(item.id);
                     let icon = item.level === 0 ? '📚' : (item.level === 1 ? '📂' : (item.level === 2 ? '📄' : '🔹'));
                     let toggleBtn = hasValidChildren ? `<span class="menu-toggle" onclick="toggleUserMenuNode(event, '${item.id}')">${isExpanded ? '▼' : '▶'}</span>` : `<span style="display:inline-block;width:20px;"></span>`;
-                    html += `<li><div class="menu-item-row">${toggleBtn}<span style="margin-right: 5px; font-size:0.85rem">${icon}</span><a class="menu-link" onclick="toggleMenu(false); jumpToResult('${item.id}')">${item.title || 'Mục chưa có tên'}</a></div>`;
+                    html += `<li><div class="menu-item-row">${toggleBtn}<span style="margin-right: 5px; font-size:0.85rem">${icon}</span><a class="menu-link" data-id="${item.id}" onclick="toggleMenu(false); jumpToResult('${item.id}')">${item.title || 'Mục chưa có tên'}</a></div>`;
                     if (hasValidChildren) { html += `<div style="display: ${isExpanded ? 'block' : 'none'};">${buildUserMenuHtml(item.children)}</div>`; } html += `</li>`;
                 }); html += '</ul>'; return html;
             } menuEl.innerHTML = buildUserMenuHtml(APP_DATA);
@@ -664,21 +654,27 @@
 
         function openSearchModal() { document.getElementById('modalSearch').style.display = 'flex'; document.getElementById('searchInput').value = ''; document.getElementById('faqSuggestions').style.display = 'block'; document.getElementById('searchResults').innerHTML = '<div class="no-result">Gõ từ khóa để tìm...</div>'; setTimeout(()=>document.getElementById('searchInput').focus(), 100); }
         function closeSearchModal() { document.getElementById('modalSearch').style.display = 'none'; }
-        function quickAsk(keyword) { document.getElementById('searchInput').value = keyword; performSearch(); }
+        function quickAsk(keyword) { document.getElementById('searchInput').value = keyword; document.getElementById('searchTagFilter').value = ''; performSearch(); }
         function removeAccents(str) { return str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : ""; }
         
         function performSearch() {
             let kwRaw = document.getElementById('searchInput').value.trim(); let kwNoAccent = removeAccents(kwRaw); 
+            let filterTag = document.getElementById('searchTagFilter').value.toLowerCase();
             let resContainer = document.getElementById('searchResults'); let faqDiv = document.getElementById('faqSuggestions');
-            if (kwNoAccent.length < 2) { resContainer.innerHTML = '<div class="no-result">Vui lòng gõ ít nhất 2 ký tự.</div>'; faqDiv.style.display = 'block'; return; } 
+            
+            if (kwNoAccent.length < 2 && filterTag === '') { resContainer.innerHTML = '<div class="no-result">Vui lòng gõ ít nhất 2 ký tự hoặc chọn bộ lọc.</div>'; faqDiv.style.display = 'block'; return; } 
             
             faqDiv.style.display = 'none'; lastSearchKeyword = kwRaw; let results = [];
             
             function traverse(nodes, parentPath) {
                 for(let n of nodes) {
                     let curPath = parentPath ? (parentPath + " > " + n.title) : (n.title || '');
-                    if (removeAccents((n.title||'')+" "+(n.tag||'')+" "+(n.summary||'')+" "+(n.detail||'')).includes(kwNoAccent)) { 
-                        results.push({ id: n.id, path: parentPath || 'Mục chính', title: highlightText(n.title, kwRaw), snippet: "Bấm để xem kết quả khớp từ khóa..." }); 
+                    let tagText = n.tag ? n.tag.toLowerCase() : '';
+                    let isTagMatch = filterTag === '' || tagText.includes(filterTag);
+                    let isKwMatch = kwNoAccent === '' || removeAccents((n.title||'')+" "+(n.tag||'')+" "+(n.summary||'')+" "+(n.detail||'')).includes(kwNoAccent);
+                    
+                    if (isTagMatch && isKwMatch) { 
+                        results.push({ id: n.id, path: parentPath || 'Mục chính', title: highlightText(n.title, kwRaw), snippet: n.tag ? `[${n.tag}] Nhấn xem chi tiết...` : "Nhấn để xem kết quả khớp..." }); 
                     }
                     if (n.children) traverse(n.children, curPath);
                 }
@@ -694,6 +690,7 @@
             renderUserInterface();
         }
         document.getElementById('searchInput').addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(); });
+        document.getElementById('searchTagFilter').addEventListener('change', performSearch);
         
         function jumpToResult(id) {
             closeSearchModal(); let el = document.getElementById(id);
@@ -701,8 +698,12 @@
                 let parentNode = el.parentElement; 
                 while (parentNode && parentNode.id !== 'dynamicContent') { if (parentNode.classList.contains('step-box')) parentNode.classList.add('active'); parentNode = parentNode.parentElement; }
                 if (el.classList.contains('step-box')) el.classList.add('active');
+                
                 let nodeToOpen = findNode(id, APP_DATA); 
-                if(nodeToOpen) { let parentIdPath = getParentIdPath(id, APP_DATA); parentIdPath.forEach(pid => expandedUserMenuNodes.add(pid)); renderSidebarMenu(); updateBreadcrumb(id); }
+                if(nodeToOpen) { 
+                    let parentIdPath = getParentIdPath(id, APP_DATA); parentIdPath.forEach(pid => expandedUserMenuNodes.add(pid)); 
+                    renderSidebarMenu(); updateBreadcrumb(id); highlightSidebarMenu(id); addRecentView(nodeToOpen.id, nodeToOpen.title);
+                }
                 setTimeout(() => { 
                     window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 100, behavior: "smooth" });
                     let oBg = el.style.backgroundColor; el.style.backgroundColor = "rgba(241, 196, 15, 0.2)"; setTimeout(() => el.style.backgroundColor = oBg || '', 2000); 
@@ -718,9 +719,10 @@
         function showPopup(id) { 
             let nodeData = findNode(id, APP_DATA);
             if(nodeData && nodeData.detail) {
-                document.getElementById('noi-dung-chi-tiet').innerHTML = highlightText(nodeData.detail, lastSearchKeyword); 
+                let safeDetail = processLegacyText(nodeData.detail);
+                document.getElementById('noi-dung-chi-tiet').innerHTML = highlightText(safeDetail, lastSearchKeyword); 
                 document.getElementById('modalTrichDan').style.display = 'flex'; 
-                updateBreadcrumb(id);
+                updateBreadcrumb(id); addRecentView(id, nodeData.title); highlightSidebarMenu(id);
             }
         }
         
@@ -728,17 +730,11 @@
         function closeModalOnBgClick(e, id) { if(e.target.id === id) closePopup(id); }
         function topFunction() { window.scrollTo({top: 0, behavior: 'smooth'}); }
 
-        // ==================================================================
-        // 8. ADMIN QUẢN TRỊ & KÉO THẢ NÂNG CAO
-        // ==================================================================
         let draggedNodeId = null;
 
         function saveTreeToFirebase(newTree) { db.collection("sotay").doc("dulieu").update({ treeData: newTree }).catch(err => alert("Lỗi khi lưu cấu trúc: " + err)); }
         
-        function confirmUnsaved() {
-            if (hasUnsavedChanges) return confirm("⚠️ Bạn có thay đổi chưa lưu! Xác nhận rời đi và HUỶ BỎ những thay đổi vừa nhập?");
-            return true;
-        }
+        function confirmUnsaved() { if (hasUnsavedChanges) return confirm("⚠️ Bạn có thay đổi chưa lưu! Xác nhận rời đi và HUỶ BỎ những thay đổi vừa nhập?"); return true; }
 
         function moveNodeUp(e, id) { e.stopPropagation(); if(!confirmUnsaved()) return; let serverTree = JSON.parse(JSON.stringify(APP_DATA)); function process(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === id) { if(i > 0) { let temp = nodes[i]; nodes[i] = nodes[i-1]; nodes[i-1] = temp; return true; } return true; } if(nodes[i].children && process(nodes[i].children)) return true; } return false; } if(process(serverTree)) saveTreeToFirebase(serverTree); }
         function moveNodeDown(e, id) { e.stopPropagation(); if(!confirmUnsaved()) return; let serverTree = JSON.parse(JSON.stringify(APP_DATA)); function process(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === id) { if(i < nodes.length - 1) { let temp = nodes[i]; nodes[i] = nodes[i+1]; nodes[i+1] = temp; return true; } return true; } if(nodes[i].children && process(nodes[i].children)) return true; } return false; } if(process(serverTree)) saveTreeToFirebase(serverTree); }
@@ -749,8 +745,7 @@
         function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
         function handleDrop(e, targetId) {
             e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove('drag-over');
-            if(!draggedNodeId || draggedNodeId === targetId) return;
-            if(!confirmUnsaved()) return;
+            if(!draggedNodeId || draggedNodeId === targetId) return; if(!confirmUnsaved()) return;
             if (isDescendant(draggedNodeId, targetId, APP_DATA)) { alert("⛔ Lỗi: Không thể kéo thư mục Cha thả vào bên trong Cấp Con của nó!"); return; }
             let serverTree = JSON.parse(JSON.stringify(APP_DATA)); let nodeToMove = null;
             function removeNode(nodes) { for (let i = 0; i < nodes.length; i++) { if (nodes[i].id === draggedNodeId) { nodeToMove = nodes.splice(i, 1)[0]; return true; } if (nodes[i].children && removeNode(nodes[i].children)) return true; } return false; }
@@ -763,18 +758,9 @@
 
         function saveCurrentNodeToServer() {
             if (!currentEditNodeId) return; const btn = document.getElementById('btnSaveSingle'); btn.innerText = "⏳ Đang lưu..."; btn.disabled = true;
-            
             let sumVal = quillSummary.root.innerHTML; if(sumVal === '<p><br></p>') sumVal = '';
             let detVal = quillDetail.root.innerHTML; if(detVal === '<p><br></p>') detVal = '';
-
-            let updatedData = { 
-                tag: document.getElementById('inpTag').value, 
-                title: document.getElementById('inpTitle').value, 
-                summary: sumVal, 
-                detail: detVal, 
-                fileUrl: document.getElementById('inpFileUrl').value, 
-                fileName: document.getElementById('inpFileName').value 
-            };
+            let updatedData = { tag: document.getElementById('inpTag').value, title: document.getElementById('inpTitle').value, summary: sumVal, detail: detVal, fileUrl: document.getElementById('inpFileUrl').value, fileName: document.getElementById('inpFileName').value };
 
             const docRef = db.collection("sotay").doc("dulieu");
             db.runTransaction((transaction) => {
@@ -783,11 +769,7 @@
                     function updateNode(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === currentEditNodeId) { nodes[i] = { ...nodes[i], ...updatedData }; isFound = true; return; } if(nodes[i].children) updateNode(nodes[i].children); } } updateNode(serverTree);
                     if (isFound) { transaction.update(docRef, { treeData: serverTree }); } else { throw "Mục này có thể đã bị xóa!"; }
                 });
-            }).then(() => { 
-                btn.disabled = false; resetSaveButton(); 
-            }).catch((err) => { 
-                btn.disabled = false; resetSaveButton(); alert("Lỗi đồng bộ: " + err); 
-            });
+            }).then(() => { btn.disabled = false; resetSaveButton(); }).catch((err) => { btn.disabled = false; resetSaveButton(); alert("Lỗi đồng bộ: " + err); });
         }
 
         function addNewRoot() { if(!confirmUnsaved()) return; let newNode = {id: 'r'+Date.now(), title:'PHẦN MỚI TẠO', tag:'', summary:'', detail:'', level:0, children:[]}; const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; serverTree.push(newNode); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { selectItem(newNode.id); }); }
@@ -795,6 +777,26 @@
         function deleteCurrentItem() { if(!currentEditNodeId || !confirm('CẢNH BÁO: Bạn có chắc chắn muốn XÓA mục này? Toàn bộ mục con bên trong cũng sẽ bị xóa vĩnh viễn!')) return; const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; function removeNode(nodes) { let idx = nodes.findIndex(c => c.id === currentEditNodeId); if(idx > -1) { nodes.splice(idx, 1); return true; } for(let i=0; i<nodes.length; i++){ if(nodes[i].children && removeNode(nodes[i].children)) return true; } return false; } removeNode(serverTree); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { currentEditNodeId = null; hasUnsavedChanges = false; document.getElementById('editorArea').style.display='none'; document.getElementById('editorPlaceholder').style.display='block'; }); }
 
         function toggleAdminNode(event, id) { event.stopPropagation(); if (expandedAdminNodes.has(id)) expandedAdminNodes.delete(id); else expandedAdminNodes.add(id); renderAdminTree(); }
+
+        function filterAdminTree() {
+            let kw = removeAccents(document.getElementById('adminSearchInput').value.toLowerCase());
+            let nodes = document.querySelectorAll('#adminTree .tree-node');
+            if(!kw) { nodes.forEach(n => n.style.display = 'block'); return; }
+            nodes.forEach(n => {
+                let text = removeAccents(n.innerText.toLowerCase());
+                if(text.includes(kw)) {
+                    n.style.display = 'block';
+                    let parent = n.parentElement;
+                    while(parent && parent.id !== 'adminTree') {
+                        if(parent.classList.contains('tree-children')) {
+                            parent.classList.remove('collapsed');
+                            parent.parentElement.style.display = 'block'; 
+                        }
+                        parent = parent.parentElement;
+                    }
+                } else { n.style.display = 'none'; }
+            });
+        }
 
         function renderAdminTree() {
             const tree = document.getElementById('adminTree'); tree.innerHTML = '';
@@ -806,32 +808,22 @@
                     html += `<div class="tree-node" id="node-${node.id}"><div class="tree-item ${extraClass} ${active}" draggable="true" ondragstart="handleDragStart(event, '${node.id}')" ondragend="handleDragEnd(event)" ondragover="handleDragOver(event, '${node.id}')" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${node.id}')" onclick="selectItem('${node.id}')">${toggleBtn}<span style="margin-right: 5px;">${icon}</span><span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${node.title || 'Chưa đặt tên'}</span>${btnUpDown}</div>`;
                     if(hasChildren) { html += `<div class="tree-children ${isExpanded ? '' : 'collapsed'}">${buildHtml(node.children)}</div>`; } html += `</div>`;
                 }); return html;
-            } tree.innerHTML = buildHtml(APP_DATA);
+            } tree.innerHTML = buildHtml(APP_DATA); filterAdminTree();
         }
 
         function selectItem(id) {
-            if (hasUnsavedChanges && currentEditNodeId !== id) {
-                if (!confirm("⚠️ CẢNH BÁO: Bạn đang nhập nội dung nhưng CHƯA LƯU!\n\nBạn có chắc chắn muốn bỏ qua và chuyển sang mục khác không? (Nội dung vừa nhập sẽ bị mất)")) {
-                    return;
-                }
-            }
-            
-            resetSaveButton();
-            currentEditNodeId = id; 
+            if (hasUnsavedChanges && currentEditNodeId !== id) { if (!confirm("⚠️ CẢNH BÁO: Bạn đang nhập nội dung nhưng CHƯA LƯU!\n\nBạn có chắc chắn muốn bỏ qua và chuyển sang mục khác không? (Nội dung vừa nhập sẽ bị mất)")) { return; } }
+            resetSaveButton(); currentEditNodeId = id; 
             let nodeData = findNode(id, APP_DATA); if(!nodeData) return; 
             renderAdminTree(); 
             
-            document.getElementById('editorPlaceholder').style.display = 'none'; 
-            document.getElementById('editorArea').style.display = 'block'; 
-            
+            document.getElementById('editorPlaceholder').style.display = 'none'; document.getElementById('editorArea').style.display = 'block'; 
             isSystemChangingContent = true;
-            document.getElementById('inpTag').value = nodeData.tag || ''; 
-            document.getElementById('inpTitle').value = nodeData.title || ''; 
-            document.getElementById('inpFileUrl').value = nodeData.fileUrl || ''; 
-            document.getElementById('inpFileName').value = nodeData.fileName || '';
+            document.getElementById('inpTag').value = nodeData.tag || ''; document.getElementById('inpTitle').value = nodeData.title || ''; 
+            document.getElementById('inpFileUrl').value = nodeData.fileUrl || ''; document.getElementById('inpFileName').value = nodeData.fileName || '';
             
-            quillSummary.root.innerHTML = nodeData.summary || '';
-            quillDetail.root.innerHTML = nodeData.detail || '';
+            quillSummary.root.innerHTML = processLegacyText(nodeData.summary || ''); 
+            quillDetail.root.innerHTML = processLegacyText(nodeData.detail || '');
             
             setTimeout(() => { isSystemChangingContent = false; }, 100);
         }
