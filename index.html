@@ -334,7 +334,7 @@
         let expandedUserMenuNodes = new Set();
 
         // ==================================================================
-        // CƠ CHẾ THỐNG KÊ (DASHBOARD TRACKING)
+        // CƠ CHẾ THỐNG KÊ (ĐÃ FIX LỖI ĐỊNH DẠNG NGÀY CỦA FIREBASE)
         // ==================================================================
         const thongKeRef = db.collection("sotay").doc("thongke");
 
@@ -344,21 +344,35 @@
             return local.toISOString().split('T')[0];
         }
 
-        thongKeRef.onSnapshot((doc) => {
-            if (doc.exists) renderDashboard(doc.data());
-            else renderDashboard({ totalVisits: 0, searchCount: 0, dailyVisits: {} });
-        });
+        function fetchAndRenderDashboard() {
+            thongKeRef.get().then((doc) => {
+                if (doc.exists) renderDashboard(doc.data());
+                else renderDashboard({ totalVisits: 0, searchCount: 0, dailyVisits: {} });
+            }).catch(err => console.log("Lỗi tải thống kê:", err));
+        }
+
+        setInterval(fetchAndRenderDashboard, 3600000);
 
         function recordVisit() {
             if (!sessionStorage.getItem('visited_sotay')) {
                 let today = getLocalTodayString();
+                
+                // CÁCH GHI MỚI: Báo cho Firebase biết dailyVisits là một thư mục con
                 thongKeRef.set({
                     totalVisits: firebase.firestore.FieldValue.increment(1),
-                    [`dailyVisits.${today}`]: firebase.firestore.FieldValue.increment(1)
-                }, { merge: true });
+                    dailyVisits: {
+                        [today]: firebase.firestore.FieldValue.increment(1)
+                    }
+                }, { merge: true }).then(() => {
+                    fetchAndRenderDashboard(); 
+                });
+                
                 sessionStorage.setItem('visited_sotay', 'true');
+            } else {
+                fetchAndRenderDashboard(); 
             }
         }
+        
         recordVisit();
 
         function renderDashboard(data) {
@@ -378,7 +392,9 @@
                 let dateStr = local.toISOString().split('T')[0];
                 let displayStr = local.getDate() + '/' + (local.getMonth()+1);
                 
-                let visits = daily[dateStr] || 0;
+                // CƠ CHẾ ĐỌC BÙ TRỪ: Đọc cả số liệu ghi chuẩn và số liệu ghi lỗi trước đó
+                let visits = daily[dateStr] || data[`dailyVisits.${dateStr}`] || 0; 
+                
                 sum7Days += visits;
                 if (visits > maxDaily) maxDaily = visits;
                 last7Days.push({ date: displayStr, visits: visits });
@@ -667,7 +683,6 @@
                         let cleanDetailInner = item.detail ? item.detail.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>') : '';
                         let detailBtn = item.detail ? `<div class="step-actions" style="margin: 0 10px 15px 15px;"><div class="btn-trich-dan" onclick="showPopup('${cleanDetailInner}')">📖 Xem chi tiết</div></div>` : '';
                         
-                        // ĐÂY LÀ CHỖ QUYẾT ĐỊNH ẨN HIỆN MŨI TÊN (Yêu cầu 1 của bạn)
                         let hasChildren = item.children && item.children.length > 0;
                         let iconHtml = hasChildren ? `<div class="step-icon">▼</div>` : '';
 
@@ -704,7 +719,6 @@
             }
             traverse(APP_DATA, "");
             
-            // Ghi nhận có 1 lượt tìm kiếm (Yêu cầu của bạn)
             thongKeRef.set({ searchCount: firebase.firestore.FieldValue.increment(1) }, { merge: true });
 
             if (results.length === 0) resContainer.innerHTML = '<div class="no-result">❌ Không tìm thấy.</div>';
