@@ -66,6 +66,8 @@
         .main-content > div > .step-box { border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
         .step-body .step-box { border-top: 1px solid #eee; border-bottom: 1px solid #eee; margin: 0; padding: 0;}
 
+        /* ĐÃ BỔ SUNG LEVEL-1 VÀO HỆ THỐNG BOX */
+        .step-box.level-1 > .step-header { border-left: 6px solid #b71c1c; } 
         .step-box.level-2 > .step-header { border-left: 5px solid #2980b9; } 
         .step-box.level-3 > .step-header { border-left: 4px solid #27ae60; } 
         .step-box.level-4 > .step-header { border-left: 3px solid var(--primary-color); } 
@@ -150,10 +152,9 @@
         .tree-container { flex: 1; overflow-y: auto; border: 1px solid #ddd; background: #fff; border-radius: 6px; padding: 10px; font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);}
         .tree-node { margin-bottom: 2px; }
         
-        /* CSS cho các item có thể kéo thả */
         .tree-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; transition: all 0.2s ease; border: 1px solid transparent; color: #444; }
         .tree-item.active { background: #e3f2fd; color: #0d47a1; font-weight: bold; border-left: 4px solid #007bff; }
-        .tree-item.drag-over { border: 2px dashed #e74c3c !important; background-color: #fcebeb !important; } /* Hiệu ứng khi kéo đè lên */
+        .tree-item.drag-over { border: 2px dashed #e74c3c !important; background-color: #fcebeb !important; } 
         
         .root-item { font-weight: bold; background: #f8f9fa; border: 1px solid #eee; margin-top: 5px; color: var(--primary-dark); }
         .sub-item { position: relative; font-size: 1.05rem; }
@@ -162,7 +163,6 @@
         .tree-children { margin-left: 20px; border-left: 1px dashed #ccc; padding-left: 10px; margin-top: 2px; }
         .tree-children.collapsed { display: none; }
         
-        /* Nút Lên Xuống */
         .btn-order { font-size: 0.9rem; padding: 2px 5px; background: rgba(0,0,0,0.05); border-radius: 4px; border: none; cursor: pointer; color: #666; display: none; }
         .btn-order:hover { background: rgba(0,0,0,0.1); color: var(--primary-color); }
         .tree-item:hover .btn-order { display: inline-block; }
@@ -330,7 +330,7 @@
             "ledinhkien": { pass: "123456", name: "Lê Đình Kiên-Chuyên viên" },
             "nguyenhuuhung": { pass: "123456", name: "Nguyễn Hữu Hùng-chuyên viên chính" },
             "tranthikieuanh": { pass: "123456", name: "Trần Thị Kiều Anh-Chuyên viên" },
-            "trithingoc": { pass: "123456", name: "Triệu Thị Ngọc- Phó Trưởng Ban Thường trực" },
+            "trieuthingoc": { pass: "123456", name: "Triệu Thị Ngọc- Phó Trưởng Ban Thường trực" },
             "nguyensinghiem": { pass: "123456", name: "Nguyễn Sĩ Nghiêm-Phó Trưởng phòng" },
             "nguyenthugiang": { pass: "123456", name: "Nguyễn Thu Giang-Phó Trưởng phòng" },
             "phamthithuhanh": { pass: "123456", name: "Phạm Thi Thu Hạnh-Phó Trưởng phòng" } 
@@ -403,13 +403,17 @@
             if (doc.exists) { APP_DATA = doc.data().treeData || []; } 
             else { APP_DATA = [{ id: 'r1', title: 'PHẦN 1', tag: '', summary: '', detail: '', level: 0, children: [] }]; }
             
-            if (isFirstLoadAdmin && APP_DATA.length > 0) { APP_DATA.forEach(node => expandedAdminNodes.add(node.id)); isFirstLoadAdmin = false; }
+            if (isFirstLoadAdmin && APP_DATA.length > 0) { 
+                APP_DATA.forEach(node => {
+                    expandedAdminNodes.add(node.id); 
+                    // TỰ ĐỘNG MỞ SẴN CẤP 1 TRONG MENU MỤC LỤC
+                    expandedUserMenuNodes.add(node.id); 
+                }); 
+                isFirstLoadAdmin = false; 
+            }
             renderUserInterface(); if (document.getElementById('adminPanel').style.display === 'block') { renderAdminTree(); }
         });
 
-        // ==================================================================
-        // TÍNH NĂNG DRAG & DROP (KÉO THẢ CHUYỂN CẤP) VÀ LÊN XUỐNG
-        // ==================================================================
         let draggedNodeId = null;
 
         function saveTreeToFirebase(newTree) {
@@ -417,16 +421,13 @@
               .catch(err => alert("Lỗi khi lưu cấu trúc: " + err));
         }
 
-        // HÀM CHUYỂN LÊN TRÊN
         function moveNodeUp(e, id) {
             e.stopPropagation();
             let serverTree = JSON.parse(JSON.stringify(APP_DATA));
             function process(nodes) {
                 for(let i=0; i<nodes.length; i++) {
                     if(nodes[i].id === id) {
-                        if(i > 0) {
-                            let temp = nodes[i]; nodes[i] = nodes[i-1]; nodes[i-1] = temp; return true;
-                        } return true; // Đã ở trên cùng
+                        if(i > 0) { let temp = nodes[i]; nodes[i] = nodes[i-1]; nodes[i-1] = temp; return true; } return true; 
                     }
                     if(nodes[i].children && process(nodes[i].children)) return true;
                 } return false;
@@ -434,16 +435,13 @@
             if(process(serverTree)) saveTreeToFirebase(serverTree);
         }
 
-        // HÀM CHUYỂN XUỐNG DƯỚI
         function moveNodeDown(e, id) {
             e.stopPropagation();
             let serverTree = JSON.parse(JSON.stringify(APP_DATA));
             function process(nodes) {
                 for(let i=0; i<nodes.length; i++) {
                     if(nodes[i].id === id) {
-                        if(i < nodes.length - 1) {
-                            let temp = nodes[i]; nodes[i] = nodes[i+1]; nodes[i+1] = temp; return true;
-                        } return true; // Đã ở dưới cùng
+                        if(i < nodes.length - 1) { let temp = nodes[i]; nodes[i] = nodes[i+1]; nodes[i+1] = temp; return true; } return true;
                     }
                     if(nodes[i].children && process(nodes[i].children)) return true;
                 } return false;
@@ -451,81 +449,48 @@
             if(process(serverTree)) saveTreeToFirebase(serverTree);
         }
 
-        // CÁC SỰ KIỆN KÉO THẢ
-        function handleDragStart(e, id) {
-            draggedNodeId = id; e.dataTransfer.effectAllowed = 'move';
-        }
-
-        function handleDragOver(e, id) {
-            e.preventDefault(); e.stopPropagation();
-            if(id === draggedNodeId) return;
-            e.currentTarget.classList.add('drag-over');
-        }
-
-        function handleDragLeave(e) {
-            e.currentTarget.classList.remove('drag-over');
-        }
+        function handleDragStart(e, id) { draggedNodeId = id; e.dataTransfer.effectAllowed = 'move'; }
+        function handleDragOver(e, id) { e.preventDefault(); e.stopPropagation(); if(id === draggedNodeId) return; e.currentTarget.classList.add('drag-over'); }
+        function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
 
         function handleDrop(e, targetId) {
-            e.preventDefault(); e.stopPropagation();
-            e.currentTarget.classList.remove('drag-over');
-            
+            e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove('drag-over');
             if(!draggedNodeId || draggedNodeId === targetId) return;
 
-            // Kiểm tra an toàn: Không được kéo cha bỏ vào trong lòng đứa con
-            if (isDescendant(draggedNodeId, targetId, APP_DATA)) {
-                alert("⛔ Lỗi An Toàn: Bạn không thể kéo thư mục Cấp Cha thả vào bên trong thư mục Cấp Con của chính nó!");
-                return;
-            }
+            if (isDescendant(draggedNodeId, targetId, APP_DATA)) { alert("⛔ Lỗi An Toàn: Bạn không thể kéo thư mục Cấp Cha thả vào bên trong thư mục Cấp Con của chính nó!"); return; }
 
-            let serverTree = JSON.parse(JSON.stringify(APP_DATA));
-            let nodeToMove = null;
+            let serverTree = JSON.parse(JSON.stringify(APP_DATA)); let nodeToMove = null;
 
-            // 1. Cắt Node ra khỏi vị trí cũ
             function removeNode(nodes) {
                 for (let i = 0; i < nodes.length; i++) {
                     if (nodes[i].id === draggedNodeId) { nodeToMove = nodes.splice(i, 1)[0]; return true; }
                     if (nodes[i].children && removeNode(nodes[i].children)) return true;
                 } return false;
             }
-            removeNode(serverTree);
-            if(!nodeToMove) return;
+            removeNode(serverTree); if(!nodeToMove) return;
 
-            // 2. Dán Node vào mục đích (Trở thành con của mục đích)
             function addNodeToParent(nodes) {
                 for (let i = 0; i < nodes.length; i++) {
                     if (nodes[i].id === targetId) {
-                        if (!nodes[i].children) nodes[i].children = [];
-                        nodes[i].children.push(nodeToMove);
-                        // Cập nhật lại level cho mục này và tất cả mục con bên trong nó
-                        updateLevels(nodeToMove, nodes[i].level + 1); 
-                        return true;
+                        if (!nodes[i].children) nodes[i].children = []; nodes[i].children.push(nodeToMove);
+                        updateLevels(nodeToMove, nodes[i].level + 1); return true;
                     }
                     if (nodes[i].children && addNodeToParent(nodes[i].children)) return true;
                 } return false;
             }
 
             function updateLevels(node, newLevel) {
-                node.level = newLevel;
-                if (node.children) node.children.forEach(c => updateLevels(c, newLevel + 1));
+                node.level = newLevel; if (node.children) node.children.forEach(c => updateLevels(c, newLevel + 1));
             }
 
-            addNodeToParent(serverTree);
-            expandedAdminNodes.add(targetId); // Tự động mở thư mục vừa thả vào
-            saveTreeToFirebase(serverTree);
+            addNodeToParent(serverTree); expandedAdminNodes.add(targetId); saveTreeToFirebase(serverTree);
         }
 
-        // Hàm kiểm tra xem childId có phải là cháu chắt của parentId không
         function isDescendant(parentId, childId, nodes) {
-            let parentNode = findNode(parentId, nodes);
-            if (!parentNode || !parentNode.children) return false;
-            function check(children) {
-                for (let c of children) { if (c.id === childId) return true; if (c.children && check(c.children)) return true; }
-                return false;
-            }
+            let parentNode = findNode(parentId, nodes); if (!parentNode || !parentNode.children) return false;
+            function check(children) { for (let c of children) { if (c.id === childId) return true; if (c.children && check(c.children)) return true; } return false; }
             return check(parentNode.children);
         }
-        // ==================================================================
 
         function saveCurrentNodeToServer() {
             if (!currentEditNodeId) return;
@@ -599,7 +564,6 @@
                     let isExpanded = expandedAdminNodes.has(node.id);
                     let toggleBtn = hasChildren ? `<span class="tree-toggle" onclick="toggleAdminNode(event, '${node.id}')">${isExpanded ? '▼' : '▶'}</span>` : `<span style="display:inline-block;width:24px;"></span>`;
 
-                    // Thêm 2 nút lên xuống vào góc bên phải của item
                     let btnUpDown = `<div style="margin-left:auto;">
                                         <button class="btn-order" onclick="moveNodeUp(event, '${node.id}')" title="Đẩy lên">▲</button>
                                         <button class="btn-order" onclick="moveNodeDown(event, '${node.id}')" title="Đẩy xuống">▼</button>
@@ -676,20 +640,34 @@
                     let div = document.createElement('div'); div.id = item.id; let innerContent = '';
                     let downloadBtn = item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="inline-download" title="${item.fileName || 'Tải biểu mẫu'}">📥 Tải mẫu</a>` : ''; let nextContainer = container; 
 
-                    if(item.level === 0 || item.level === 1) {
-                        let hTag = item.level === 0 ? 'h2' : 'h3'; let hClass = item.level === 0 ? 'phan-header' : 'muc-header';
+                    // CHỈ CÓ CẤP 0 (PHẦN) là Header độc lập
+                    if(item.level === 0) {
+                        let hTag = 'h2'; let hClass = 'phan-header';
                         innerContent += `<${hTag} class="${hClass}">${item.title || 'Chưa đặt tên'} ${downloadBtn}</${hTag}>`;
                         if (item.summary) innerContent += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
                         let cleanDetailOuter = item.detail ? item.detail.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>') : '';
                         if (item.detail) innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${cleanDetailOuter}')">📖 Xem quy định chi tiết</div></div>`;
                         div.innerHTML = innerContent; container.appendChild(div);
                     } else {
-                        let levelClass = item.level === 2 ? 'level-2' : (item.level === 3 ? 'level-3' : 'level-4');
-                        let titleHtml = item.level === 2 ? `<div style="font-weight: 700; font-size: 1.15em; color: #2980b9; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>` : (item.level === 3 ? `<div style="font-weight: 700; font-size: 1.05em; color: #27ae60; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>` : `<div class="step-number" style="margin-bottom:0">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`);
+                        // TỪ CẤP 1 (MỤC) TRỞ ĐI SẼ NẰM TRONG BOX CÓ THỂ ĐÓNG MỞ ĐỂ RÚT GỌN MÀN HÌNH
+                        let levelClass = item.level === 1 ? 'level-1' : (item.level === 2 ? 'level-2' : (item.level === 3 ? 'level-3' : 'level-4'));
+                        
+                        let titleHtml = '';
+                        if (item.level === 1) {
+                            titleHtml = `<div style="font-weight: 700; font-size: 1.15em; color: #b71c1c; margin-bottom: 0; text-transform: uppercase;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
+                        } else if (item.level === 2) {
+                            titleHtml = `<div style="font-weight: 700; font-size: 1.15em; color: #2980b9; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
+                        } else if (item.level === 3) {
+                            titleHtml = `<div style="font-weight: 700; font-size: 1.05em; color: #27ae60; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
+                        } else {
+                            titleHtml = `<div class="step-number" style="margin-bottom:0">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`;
+                        }
+
                         div.className = `step-box ${levelClass}`; let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : ''; let summaryHtml = item.summary ? `<div class="content-text"><p style="margin:0">${item.summary.replace(/\n/g, '<br>')}</p></div>` : '';
                         let cleanDetailInner = item.detail ? item.detail.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>') : '';
                         let detailBtn = item.detail ? `<div class="step-actions" style="margin: 0 10px 15px 15px;"><div class="btn-trich-dan" onclick="showPopup('${cleanDetailInner}')">📖 Xem chi tiết</div></div>` : '';
                         let hasChildren = item.children && item.children.length > 0; let iconHtml = hasChildren ? `<div class="step-icon">▼</div>` : '';
+                        
                         div.innerHTML = `<div class="step-header" onclick="toggleStep(this, event)"><div class="step-title-wrapper">${tagHtml}${titleHtml}</div>${iconHtml}</div><div class="step-body-wrapper"><div class="step-body"><div class="step-body-inner" id="inner-${item.id}">${summaryHtml}${detailBtn}</div></div></div>`;
                         container.appendChild(div); nextContainer = div.querySelector(`#inner-${item.id}`);
                     }
