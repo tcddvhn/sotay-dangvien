@@ -149,14 +149,23 @@
 
         .tree-container { flex: 1; overflow-y: auto; border: 1px solid #ddd; background: #fff; border-radius: 6px; padding: 10px; font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);}
         .tree-node { margin-bottom: 2px; }
+        
+        /* CSS cho các item có thể kéo thả */
         .tree-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; transition: all 0.2s ease; border: 1px solid transparent; color: #444; }
         .tree-item.active { background: #e3f2fd; color: #0d47a1; font-weight: bold; border-left: 4px solid #007bff; }
+        .tree-item.drag-over { border: 2px dashed #e74c3c !important; background-color: #fcebeb !important; } /* Hiệu ứng khi kéo đè lên */
+        
         .root-item { font-weight: bold; background: #f8f9fa; border: 1px solid #eee; margin-top: 5px; color: var(--primary-dark); }
         .sub-item { position: relative; font-size: 1.05rem; }
         .tree-toggle { display: inline-block; width: 24px; text-align: center; cursor: pointer; color: #999; font-size: 0.8rem; font-family: Arial, sans-serif; transition: 0.2s; user-select: none; }
         .tree-toggle:hover { color: var(--primary-color); transform: scale(1.2); }
         .tree-children { margin-left: 20px; border-left: 1px dashed #ccc; padding-left: 10px; margin-top: 2px; }
         .tree-children.collapsed { display: none; }
+        
+        /* Nút Lên Xuống */
+        .btn-order { font-size: 0.9rem; padding: 2px 5px; background: rgba(0,0,0,0.05); border-radius: 4px; border: none; cursor: pointer; color: #666; display: none; }
+        .btn-order:hover { background: rgba(0,0,0,0.1); color: var(--primary-color); }
+        .tree-item:hover .btn-order { display: inline-block; }
 
         .admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 60vh; position: relative;}
         @media (min-width: 768px) { .admin-main { height: 100vh; } }
@@ -252,7 +261,8 @@
     <div id="adminPanel">
         <div class="admin-layout">
             <div class="admin-sidebar">
-                <div style="font-weight:bold; margin-bottom:10px; color: var(--primary-color);">CÂY THƯ MỤC CHUNG</div>
+                <div style="font-weight:bold; margin-bottom:5px; color: var(--primary-color);">CÂY THƯ MỤC CHUNG</div>
+                <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 10px; font-style: italic;">Mẹo: Kéo thả thư mục để chuyển cấp</div>
                 <button class="btn btn-add" style="width: 100%;" onclick="addNewRoot()">+ Thêm Phần Lớn</button>
                 <div class="tree-container" id="adminTree"></div>
             </div>
@@ -333,9 +343,6 @@
         let isFirstLoadAdmin = true;
         let expandedUserMenuNodes = new Set();
 
-        // ==================================================================
-        // CƠ CHẾ THỐNG KÊ (ĐÃ FIX LỖI ĐỊNH DẠNG NGÀY CỦA FIREBASE)
-        // ==================================================================
         const thongKeRef = db.collection("sotay").doc("thongke");
 
         function getLocalTodayString() {
@@ -356,52 +363,28 @@
         function recordVisit() {
             if (!sessionStorage.getItem('visited_sotay')) {
                 let today = getLocalTodayString();
-                
-                // CÁCH GHI MỚI: Báo cho Firebase biết dailyVisits là một thư mục con
                 thongKeRef.set({
                     totalVisits: firebase.firestore.FieldValue.increment(1),
-                    dailyVisits: {
-                        [today]: firebase.firestore.FieldValue.increment(1)
-                    }
-                }, { merge: true }).then(() => {
-                    fetchAndRenderDashboard(); 
-                });
-                
+                    dailyVisits: { [today]: firebase.firestore.FieldValue.increment(1) }
+                }, { merge: true }).then(() => { fetchAndRenderDashboard(); });
                 sessionStorage.setItem('visited_sotay', 'true');
-            } else {
-                fetchAndRenderDashboard(); 
-            }
+            } else { fetchAndRenderDashboard(); }
         }
-        
         recordVisit();
 
         function renderDashboard(data) {
-            let total = data.totalVisits || 0;
-            let search = data.searchCount || 0;
-            let daily = data.dailyVisits || {};
-            
-            let todayDate = new Date();
-            let last7Days = [];
-            let sum7Days = 0;
-            let maxDaily = 0;
-            
+            let total = data.totalVisits || 0; let search = data.searchCount || 0; let daily = data.dailyVisits || {};
+            let todayDate = new Date(); let last7Days = []; let sum7Days = 0; let maxDaily = 0;
             for (let i = 6; i >= 0; i--) {
-                let d = new Date(todayDate.getTime());
-                d.setDate(d.getDate() - i);
+                let d = new Date(todayDate.getTime()); d.setDate(d.getDate() - i);
                 let local = new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
                 let dateStr = local.toISOString().split('T')[0];
                 let displayStr = local.getDate() + '/' + (local.getMonth()+1);
-                
-                // CƠ CHẾ ĐỌC BÙ TRỪ: Đọc cả số liệu ghi chuẩn và số liệu ghi lỗi trước đó
                 let visits = daily[dateStr] || data[`dailyVisits.${dateStr}`] || 0; 
-                
-                sum7Days += visits;
-                if (visits > maxDaily) maxDaily = visits;
+                sum7Days += visits; if (visits > maxDaily) maxDaily = visits;
                 last7Days.push({ date: displayStr, visits: visits });
             }
-            
             let todayVisits = last7Days[6].visits;
-            
             let chartHtml = '<div class="chart-container">';
             last7Days.forEach(day => {
                 let h = maxDaily > 0 ? (day.visits / maxDaily * 100) : 0;
@@ -409,105 +392,181 @@
                 chartHtml += `<div class="chart-bar" style="height:${h}%;"><span class="chart-tooltip">${day.visits}</span></div>`;
             });
             chartHtml += `</div><div class="chart-labels"><span>${last7Days[0].date}</span><span>Hôm nay</span></div>`;
-
             document.getElementById('miniDashboard').innerHTML = `
                 <div class="stat-row"><span>👁 Tổng truy cập:</span> <b>${total}</b></div>
                 <div class="stat-row"><span>📅 Hôm nay:</span> <b>${todayVisits}</b></div>
                 <div class="stat-row"><span>📈 7 ngày qua:</span> <b>${sum7Days}</b></div>
-                <div class="stat-row"><span>🔍 Lượt tìm kiếm:</span> <b>${search}</b></div>
-                ${chartHtml}
-            `;
+                <div class="stat-row"><span>🔍 Lượt tìm kiếm:</span> <b>${search}</b></div> ${chartHtml}`;
         }
 
-        // ==================================================================
-        // LOGIC LẤY DỮ LIỆU CÂY
-        // ==================================================================
         db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
             if (doc.exists) { APP_DATA = doc.data().treeData || []; } 
             else { APP_DATA = [{ id: 'r1', title: 'PHẦN 1', tag: '', summary: '', detail: '', level: 0, children: [] }]; }
             
-            if (isFirstLoadAdmin && APP_DATA.length > 0) {
-                APP_DATA.forEach(node => expandedAdminNodes.add(node.id));
-                isFirstLoadAdmin = false;
-            }
-            renderUserInterface(); 
-            if (document.getElementById('adminPanel').style.display === 'block') { renderAdminTree(); }
+            if (isFirstLoadAdmin && APP_DATA.length > 0) { APP_DATA.forEach(node => expandedAdminNodes.add(node.id)); isFirstLoadAdmin = false; }
+            renderUserInterface(); if (document.getElementById('adminPanel').style.display === 'block') { renderAdminTree(); }
         });
 
         // ==================================================================
-        // CÁC HÀM QUẢN TRỊ 
+        // TÍNH NĂNG DRAG & DROP (KÉO THẢ CHUYỂN CẤP) VÀ LÊN XUỐNG
         // ==================================================================
+        let draggedNodeId = null;
+
+        function saveTreeToFirebase(newTree) {
+            db.collection("sotay").doc("dulieu").update({ treeData: newTree })
+              .catch(err => alert("Lỗi khi lưu cấu trúc: " + err));
+        }
+
+        // HÀM CHUYỂN LÊN TRÊN
+        function moveNodeUp(e, id) {
+            e.stopPropagation();
+            let serverTree = JSON.parse(JSON.stringify(APP_DATA));
+            function process(nodes) {
+                for(let i=0; i<nodes.length; i++) {
+                    if(nodes[i].id === id) {
+                        if(i > 0) {
+                            let temp = nodes[i]; nodes[i] = nodes[i-1]; nodes[i-1] = temp; return true;
+                        } return true; // Đã ở trên cùng
+                    }
+                    if(nodes[i].children && process(nodes[i].children)) return true;
+                } return false;
+            }
+            if(process(serverTree)) saveTreeToFirebase(serverTree);
+        }
+
+        // HÀM CHUYỂN XUỐNG DƯỚI
+        function moveNodeDown(e, id) {
+            e.stopPropagation();
+            let serverTree = JSON.parse(JSON.stringify(APP_DATA));
+            function process(nodes) {
+                for(let i=0; i<nodes.length; i++) {
+                    if(nodes[i].id === id) {
+                        if(i < nodes.length - 1) {
+                            let temp = nodes[i]; nodes[i] = nodes[i+1]; nodes[i+1] = temp; return true;
+                        } return true; // Đã ở dưới cùng
+                    }
+                    if(nodes[i].children && process(nodes[i].children)) return true;
+                } return false;
+            }
+            if(process(serverTree)) saveTreeToFirebase(serverTree);
+        }
+
+        // CÁC SỰ KIỆN KÉO THẢ
+        function handleDragStart(e, id) {
+            draggedNodeId = id; e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e, id) {
+            e.preventDefault(); e.stopPropagation();
+            if(id === draggedNodeId) return;
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e, targetId) {
+            e.preventDefault(); e.stopPropagation();
+            e.currentTarget.classList.remove('drag-over');
+            
+            if(!draggedNodeId || draggedNodeId === targetId) return;
+
+            // Kiểm tra an toàn: Không được kéo cha bỏ vào trong lòng đứa con
+            if (isDescendant(draggedNodeId, targetId, APP_DATA)) {
+                alert("⛔ Lỗi An Toàn: Bạn không thể kéo thư mục Cấp Cha thả vào bên trong thư mục Cấp Con của chính nó!");
+                return;
+            }
+
+            let serverTree = JSON.parse(JSON.stringify(APP_DATA));
+            let nodeToMove = null;
+
+            // 1. Cắt Node ra khỏi vị trí cũ
+            function removeNode(nodes) {
+                for (let i = 0; i < nodes.length; i++) {
+                    if (nodes[i].id === draggedNodeId) { nodeToMove = nodes.splice(i, 1)[0]; return true; }
+                    if (nodes[i].children && removeNode(nodes[i].children)) return true;
+                } return false;
+            }
+            removeNode(serverTree);
+            if(!nodeToMove) return;
+
+            // 2. Dán Node vào mục đích (Trở thành con của mục đích)
+            function addNodeToParent(nodes) {
+                for (let i = 0; i < nodes.length; i++) {
+                    if (nodes[i].id === targetId) {
+                        if (!nodes[i].children) nodes[i].children = [];
+                        nodes[i].children.push(nodeToMove);
+                        // Cập nhật lại level cho mục này và tất cả mục con bên trong nó
+                        updateLevels(nodeToMove, nodes[i].level + 1); 
+                        return true;
+                    }
+                    if (nodes[i].children && addNodeToParent(nodes[i].children)) return true;
+                } return false;
+            }
+
+            function updateLevels(node, newLevel) {
+                node.level = newLevel;
+                if (node.children) node.children.forEach(c => updateLevels(c, newLevel + 1));
+            }
+
+            addNodeToParent(serverTree);
+            expandedAdminNodes.add(targetId); // Tự động mở thư mục vừa thả vào
+            saveTreeToFirebase(serverTree);
+        }
+
+        // Hàm kiểm tra xem childId có phải là cháu chắt của parentId không
+        function isDescendant(parentId, childId, nodes) {
+            let parentNode = findNode(parentId, nodes);
+            if (!parentNode || !parentNode.children) return false;
+            function check(children) {
+                for (let c of children) { if (c.id === childId) return true; if (c.children && check(c.children)) return true; }
+                return false;
+            }
+            return check(parentNode.children);
+        }
+        // ==================================================================
+
         function saveCurrentNodeToServer() {
             if (!currentEditNodeId) return;
-            const btn = document.getElementById('btnSaveSingle');
-            btn.innerText = "⏳..."; btn.disabled = true;
-
-            let updatedData = {
-                tag: document.getElementById('inpTag').value,
-                title: document.getElementById('inpTitle').value,
-                summary: document.getElementById('inpSummary').value,
-                detail: document.getElementById('inpDetail').value,
-                fileUrl: document.getElementById('inpFileUrl').value,
-                fileName: document.getElementById('inpFileName').value
-            };
-
+            const btn = document.getElementById('btnSaveSingle'); btn.innerText = "⏳..."; btn.disabled = true;
+            let updatedData = { tag: document.getElementById('inpTag').value, title: document.getElementById('inpTitle').value, summary: document.getElementById('inpSummary').value, detail: document.getElementById('inpDetail').value, fileUrl: document.getElementById('inpFileUrl').value, fileName: document.getElementById('inpFileName').value };
             const docRef = db.collection("sotay").doc("dulieu");
             db.runTransaction((transaction) => {
                 return transaction.get(docRef).then((doc) => {
-                    let serverTree = doc.data().treeData || [];
-                    let isFound = false;
+                    let serverTree = doc.data().treeData || []; let isFound = false;
                     function updateNode(nodes) {
                         for(let i=0; i<nodes.length; i++) {
-                            if(nodes[i].id === currentEditNodeId) {
-                                nodes[i] = { ...nodes[i], ...updatedData };
-                                isFound = true; return;
-                            }
+                            if(nodes[i].id === currentEditNodeId) { nodes[i] = { ...nodes[i], ...updatedData }; isFound = true; return; }
                             if(nodes[i].children) updateNode(nodes[i].children);
                         }
-                    }
-                    updateNode(serverTree);
-                    if (isFound) { transaction.update(docRef, { treeData: serverTree }); } 
-                    else { throw "Mục này có thể đã bị người khác xóa trước đó!"; }
+                    } updateNode(serverTree);
+                    if (isFound) { transaction.update(docRef, { treeData: serverTree }); } else { throw "Mục này có thể đã bị xóa!"; }
                 });
             }).then(() => {
-                btn.innerText = "💾 LƯU MỤC NÀY"; btn.disabled = false;
-                btn.style.background = "#27ae60"; setTimeout(() => { btn.style.background = "#28a745"; }, 2000);
-            }).catch((err) => {
-                btn.innerText = "💾 LƯU MỤC NÀY"; btn.disabled = false; alert("Lỗi đồng bộ: " + err);
-            });
+                btn.innerText = "💾 LƯU MỤC NÀY"; btn.disabled = false; btn.style.background = "#27ae60"; setTimeout(() => { btn.style.background = "#28a745"; }, 2000);
+            }).catch((err) => { btn.innerText = "💾 LƯU MỤC NÀY"; btn.disabled = false; alert("Lỗi đồng bộ: " + err); });
         }
 
         function addNewRoot() { 
             let newNode = {id: 'r'+Date.now(), title:'PHẦN MỚI TẠO', tag:'', summary:'', detail:'', level:0, children:[]};
             const docRef = db.collection("sotay").doc("dulieu");
-            db.runTransaction((transaction) => {
-                return transaction.get(docRef).then((doc) => {
-                    let serverTree = doc.data().treeData || []; serverTree.push(newNode);
-                    transaction.update(docRef, { treeData: serverTree });
-                });
-            }).then(() => { selectItem(newNode.id); }); 
+            db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; serverTree.push(newNode); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { selectItem(newNode.id); }); 
         }
 
         function addSubItem() { 
-            if(!currentEditNodeId) return;
-            let parentNode = findNode(currentEditNodeId, APP_DATA);
-            if(!parentNode) return;
-            let newNode = {id: 'n'+Date.now(), title:'Mục con mới', tag:'', summary:'', detail:'', level: parentNode.level + 1, children:[]};
-            expandedAdminNodes.add(currentEditNodeId);
+            if(!currentEditNodeId) return; let parentNode = findNode(currentEditNodeId, APP_DATA); if(!parentNode) return;
+            let newNode = {id: 'n'+Date.now(), title:'Mục con mới', tag:'', summary:'', detail:'', level: parentNode.level + 1, children:[]}; expandedAdminNodes.add(currentEditNodeId);
             const docRef = db.collection("sotay").doc("dulieu");
             db.runTransaction((transaction) => {
                 return transaction.get(docRef).then((doc) => {
                     let serverTree = doc.data().treeData || [];
                     function appendChild(nodes) {
                         for(let i=0; i<nodes.length; i++) {
-                            if(nodes[i].id === currentEditNodeId) {
-                                if(!nodes[i].children) nodes[i].children = []; nodes[i].children.push(newNode); return true;
-                            }
+                            if(nodes[i].id === currentEditNodeId) { if(!nodes[i].children) nodes[i].children = []; nodes[i].children.push(newNode); return true; }
                             if(nodes[i].children && appendChild(nodes[i].children)) return true;
                         } return false;
-                    }
-                    appendChild(serverTree);
-                    transaction.update(docRef, { treeData: serverTree });
+                    } appendChild(serverTree); transaction.update(docRef, { treeData: serverTree });
                 });
             }).then(() => { selectItem(newNode.id); }); 
         }
@@ -519,31 +578,17 @@
                 return transaction.get(docRef).then((doc) => {
                     let serverTree = doc.data().treeData || [];
                     function removeNode(nodes) {
-                        let idx = nodes.findIndex(c => c.id === currentEditNodeId);
-                        if(idx > -1) { nodes.splice(idx, 1); return true; }
-                        for(let i=0; i<nodes.length; i++){ if(nodes[i].children && removeNode(nodes[i].children)) return true; }
-                        return false;
-                    }
-                    removeNode(serverTree);
-                    transaction.update(docRef, { treeData: serverTree });
+                        let idx = nodes.findIndex(c => c.id === currentEditNodeId); if(idx > -1) { nodes.splice(idx, 1); return true; }
+                        for(let i=0; i<nodes.length; i++){ if(nodes[i].children && removeNode(nodes[i].children)) return true; } return false;
+                    } removeNode(serverTree); transaction.update(docRef, { treeData: serverTree });
                 });
-            }).then(() => { 
-                currentEditNodeId = null; 
-                document.getElementById('editorArea').style.display='none'; 
-                document.getElementById('editorPlaceholder').style.display='block';
-            }); 
+            }).then(() => { currentEditNodeId = null; document.getElementById('editorArea').style.display='none'; document.getElementById('editorPlaceholder').style.display='block'; }); 
         }
 
-        function toggleAdminNode(event, id) {
-            event.stopPropagation();
-            if (expandedAdminNodes.has(id)) expandedAdminNodes.delete(id);
-            else expandedAdminNodes.add(id);
-            renderAdminTree();
-        }
+        function toggleAdminNode(event, id) { event.stopPropagation(); if (expandedAdminNodes.has(id)) expandedAdminNodes.delete(id); else expandedAdminNodes.add(id); renderAdminTree(); }
 
         function renderAdminTree() {
-            const tree = document.getElementById('adminTree');
-            tree.innerHTML = '';
+            const tree = document.getElementById('adminTree'); tree.innerHTML = '';
             function buildHtml(nodes) {
                 let html = '';
                 nodes.forEach(node => {
@@ -554,7 +599,24 @@
                     let isExpanded = expandedAdminNodes.has(node.id);
                     let toggleBtn = hasChildren ? `<span class="tree-toggle" onclick="toggleAdminNode(event, '${node.id}')">${isExpanded ? '▼' : '▶'}</span>` : `<span style="display:inline-block;width:24px;"></span>`;
 
-                    html += `<div class="tree-node"><div class="tree-item ${extraClass} ${active}" onclick="selectItem('${node.id}')">${toggleBtn}<span style="margin-right: 5px;">${icon}</span> <span>${node.title || 'Chưa đặt tên'}</span></div>`;
+                    // Thêm 2 nút lên xuống vào góc bên phải của item
+                    let btnUpDown = `<div style="margin-left:auto;">
+                                        <button class="btn-order" onclick="moveNodeUp(event, '${node.id}')" title="Đẩy lên">▲</button>
+                                        <button class="btn-order" onclick="moveNodeDown(event, '${node.id}')" title="Đẩy xuống">▼</button>
+                                     </div>`;
+
+                    html += `<div class="tree-node" id="node-${node.id}">
+                                <div class="tree-item ${extraClass} ${active}" 
+                                     draggable="true" 
+                                     ondragstart="handleDragStart(event, '${node.id}')"
+                                     ondragover="handleDragOver(event, '${node.id}')"
+                                     ondragleave="handleDragLeave(event)"
+                                     ondrop="handleDrop(event, '${node.id}')"
+                                     onclick="selectItem('${node.id}')">
+                                     ${toggleBtn}<span style="margin-right: 5px;">${icon}</span> 
+                                     <span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${node.title || 'Chưa đặt tên'}</span>
+                                     ${btnUpDown}
+                                </div>`;
                     if(hasChildren) { html += `<div class="tree-children ${isExpanded ? '' : 'collapsed'}">${buildHtml(node.children)}</div>`; }
                     html += `</div>`;
                 }); return html;
@@ -572,128 +634,68 @@
         }
 
         function processLogin() { 
-            let user = document.getElementById('username').value.trim().toLowerCase(); 
-            let pass = document.getElementById('password').value; 
-            let errBox = document.getElementById('loginError');
+            let user = document.getElementById('username').value.trim().toLowerCase(); let pass = document.getElementById('password').value; let errBox = document.getElementById('loginError');
             if (ADMIN_ACCOUNTS[user] && ADMIN_ACCOUNTS[user].pass === pass) { 
-                loggedInUser = user; document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; 
-                document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b>${ADMIN_ACCOUNTS[user].name}</b>`;
-                renderAdminTree(); 
+                loggedInUser = user; document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b>${ADMIN_ACCOUNTS[user].name}</b>`; renderAdminTree(); 
             } else { errBox.style.display = 'block'; document.getElementById('password').value = ''; } 
         }
         function openLoginForm() { toggleMenu(false); document.getElementById('loginOverlay').style.display = 'flex'; }
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
         function closeAdminPanel() { document.getElementById('adminPanel').style.display = 'none'; loggedInUser = null; }
 
-        function findNode(id, nodes) { 
-            for(let node of nodes) { if(node.id === id) return node; if(node.children) { let f = findNode(id, node.children); if(f) return f; } } return null; 
-        }
+        function findNode(id, nodes) { for(let node of nodes) { if(node.id === id) return node; if(node.children) { let f = findNode(id, node.children); if(f) return f; } } return null; }
 
-        // ==================================================================
-        // XỬ LÝ GIAO DIỆN FRONT-END 
-        // ==================================================================
-        function toggleUserMenuNode(event, id) {
-            event.stopPropagation();
-            if (expandedUserMenuNodes.has(id)) expandedUserMenuNodes.delete(id);
-            else expandedUserMenuNodes.add(id);
-            renderSidebarMenu(); 
-        }
+        function toggleUserMenuNode(event, id) { event.stopPropagation(); if (expandedUserMenuNodes.has(id)) expandedUserMenuNodes.delete(id); else expandedUserMenuNodes.add(id); renderSidebarMenu(); }
 
         function renderSidebarMenu() {
-            const menuEl = document.getElementById('menuList');
-            menuEl.innerHTML = '';
-            
+            const menuEl = document.getElementById('menuList'); menuEl.innerHTML = '';
             function buildUserMenuHtml(nodes) {
                 let html = '<ul>';
                 nodes.forEach(item => {
                     if (item.level > 3) return; 
-                    
-                    let hasValidChildren = item.children && item.children.some(c => c.level <= 3);
-                    let isExpanded = expandedUserMenuNodes.has(item.id);
-                    
+                    let hasValidChildren = item.children && item.children.some(c => c.level <= 3); let isExpanded = expandedUserMenuNodes.has(item.id);
                     let icon = item.level === 0 ? '📚' : (item.level === 1 ? '📂' : (item.level === 2 ? '📄' : '🔹'));
-                    let toggleBtn = hasValidChildren 
-                        ? `<span class="menu-toggle" onclick="toggleUserMenuNode(event, '${item.id}')">${isExpanded ? '▼' : '▶'}</span>` 
-                        : `<span style="display:inline-block;width:20px;"></span>`;
-
-                    html += `
-                        <li>
-                            <div class="menu-item-row">
-                                ${toggleBtn}
-                                <span style="margin-right: 5px; font-size:0.85rem">${icon}</span>
-                                <a class="menu-link" onclick="toggleMenu(false); jumpToResult('${item.id}')">${item.title || 'Mục chưa có tên'}</a>
-                            </div>`;
-                            
-                    if (hasValidChildren) {
-                        html += `<div style="display: ${isExpanded ? 'block' : 'none'};">${buildUserMenuHtml(item.children)}</div>`;
-                    }
-                    html += `</li>`;
-                });
-                html += '</ul>';
-                return html;
-            }
-            menuEl.innerHTML = buildUserMenuHtml(APP_DATA);
+                    let toggleBtn = hasValidChildren ? `<span class="menu-toggle" onclick="toggleUserMenuNode(event, '${item.id}')">${isExpanded ? '▼' : '▶'}</span>` : `<span style="display:inline-block;width:20px;"></span>`;
+                    html += `<li><div class="menu-item-row">${toggleBtn}<span style="margin-right: 5px; font-size:0.85rem">${icon}</span><a class="menu-link" onclick="toggleMenu(false); jumpToResult('${item.id}')">${item.title || 'Mục chưa có tên'}</a></div>`;
+                    if (hasValidChildren) { html += `<div style="display: ${isExpanded ? 'block' : 'none'};">${buildUserMenuHtml(item.children)}</div>`; } html += `</li>`;
+                }); html += '</ul>'; return html;
+            } menuEl.innerHTML = buildUserMenuHtml(APP_DATA);
         }
 
         function toggleStep(headerEl, event) {
-            if (event && (event.target.closest('a') || event.target.closest('.btn-trich-dan'))) return;
-            if (event) event.stopPropagation();
-            const stepBox = headerEl.parentElement;
-            let parentInner = stepBox.parentElement;
-            if (parentInner) {
-                let siblings = parentInner.children;
-                for(let i=0; i<siblings.length; i++) {
-                    if (siblings[i] !== stepBox && siblings[i].classList.contains('step-box')) siblings[i].classList.remove('active');
-                }
-            }
+            if (event && (event.target.closest('a') || event.target.closest('.btn-trich-dan'))) return; if (event) event.stopPropagation();
+            const stepBox = headerEl.parentElement; let parentInner = stepBox.parentElement;
+            if (parentInner) { let siblings = parentInner.children; for(let i=0; i<siblings.length; i++) { if (siblings[i] !== stepBox && siblings[i].classList.contains('step-box')) siblings[i].classList.remove('active'); } }
             stepBox.classList.toggle('active');
         }
 
         function renderUserInterface() {
-            renderSidebarMenu(); 
-            const contentEl = document.getElementById('dynamicContent');
-            contentEl.innerHTML = '';
-            if (!APP_DATA || APP_DATA.length === 0) return;
-
+            renderSidebarMenu(); const contentEl = document.getElementById('dynamicContent'); contentEl.innerHTML = ''; if (!APP_DATA || APP_DATA.length === 0) return;
             function processNode(items, container) {
                 items.forEach(item => {
-                    let div = document.createElement('div'); div.id = item.id;
-                    let innerContent = '';
-                    let downloadBtn = item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="inline-download" title="${item.fileName || 'Tải biểu mẫu'}">📥 Tải mẫu</a>` : '';
-                    let nextContainer = container; 
+                    let div = document.createElement('div'); div.id = item.id; let innerContent = '';
+                    let downloadBtn = item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="inline-download" title="${item.fileName || 'Tải biểu mẫu'}">📥 Tải mẫu</a>` : ''; let nextContainer = container; 
 
                     if(item.level === 0 || item.level === 1) {
-                        let hTag = item.level === 0 ? 'h2' : 'h3';
-                        let hClass = item.level === 0 ? 'phan-header' : 'muc-header';
+                        let hTag = item.level === 0 ? 'h2' : 'h3'; let hClass = item.level === 0 ? 'phan-header' : 'muc-header';
                         innerContent += `<${hTag} class="${hClass}">${item.title || 'Chưa đặt tên'} ${downloadBtn}</${hTag}>`;
                         if (item.summary) innerContent += `<p>${item.summary.replace(/\n/g, '<br>')}</p>`;
-                        
                         let cleanDetailOuter = item.detail ? item.detail.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>') : '';
                         if (item.detail) innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${cleanDetailOuter}')">📖 Xem quy định chi tiết</div></div>`;
-                        
-                        div.innerHTML = innerContent;
-                        container.appendChild(div);
+                        div.innerHTML = innerContent; container.appendChild(div);
                     } else {
                         let levelClass = item.level === 2 ? 'level-2' : (item.level === 3 ? 'level-3' : 'level-4');
                         let titleHtml = item.level === 2 ? `<div style="font-weight: 700; font-size: 1.15em; color: #2980b9; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>` : (item.level === 3 ? `<div style="font-weight: 700; font-size: 1.05em; color: #27ae60; margin-bottom: 0;">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>` : `<div class="step-number" style="margin-bottom:0">${item.title || 'Chưa đặt tên'} ${downloadBtn}</div>`);
-                        div.className = `step-box ${levelClass}`;
-                        let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : '';
-                        let summaryHtml = item.summary ? `<div class="content-text"><p style="margin:0">${item.summary.replace(/\n/g, '<br>')}</p></div>` : '';
-                        
+                        div.className = `step-box ${levelClass}`; let tagHtml = item.tag ? `<span class="tag-label">${item.tag}</span>` : ''; let summaryHtml = item.summary ? `<div class="content-text"><p style="margin:0">${item.summary.replace(/\n/g, '<br>')}</p></div>` : '';
                         let cleanDetailInner = item.detail ? item.detail.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '<br>') : '';
                         let detailBtn = item.detail ? `<div class="step-actions" style="margin: 0 10px 15px 15px;"><div class="btn-trich-dan" onclick="showPopup('${cleanDetailInner}')">📖 Xem chi tiết</div></div>` : '';
-                        
-                        let hasChildren = item.children && item.children.length > 0;
-                        let iconHtml = hasChildren ? `<div class="step-icon">▼</div>` : '';
-
+                        let hasChildren = item.children && item.children.length > 0; let iconHtml = hasChildren ? `<div class="step-icon">▼</div>` : '';
                         div.innerHTML = `<div class="step-header" onclick="toggleStep(this, event)"><div class="step-title-wrapper">${tagHtml}${titleHtml}</div>${iconHtml}</div><div class="step-body-wrapper"><div class="step-body"><div class="step-body-inner" id="inner-${item.id}">${summaryHtml}${detailBtn}</div></div></div>`;
-                        container.appendChild(div);
-                        nextContainer = div.querySelector(`#inner-${item.id}`);
+                        container.appendChild(div); nextContainer = div.querySelector(`#inner-${item.id}`);
                     }
                     if(item.children && item.children.length > 0) processNode(item.children, nextContainer);
                 });
-            }
-            processNode(APP_DATA, contentEl);
+            } processNode(APP_DATA, contentEl);
         }
 
         function openSearchModal() { document.getElementById('modalSearch').style.display = 'flex'; document.getElementById('searchInput').value = ''; document.getElementById('faqSuggestions').style.display = 'block'; document.getElementById('searchResults').innerHTML = '<div class="no-result">Gõ từ khóa để tìm...</div>'; document.getElementById('searchInput').focus(); }
@@ -702,68 +704,34 @@
         function removeAccents(str) { return str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : ""; }
         
         function performSearch() {
-            let kwNoAccent = removeAccents(document.getElementById('searchInput').value.trim());
-            let resContainer = document.getElementById('searchResults');
-            let faqDiv = document.getElementById('faqSuggestions');
-            if (kwNoAccent.length < 2) { resContainer.innerHTML = '<div class="no-result">Vui lòng gõ ít nhất 2 ký tự.</div>'; faqDiv.style.display = 'block'; return; }
-            faqDiv.style.display = 'none';
+            let kwNoAccent = removeAccents(document.getElementById('searchInput').value.trim()); let resContainer = document.getElementById('searchResults'); let faqDiv = document.getElementById('faqSuggestions');
+            if (kwNoAccent.length < 2) { resContainer.innerHTML = '<div class="no-result">Vui lòng gõ ít nhất 2 ký tự.</div>'; faqDiv.style.display = 'block'; return; } faqDiv.style.display = 'none';
             let results = [];
             function traverse(nodes, parentPath) {
                 for(let n of nodes) {
                     let curPath = parentPath ? (parentPath + " > " + n.title) : (n.title || '');
-                    if (removeAccents((n.title||'')+" "+(n.tag||'')+" "+(n.summary||'')+" "+(n.detail||'')).includes(kwNoAccent)) {
-                        results.push({ id: n.id, path: parentPath || 'Mục chính', title: n.title, snippet: n.summary || 'Chi tiết...' });
-                    }
+                    if (removeAccents((n.title||'')+" "+(n.tag||'')+" "+(n.summary||'')+" "+(n.detail||'')).includes(kwNoAccent)) { results.push({ id: n.id, path: parentPath || 'Mục chính', title: n.title, snippet: n.summary || 'Chi tiết...' }); }
                     if (n.children) traverse(n.children, curPath);
                 }
-            }
-            traverse(APP_DATA, "");
-            
+            } traverse(APP_DATA, "");
             thongKeRef.set({ searchCount: firebase.firestore.FieldValue.increment(1) }, { merge: true });
-
             if (results.length === 0) resContainer.innerHTML = '<div class="no-result">❌ Không tìm thấy.</div>';
-            else {
-                let html = ''; results.forEach(r => html += `<div class="result-item" onclick="jumpToResult('${r.id}')"><div class="result-path">📂 ${r.path}</div><div class="result-title">${r.title}</div><div class="result-snippet">${r.snippet}</div></div>`);
-                resContainer.innerHTML = html;
-            }
+            else { let html = ''; results.forEach(r => html += `<div class="result-item" onclick="jumpToResult('${r.id}')"><div class="result-path">📂 ${r.path}</div><div class="result-title">${r.title}</div><div class="result-snippet">${r.snippet}</div></div>`); resContainer.innerHTML = html; }
         }
-        
         document.getElementById('searchInput').addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(); });
         
         function jumpToResult(id) {
-            closeSearchModal();
-            let el = document.getElementById(id);
+            closeSearchModal(); let el = document.getElementById(id);
             if (el) {
-                let parentNode = el.parentElement;
-                while (parentNode && parentNode.id !== 'dynamicContent') {
-                    if (parentNode.classList.contains('step-box')) parentNode.classList.add('active');
-                    parentNode = parentNode.parentElement;
-                }
+                let parentNode = el.parentElement; while (parentNode && parentNode.id !== 'dynamicContent') { if (parentNode.classList.contains('step-box')) parentNode.classList.add('active'); parentNode = parentNode.parentElement; }
                 if (el.classList.contains('step-box')) el.classList.add('active');
-                
-                let nodeToOpen = findNode(id, APP_DATA);
-                if(nodeToOpen) {
-                    let parentIdPath = getParentIdPath(id, APP_DATA);
-                    parentIdPath.forEach(pid => expandedUserMenuNodes.add(pid));
-                    renderSidebarMenu();
-                }
-
-                setTimeout(() => {
-                    el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    let oBg = el.style.backgroundColor; el.style.backgroundColor = "#fff3cd"; setTimeout(() => el.style.backgroundColor = oBg || '', 2000);
-                }, 150);
+                let nodeToOpen = findNode(id, APP_DATA); if(nodeToOpen) { let parentIdPath = getParentIdPath(id, APP_DATA); parentIdPath.forEach(pid => expandedUserMenuNodes.add(pid)); renderSidebarMenu(); }
+                setTimeout(() => { el.scrollIntoView({ behavior: "smooth", block: "start" }); let oBg = el.style.backgroundColor; el.style.backgroundColor = "#fff3cd"; setTimeout(() => el.style.backgroundColor = oBg || '', 2000); }, 150);
             }
         }
         
         function getParentIdPath(targetId, nodes, path = []) {
-            for(let node of nodes) {
-                if(node.id === targetId) return path;
-                if(node.children) {
-                    let foundPath = getParentIdPath(targetId, node.children, [...path, node.id]);
-                    if(foundPath) return foundPath;
-                }
-            }
-            return null;
+            for(let node of nodes) { if(node.id === targetId) return path; if(node.children) { let foundPath = getParentIdPath(targetId, node.children, [...path, node.id]); if(foundPath) return foundPath; } } return null;
         }
 
         function toggleMenu(f) { const sb = document.getElementById('sidebar'); const ov = document.querySelector('.overlay'); if (typeof f !== 'undefined') { if(f) { sb.classList.add('active'); ov.classList.add('active'); } else { sb.classList.remove('active'); ov.classList.remove('active'); } } else { sb.classList.toggle('active'); ov.classList.toggle('active'); } }
