@@ -141,17 +141,18 @@
         .step-box.active > .step-body-wrapper > .step-body { opacity: 1; transform: translateY(0); }
         
         .content-text { padding: 15px; text-align: justify; }
-        .content-text p, .modal-user-body p { margin-top: 0; margin-bottom: 10px; }
+        .content-text p, .modal-user-body p { margin-top: 0; margin-bottom: 8px; }
         .content-text p:last-child, .modal-user-body p:last-child { margin-bottom: 0; }
-        .content-text ul, .content-text ol, .modal-user-body ul, .modal-user-body ol { margin: 10px 0; padding-left: 25px; }
+        
+        /* CẬP NHẬT CSS: THU GỌN KHOẢNG CÁCH DÒNG CỦA DANH SÁCH */
+        .content-text ul, .content-text ol, .modal-user-body ul, .modal-user-body ol { margin: 5px 0 10px 0; padding-left: 20px; }
+        .content-text li, .modal-user-body li { margin-bottom: 4px; }
+        .content-text li p, .modal-user-body li p { margin-bottom: 0; display: inline; } /* Triệt tiêu <p> thừa của Quill trong <li> */
 
         .step-box.active > .step-header .step-icon { transform: rotate(180deg); color: var(--primary-color); }
         .step-number { background: #3498db; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; display: inline-block; font-size: 0.9rem; font-family: -apple-system, sans-serif;}
         .tag-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; display: block; letter-spacing: 0.5px; font-family: -apple-system, sans-serif;}
         
-        /* ========================================================= */
-        /* NÚT XEM CHI TIẾT & CĂN CỨ TẠI (NHỎ GỌN, NẰM GÓC DƯỚI PHẢI) */
-        /* ========================================================= */
         .step-actions-right { display: flex; gap: 8px; justify-content: flex-end; margin: 5px 15px 15px 15px; flex-wrap: wrap; }
         .btn-mini { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 600; font-family: -apple-system, sans-serif; transition: 0.2s; border: 1px solid transparent; white-space: nowrap; }
         .btn-mini-detail { background-color: rgba(52, 152, 219, 0.1); color: #2980b9; border-color: rgba(52, 152, 219, 0.3); }
@@ -167,7 +168,9 @@
         .pdf-header { background: #323639; height: var(--header-height); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 2;}
         .close-pdf { color: white; cursor: pointer; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 4px; font-size: 0.9rem; font-family: -apple-system, sans-serif; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 5px;}
         .close-pdf:hover { background: #e74c3c; }
-        #pdfFrame { flex: 1; border: none; width: 100%; height: 100%; background: #525659;}
+        
+        .pdf-content-wrapper { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: #525659; position: relative;}
+        #pdfFrame { width: 100%; height: 100%; border: none; display: block;}
 
         mark.search-highlight { background-color: #ffe082; color: #000; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
         #btnSearchFab { position: fixed; bottom: 30px; left: 20px; z-index: 90; border: none; background: transparent; color: var(--primary-dark); cursor: pointer; font-size: 2rem; transition: 0.3s; padding: 0; filter: drop-shadow(2px 2px 2px rgba(255,255,255,0.9)); }
@@ -309,7 +312,7 @@
     </div>
 
     <div class="main-content">
-        <h1>NGHIỆP VỤ CÔNG TÁC TỔ CHỨC ĐẢNG, ĐẢNG VIÊN</h1>
+        <h1>NGHIỆP VỤ CÔNG TÁC TỔ CHỨC ĐẢNG</h1>
         <div class="top-controls">
             <div style="display:flex; gap:10px;">
                 <button class="toggle-btn" onclick="expandAll()">📂 Mở rộng tất cả</button>
@@ -322,10 +325,18 @@
 
     <div id="pdfSidebar" class="pdf-sidebar">
         <div class="pdf-header">
-            <span style="font-weight:bold; color:white; font-family: -apple-system, sans-serif; font-size:1.1rem;">📄 Trình xem Bản gốc PDF</span>
-            <div class="close-pdf" onclick="closePdfViewer()">ĐÓNG ✕</div>
+            <span style="font-weight:bold; color:white; font-family: -apple-system, sans-serif; font-size:1.1rem;">📄 Bản gốc PDF</span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <a id="btnOpenNewTab" href="#" target="_blank" class="close-pdf" style="background: #2980b9; text-decoration: none;" title="Mở trang gốc để xem mượt hơn trên điện thoại">MỞ TAB MỚI ↗</a>
+                <div class="close-pdf" onclick="closePdfViewer()">ĐÓNG ✕</div>
+            </div>
         </div>
-        <iframe id="pdfFrame" src=""></iframe>
+        <div id="mobilePageReminder" style="background: #f1c40f; color: #000; text-align: center; padding: 6px; font-size: 0.9rem; font-weight: bold; display: none; font-family: -apple-system, sans-serif;">
+            📌 Điện thoại không tự nhảy trang. Hãy cuộn đến trang: <span id="reminderPageNum" style="color:#d35400; font-size: 1.1rem; text-decoration: underline;"></span>
+        </div>
+        <div class="pdf-content-wrapper">
+            <iframe id="pdfFrame" src=""></iframe>
+        </div>
     </div>
 
     <button id="btnSearchFab" onclick="openSearchModal()" title="Tìm kiếm">🔍</button>
@@ -513,11 +524,23 @@
 
         function openPdfViewer(pageNum, keyword) {
             let url = MASTER_PDF_URL;
+            let fullUrl = url;
             if (pageNum) {
-                url += `#page=${pageNum}`;
-                if (keyword) url += `&search=${encodeURIComponent(keyword)}`;
+                fullUrl += `#page=${pageNum}`;
+                if (keyword) fullUrl += `&search=${encodeURIComponent(keyword)}`;
             }
-            document.getElementById('pdfFrame').src = url;
+            
+            document.getElementById('btnOpenNewTab').href = fullUrl;
+
+            let reminderBox = document.getElementById('mobilePageReminder');
+            if (window.innerWidth <= 768 && pageNum) {
+                reminderBox.style.display = 'block';
+                document.getElementById('reminderPageNum').innerText = pageNum;
+            } else {
+                reminderBox.style.display = 'none';
+            }
+
+            document.getElementById('pdfFrame').src = fullUrl;
             document.getElementById('pdfSidebar').classList.add('active');
             document.body.classList.add('pdf-open');
         }
@@ -554,7 +577,18 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
 
-        const ADMIN_ACCOUNTS = { "admin": { pass: "123456", name: "Quản trị viên Hệ thống" }, "tranphuongha": { pass: "123456", name: "Trần Phương Hà-Chuyên viên" }, "ledinhkien": { pass: "123456", name: "Lê Đình Kiên-Chuyên viên" }, "nguyenhuuhung": { pass: "123456", name: "Nguyễn Hữu Hùng-chuyên viên chính" }, "tranthikieuanh": { pass: "123456", name: "Trần Thị Kiều Anh-Chuyên viên" }, "trithingoc": { pass: "123456", name: "Triệu Thị Ngọc- Phó Trưởng Ban Thường trực" }, "nguyensinghiem": { pass: "123456", name: "Nguyễn Sĩ Nghiêm-Phó Trưởng phòng" }, "nguyenthugiang": { pass: "123456", name: "Nguyễn Thu Giang-Phó Trưởng phòng" }, "phamthithuhanh": { pass: "123456", name: "Phạm Thi Thu Hạnh-Phó Trưởng phòng" } };
+        // CẬP NHẬT DANH SÁCH TÀI KHOẢN ADMIN THEO YÊU CẦU
+        const ADMIN_ACCOUNTS = { 
+            "admin": { pass: "123456", name: "Quản trị viên Hệ thống" },
+            "tranphuongha": { pass: "123456", name: "Trần Phương Hà-Chuyên viên" },
+            "ledinhkien": { pass: "123456", name: "Lê Đình Kiên-Chuyên viên" },
+            "nguyenhuuhung": { pass: "123456", name: "Nguyễn Hữu Hùng-chuyên viên chính" },
+            "tranthikieuanh": { pass: "123456", name: "Trần Thị Kiều Anh-Chuyên viên" },
+            "trieuthingoc": { pass: "123456", name: "Triệu Thị Ngọc- Phó Trưởng Ban Thường trực" },
+            "nguyensinghiem": { pass: "123456", name: "Nguyễn Sĩ Nghiêm-Phó Trưởng phòng" },
+            "nguyenthugiang": { pass: "123456", name: "Nguyễn Thu Giang-Phó Trưởng phòng" },
+            "phamthithuhanh": { pass: "123456", name: "Phạm Thi Thu Hạnh-Phó Trưởng phòng" } 
+        };
 
         let APP_DATA = []; let currentEditNodeId = null; let loggedInUser = null; let expandedAdminNodes = new Set(); let isFirstLoadAdmin = true; let expandedUserMenuNodes = new Set(); let lastSearchKeyword = "";
         const thongKeRef = db.collection("sotay").doc("thongke");
@@ -619,10 +653,7 @@
                     let safeSummary = processLegacyText(item.summary);
                     let displaySummary = highlightText(safeSummary, lastSearchKeyword);
 
-                    // CHỈ RENDER NÚT PDF NẾU LÀ CẤP 2 TRỞ LÊN (level >= 2)
                     let pdfSourceBtn = (item.level >= 2 && item.pdfPage) ? `<div class="btn-mini btn-mini-pdf" onclick="openPdfViewer('${item.pdfPage}', '${lastSearchKeyword}')" title="Căn cứ tại trang ${item.pdfPage}">📄 Căn cứ tại: Trang ${item.pdfPage}</div>` : '';
-                    
-                    // NÚT XEM CHI TIẾT CŨNG ĐƯỢC CHUYỂN VỀ DẠNG MINI (nhỏ gọn)
                     let dtBtn = item.detail ? `<div class="btn-mini btn-mini-detail" onclick="showPopup('${item.id}')">📖 Xem chi tiết</div>` : '';
 
                     if(item.level === 0 || item.level === 1) {
@@ -630,7 +661,6 @@
                         innerContent += `<${hTag} class="${hClass}">${displayTitle} ${downloadBtn}</${hTag}>`;
                         if (item.summary) innerContent += `<div class="content-text" style="border:none; padding-left:0;">${displaySummary}</div>`;
                         
-                        // Cấp 0 và 1 CHỈ hiển thị nút Xem chi tiết (Nếu có)
                         if (item.detail) {
                             innerContent += `<div class="step-actions-right">${dtBtn}</div>`;
                         }
@@ -647,7 +677,6 @@
                         let tagHtml = item.tag ? `<span class="tag-label">${highlightText(item.tag, lastSearchKeyword)}</span>` : ''; 
                         let summaryHtml = item.summary ? `<div class="content-text">${displaySummary}</div>` : '';
                         
-                        // Nút nằm ở góc dưới bên phải cho cấp 2, 3, 4, 5...
                         let detailBtnHtml = '';
                         if (item.detail || pdfSourceBtn) {
                             detailBtnHtml = `<div class="step-actions-right">${dtBtn}${pdfSourceBtn}</div>`;
