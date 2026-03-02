@@ -137,22 +137,19 @@
 
         .step-body-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s ease; }
         .step-box.active > .step-body-wrapper { grid-template-rows: 1fr; }
+        
         .step-body { overflow: hidden; opacity: 0; transform: translateY(-5px); transition: opacity 0.35s ease, transform 0.35s ease; }
         .step-box.active > .step-body-wrapper > .step-body { opacity: 1; transform: translateY(0); }
         
-        .content-text { padding: 15px; text-align: justify; }
-        .content-text p, .modal-user-body p { margin-top: 0; margin-bottom: 8px; }
-        .content-text p:last-child, .modal-user-body p:last-child { margin-bottom: 0; }
-        
-        /* CẬP NHẬT CSS: THU GỌN KHOẢNG CÁCH DÒNG CỦA DANH SÁCH */
-        .content-text ul, .content-text ol, .modal-user-body ul, .modal-user-body ol { margin: 5px 0 10px 0; padding-left: 20px; }
-        .content-text li, .modal-user-body li { margin-bottom: 4px; }
-        .content-text li p, .modal-user-body li p { margin-bottom: 0; display: inline; } /* Triệt tiêu <p> thừa của Quill trong <li> */
+        /* PHẦN HIỂN THỊ NỘI DUNG ĐƯỢC KHÔI PHỤC CSS THEO BẢN V5.2 CŨ */
+        .step-body-inner { padding: 0; }
+        .content-text { padding: 15px 10px 15px 15px; border-top: 1px dashed var(--border-light); text-align: justify; }
 
         .step-box.active > .step-header .step-icon { transform: rotate(180deg); color: var(--primary-color); }
         .step-number { background: #3498db; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; display: inline-block; font-size: 0.9rem; font-family: -apple-system, sans-serif;}
         .tag-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; display: block; letter-spacing: 0.5px; font-family: -apple-system, sans-serif;}
         
+        /* CÁC NÚT ĐƯỢC GIỮ NGUYÊN PHIÊN BẢN NHỎ GỌN NHƯ YÊU CẦU LẦN TRƯỚC */
         .step-actions-right { display: flex; gap: 8px; justify-content: flex-end; margin: 5px 15px 15px 15px; flex-wrap: wrap; }
         .btn-mini { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 600; font-family: -apple-system, sans-serif; transition: 0.2s; border: 1px solid transparent; white-space: nowrap; }
         .btn-mini-detail { background-color: rgba(52, 152, 219, 0.1); color: #2980b9; border-color: rgba(52, 152, 219, 0.3); }
@@ -183,7 +180,10 @@
         .modal-user { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); padding: 10px; align-items: center; justify-content: center; backdrop-filter: blur(3px);}
         .modal-user-content { background-color: var(--bg-box); color: var(--text-main); width: 100%; max-width: 800px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 85vh; animation: slideUp 0.3s; }
         .modal-user-header { background-color: var(--primary-color); color: white; padding: 15px; border-radius: 12px 12px 0 0; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-family: -apple-system, sans-serif;}
-        .modal-user-body { padding: 25px 15px; line-height: 1.6; overflow-y: auto; text-align: justify; font-size: 1.15rem; }
+        
+        /* MODAL BODY CŨNG ĐƯỢC KHÔI PHỤC CSS VỀ BẢN V5.2 */
+        .modal-user-body { font-family: 'Times New Roman', Times, serif; padding: 25px 15px; line-height: 1.6; overflow-y: auto; text-align: justify; font-size: 1.15rem; }
+        
         @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
         .btn-close-modal { cursor: pointer; background: rgba(255, 255, 255, 0.2); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: 0.2s; font-size: 1rem; }
         .btn-close-modal:hover { background: rgba(255, 255, 255, 0.4); transform: scale(1.1); }
@@ -389,7 +389,7 @@
         <div class="login-card">
             <div class="close-login" onclick="closeLoginForm()">✕</div>
             <div class="login-header">
-                <div class="party-logo"><img src="image_359e62.png" onerror="this.src='https://i.postimg.cc/Qd05R7n2/image-359e62.png'"></div>
+                <div class="party-logo"><img src="https://i.postimg.cc/q70sSzw6/image_359e62.png"></div>
                 <h2>ĐĂNG NHẬP</h2><p>Hệ thống Quản trị Đồng thời</p>
             </div>
             <div class="login-body">
@@ -577,7 +577,6 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
 
-        // CẬP NHẬT DANH SÁCH TÀI KHOẢN ADMIN THEO YÊU CẦU
         const ADMIN_ACCOUNTS = { 
             "admin": { pass: "123456", name: "Quản trị viên Hệ thống" },
             "tranphuongha": { pass: "123456", name: "Trần Phương Hà-Chuyên viên" },
