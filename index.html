@@ -506,7 +506,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        const PDF_VIEWER_URL = "pdfjs/web/viewer.html"; 
+        const PDF_VIEWER_URL = "web/viewer.html"; 
         
         // CẤU HÌNH THƯ VIỆN CÁC TÀI LIỆU PDF (Sau này thêm file cứ khai báo vào đây)
         const PDF_COLLECTION = {
@@ -573,7 +573,7 @@
         function openPdfViewer(docId, pageNum, keyword) {
             if (!PDF_COLLECTION[docId]) return;
             let pdfFileName = PDF_COLLECTION[docId].file;
-            let localPdfPath = "../../" + pdfFileName; 
+            let localPdfPath = "../" + pdfFileName; 
             
             let fullUrl = `${PDF_VIEWER_URL}?file=${encodeURIComponent(localPdfPath)}`;
             
@@ -1022,4 +1022,5 @@
 
     </script>
 </body>
+
 </html>
