@@ -141,7 +141,7 @@
         .step-body { overflow: hidden; opacity: 0; transform: translateY(-5px); transition: opacity 0.35s ease, transform 0.35s ease; }
         .step-box.active > .step-body-wrapper > .step-body { opacity: 1; transform: translateY(0); }
         
-        /* PHẦN HIỂN THỊ NỘI DUNG ĐƯỢC KHÔI PHỤC CSS THEO BẢN V5.2 CŨ */
+        /* PHẦN HIỂN THỊ NỘI DUNG ĐƯỢC GIỮ NGUYÊN CSS NHƯ YÊU CẦU */
         .step-body-inner { padding: 0; }
         .content-text { padding: 15px 10px 15px 15px; border-top: 1px dashed var(--border-light); text-align: justify; }
 
@@ -149,7 +149,6 @@
         .step-number { background: #3498db; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; display: inline-block; font-size: 0.9rem; font-family: -apple-system, sans-serif;}
         .tag-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; display: block; letter-spacing: 0.5px; font-family: -apple-system, sans-serif;}
         
-        /* CÁC NÚT ĐƯỢC GIỮ NGUYÊN PHIÊN BẢN NHỎ GỌN NHƯ YÊU CẦU LẦN TRƯỚC */
         .step-actions-right { display: flex; gap: 8px; justify-content: flex-end; margin: 5px 15px 15px 15px; flex-wrap: wrap; }
         .btn-mini { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 600; font-family: -apple-system, sans-serif; transition: 0.2s; border: 1px solid transparent; white-space: nowrap; }
         .btn-mini-detail { background-color: rgba(52, 152, 219, 0.1); color: #2980b9; border-color: rgba(52, 152, 219, 0.3); }
@@ -181,7 +180,6 @@
         .modal-user-content { background-color: var(--bg-box); color: var(--text-main); width: 100%; max-width: 800px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 85vh; animation: slideUp 0.3s; }
         .modal-user-header { background-color: var(--primary-color); color: white; padding: 15px; border-radius: 12px 12px 0 0; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-family: -apple-system, sans-serif;}
         
-        /* MODAL BODY CŨNG ĐƯỢC KHÔI PHỤC CSS VỀ BẢN V5.2 */
         .modal-user-body { font-family: 'Times New Roman', Times, serif; padding: 25px 15px; line-height: 1.6; overflow-y: auto; text-align: justify; font-size: 1.15rem; }
         
         @keyframes slideUp { from {transform: translateY(20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
@@ -331,9 +329,6 @@
                 <div class="close-pdf" onclick="closePdfViewer()">ĐÓNG ✕</div>
             </div>
         </div>
-        <div id="mobilePageReminder" style="background: #f1c40f; color: #000; text-align: center; padding: 6px; font-size: 0.9rem; font-weight: bold; display: none; font-family: -apple-system, sans-serif;">
-            📌 Điện thoại không tự nhảy trang. Hãy cuộn đến trang: <span id="reminderPageNum" style="color:#d35400; font-size: 1.1rem; text-decoration: underline;"></span>
-        </div>
         <div class="pdf-content-wrapper">
             <iframe id="pdfFrame" src=""></iframe>
         </div>
@@ -470,7 +465,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        const MASTER_PDF_URL = "https://files.catbox.moe/55shid.pdf";
+        // CẬP NHẬT ĐƯỜNG DẪN ĐẾN PDF.JS VIEWER VÀ FILE PDF GỐC
+        const PDF_VIEWER_URL = "pdfjs/web/viewer.html"; 
+        const MY_LOCAL_PDF = "../../huongdan.pdf"; // Lưu ý: Lùi 2 cấp từ thư mục web ra thư mục gốc. Bạn nhớ đổi tên file PDF trên Github thành huongdan.pdf nhé!
 
         let hasUnsavedChanges = false;
         let isSystemChangingContent = false; 
@@ -522,24 +519,20 @@
             document.getElementById("backToTop").style.display = scrollTop > 300 ? "block" : "none";
         });
 
+        // HÀM MỞ PDF.JS ĐÃ ĐƯỢC CẬP NHẬT ĐỂ SỬ DỤNG VIEWER MỚI TRÊN GITHUB
         function openPdfViewer(pageNum, keyword) {
-            let url = MASTER_PDF_URL;
-            let fullUrl = url;
+            // Cấu trúc chuẩn: viewer.html?file=huongdan.pdf#page=5
+            let fullUrl = `${PDF_VIEWER_URL}?file=${encodeURIComponent(MY_LOCAL_PDF)}`;
+            
             if (pageNum) {
                 fullUrl += `#page=${pageNum}`;
-                if (keyword) fullUrl += `&search=${encodeURIComponent(keyword)}`;
+                if (keyword) fullUrl += `&search=${encodeURIComponent(keyword)}`; // Hỗ trợ highlight text
             }
             
+            // Gán link cho nút Mở Tab Mới để người dùng xem full màn hình nếu muốn
             document.getElementById('btnOpenNewTab').href = fullUrl;
 
-            let reminderBox = document.getElementById('mobilePageReminder');
-            if (window.innerWidth <= 768 && pageNum) {
-                reminderBox.style.display = 'block';
-                document.getElementById('reminderPageNum').innerText = pageNum;
-            } else {
-                reminderBox.style.display = 'none';
-            }
-
+            // Mở iframe bằng trình viewer.html chuyên nghiệp
             document.getElementById('pdfFrame').src = fullUrl;
             document.getElementById('pdfSidebar').classList.add('active');
             document.body.classList.add('pdf-open');
