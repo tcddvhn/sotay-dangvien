@@ -30,6 +30,7 @@
             --text-phan: #a30000;
             --text-muc: #b71c1c;
             --shadow-color: rgba(0,0,0,0.05);
+            --pdf-panel-width: 50%;
         }
 
         body.dark-mode {
@@ -49,7 +50,7 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body { font-family: 'Times New Roman', Times, serif; line-height: 1.6; color: var(--text-main); margin: 0; background-color: var(--bg-main); font-size: 1.15rem; transition: background-color 0.3s, color 0.3s; }
+        body { font-family: 'Times New Roman', Times, serif; line-height: 1.6; color: var(--text-main); margin: 0; background-color: var(--bg-main); font-size: 1.15rem; transition: background-color 0.3s, color 0.3s; overflow-x: hidden; }
         
         #readingProgress { position: fixed; top: 0; left: 0; height: 3px; background: var(--yellow-party); width: 0%; z-index: 9999; transition: width 0.1s; }
 
@@ -64,22 +65,17 @@
         .sidebar { width: 320px; background-color: var(--bg-sidebar); color: white; padding: 20px 0; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 1000; transition: transform 0.3s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         .sidebar h3 { border-bottom: 1px solid #555; padding-bottom: 15px; margin-top: 20px; text-transform: uppercase; font-size: 1.1rem; text-align: center; color: var(--yellow-party); font-family: -apple-system, sans-serif; }
         
-        /* ========================================================= */
-        /* FIX LỖI DASHBOARD (CẢI THIỆN TOOLTIP BIỂU ĐỒ)             */
-        /* ========================================================= */
-        .mini-dashboard { background: rgba(0,0,0,0.15); margin: 0 10px 15px 10px; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); font-family: -apple-system, sans-serif;}
-        .stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #ecf0f1; margin-bottom: 6px; white-space: nowrap; }
-        .stat-row b { color: var(--yellow-party); font-size: 0.85rem; margin-left: 5px;}
+        .mini-dashboard { background: rgba(0,0,0,0.15); margin: 0 10px 15px 10px; padding: 12px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); font-family: -apple-system, sans-serif;}
+        .stat-row { display: flex; justify-content: space-between; align-items: flex-start; font-size: 0.7rem; color: #ecf0f1; margin-bottom: 8px; line-height: 1.4; word-break: break-word;}
+        .stat-row span { flex: 1; padding-right: 5px; }
+        .stat-row b { color: var(--yellow-party); font-size: 0.8rem; white-space: nowrap; text-align: right;}
         
         .chart-container { display: flex; align-items: flex-end; gap: 4px; height: 45px; margin-top: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 2px; }
         .chart-bar { flex: 1; background: #5dade2; border-radius: 4px 4px 0 0; position: relative; cursor: pointer; transition: height 0.4s ease, background 0.2s;}
         .chart-bar:hover { background: var(--yellow-party); }
-        
-        /* ĐÂY LÀ ĐOẠN CSS BỊ MẤT KHIẾN CHỮ TRÀN RA: Cấu hình Bong bóng hiển thị số liệu */
         .chart-tooltip { position: absolute; top: -26px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; font-size: 0.7rem; padding: 3px 6px; border-radius: 4px; display: none; white-space: nowrap; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 10; pointer-events: none;}
         .chart-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -4px; border-width: 4px; border-style: solid; border-color: #fff transparent transparent transparent;}
         .chart-bar:hover .chart-tooltip { display: block; }
-        
         .chart-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: #aaa; margin-top: 4px; font-weight: bold;}
 
         .sidebar-menu-tree { font-family: -apple-system, sans-serif; font-size: 0.95rem; padding: 0 10px;}
@@ -96,24 +92,30 @@
 
         .close-sidebar-btn { text-align: right; margin-bottom: 10px; display: none; padding-right: 15px;}
         
-        .top-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); background: var(--primary-color); z-index: 990; display: flex; align-items: center; padding: 0 15px; justify-content: space-between; color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-family: -apple-system, sans-serif; }
+        .top-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); background: var(--primary-color); z-index: 990; display: flex; align-items: center; padding: 0 15px; justify-content: space-between; color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-family: -apple-system, sans-serif; transition: right 0.3s ease; }
         .menu-toggle-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; margin-right: 15px; }
         .header-title { font-size: 1.15rem; letter-spacing: 0.5px; flex:1;}
         .header-actions { display: flex; gap: 10px; align-items: center; }
 
         @media (min-width: 1200px) { .main-content { padding: 85px 80px 40px 80px !important; } }
-        @media (min-width: 992px) { .top-header { left: 320px; } .menu-toggle-btn { display: none; } .main-content { margin-left: 320px; padding: 85px 60px 40px 60px; } #btnSearchFab { left: 350px !important; } }
+        @media (min-width: 992px) { 
+            .top-header { left: 320px; } 
+            .menu-toggle-btn { display: none; } 
+            .main-content { margin-left: 320px; padding: 85px 60px 40px 60px; } 
+            #btnSearchFab { left: 350px !important; } 
+            body.pdf-open .main-content { margin-right: var(--pdf-panel-width); padding-right: 30px !important; padding-left: 30px !important;}
+            body.pdf-open .top-header { right: var(--pdf-panel-width); }
+        }
 
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
 
-        .main-content { padding: 75px 15px 20px 15px; min-height: 100vh; transition: margin-left 0.3s ease; overflow-x: hidden; }
+        .main-content { padding: 75px 15px 20px 15px; min-height: 100vh; transition: margin-left 0.3s ease, margin-right 0.3s ease, padding 0.3s ease; }
         h1 { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); padding-bottom: 15px; margin-top: 0; font-size: 1.5rem; text-transform: uppercase; line-height: 1.3; font-family: -apple-system, sans-serif; }
         
         .phan-header { background-color: var(--bg-phan); padding: 15px; border-left: 6px solid var(--primary-color); margin-top: 30px; color: var(--text-phan); font-size: 1.25em; font-weight: bold; border-radius: 4px; transition: background-color 0.3s;}
         .muc-header { color: var(--text-muc); margin-top: 25px; margin-bottom: 15px; font-weight: 700; font-size: 1.15em; transition: color 0.3s; }
         
-        /* KHÔI PHỤC CẤU TRÚC PHẲNG - KHÔNG "MẸ BỒNG CON" */
         .step-box { background: var(--bg-box); margin-bottom: 10px; position: relative; scroll-margin-top: 100px; transition: background-color 0.3s; }
         
         .main-content > div > .step-box { border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 2px 4px var(--shadow-color); margin-top: 15px; }
@@ -147,17 +149,33 @@
         .step-number { background: #3498db; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; display: inline-block; font-size: 0.9rem; font-family: -apple-system, sans-serif;}
         .tag-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; display: block; letter-spacing: 0.5px; font-family: -apple-system, sans-serif;}
         
-        .step-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;}
-        .btn-trich-dan { display: inline-flex; align-items: center; background-color: rgba(52, 152, 219, 0.1); color: #2980b9; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(52, 152, 219, 0.3); font-size: 0.9em; cursor: pointer; font-weight: 600; justify-content: center; font-family: -apple-system, sans-serif; transition: 0.2s;}
-        .btn-trich-dan:hover { background-color: #2980b9; color: white; }
+        /* ========================================================= */
+        /* NÚT XEM CHI TIẾT & CĂN CỨ TẠI (NHỎ GỌN, NẰM GÓC DƯỚI PHẢI) */
+        /* ========================================================= */
+        .step-actions-right { display: flex; gap: 8px; justify-content: flex-end; margin: 5px 15px 15px 15px; flex-wrap: wrap; }
+        .btn-mini { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 600; font-family: -apple-system, sans-serif; transition: 0.2s; border: 1px solid transparent; white-space: nowrap; }
+        .btn-mini-detail { background-color: rgba(52, 152, 219, 0.1); color: #2980b9; border-color: rgba(52, 152, 219, 0.3); }
+        .btn-mini-detail:hover { background-color: #2980b9; color: white; }
+        .btn-mini-pdf { background-color: rgba(231, 76, 60, 0.1); color: #c0392b; border-color: rgba(231, 76, 60, 0.3); }
+        .btn-mini-pdf:hover { background-color: #c0392b; color: white; }
+
         .inline-download { display: inline-flex; align-items: center; justify-content: center; background-color: rgba(39, 174, 96, 0.1); color: #27ae60; padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(39, 174, 96, 0.3); font-size: 0.85rem; font-weight: bold; text-decoration: none; margin-left: 10px; vertical-align: middle; white-space: nowrap; font-family: -apple-system, sans-serif; transition: 0.2s; }
         .inline-download:hover { background-color: #27ae60; color: white; }
+
+        .pdf-sidebar { position: fixed; top: 0; right: calc(-1 * var(--pdf-panel-width)); width: var(--pdf-panel-width); height: 100vh; background: #525659; z-index: 1001; transition: right 0.3s ease; box-shadow: -5px 0 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .pdf-sidebar.active { right: 0; }
+        .pdf-header { background: #323639; height: var(--header-height); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 2;}
+        .close-pdf { color: white; cursor: pointer; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 4px; font-size: 0.9rem; font-family: -apple-system, sans-serif; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 5px;}
+        .close-pdf:hover { background: #e74c3c; }
+        #pdfFrame { flex: 1; border: none; width: 100%; height: 100%; background: #525659;}
 
         mark.search-highlight { background-color: #ffe082; color: #000; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
         #btnSearchFab { position: fixed; bottom: 30px; left: 20px; z-index: 90; border: none; background: transparent; color: var(--primary-dark); cursor: pointer; font-size: 2rem; transition: 0.3s; padding: 0; filter: drop-shadow(2px 2px 2px rgba(255,255,255,0.9)); }
         #btnSearchFab:hover { transform: scale(1.1); color: var(--primary-color); }
         #backToTop { display: none; position: fixed; bottom: 30px; right: 20px; z-index: 90; border: none; background: transparent; color: var(--primary-color); cursor: pointer; font-size: 2.2rem; transition: 0.3s; padding: 0; font-weight: bold; filter: drop-shadow(2px 2px 2px rgba(255,255,255,0.9)); }
         #backToTop:hover { transform: translateY(-5px); color: var(--primary-dark); }
+        
+        body.pdf-open #backToTop { right: calc(var(--pdf-panel-width) + 20px); }
 
         .modal-user { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); padding: 10px; align-items: center; justify-content: center; backdrop-filter: blur(3px);}
         .modal-user-content { background-color: var(--bg-box); color: var(--text-main); width: 100%; max-width: 800px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 85vh; animation: slideUp 0.3s; }
@@ -194,15 +212,17 @@
             .close-sidebar-btn { display: block; }
             #btnSearchFab, #backToTop { bottom: 20px; } 
             .step-header { padding: 16px 15px; } 
-            .btn-trich-dan { width: 100%; margin-bottom: 5px;}
             #breadcrumbBar { top: 55px; }
             .modal-user { padding: 15px; }
             .modal-user-content { height: 90vh !important; max-height: 90vh !important; border-radius: 12px !important; }
             .modal-user-header { border-radius: 12px 12px 0 0 !important; }
-            
             .step-body .step-box.level-2 > .step-header { padding-left: 15px; }
             .step-body .step-box.level-3 > .step-header { padding-left: 25px; }
             .step-body .step-box.level-4 > .step-header { padding-left: 35px; }
+            
+            .pdf-sidebar { width: 100%; right: -100%; }
+            body.pdf-open .main-content { margin-right: 0; padding-right: 15px !important;}
+            body.pdf-open #backToTop { right: 20px; }
         }
 
         #loginOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000; align-items: center; justify-content: center; overflow: hidden; background-color: #8c0000; font-family: -apple-system, sans-serif; }
@@ -300,6 +320,14 @@
         <br><br><br>
     </div>
 
+    <div id="pdfSidebar" class="pdf-sidebar">
+        <div class="pdf-header">
+            <span style="font-weight:bold; color:white; font-family: -apple-system, sans-serif; font-size:1.1rem;">📄 Trình xem Bản gốc PDF</span>
+            <div class="close-pdf" onclick="closePdfViewer()">ĐÓNG ✕</div>
+        </div>
+        <iframe id="pdfFrame" src=""></iframe>
+    </div>
+
     <button id="btnSearchFab" onclick="openSearchModal()" title="Tìm kiếm">🔍</button>
     <button id="backToTop" onclick="topFunction()">⬆</button>
 
@@ -350,7 +378,7 @@
         <div class="login-card">
             <div class="close-login" onclick="closeLoginForm()">✕</div>
             <div class="login-header">
-                <div class="party-logo"><img src="https://i.postimg.cc/q70sSzw6/image_359e62.png"></div>
+                <div class="party-logo"><img src="image_359e62.png" onerror="this.src='https://i.postimg.cc/Qd05R7n2/image-359e62.png'"></div>
                 <h2>ĐĂNG NHẬP</h2><p>Hệ thống Quản trị Đồng thời</p>
             </div>
             <div class="login-body">
@@ -399,10 +427,17 @@
                     <label style="font-weight:bold; color:#555;">Trích dẫn gốc:</label>
                     <div id="inpDetail"></div>
                     
-                    <div style="background: #e8f5e9; border: 1px dashed #4caf50; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                        <label style="font-weight:bold; color:#2e7d32;">📎 Link Google Drive đính kèm</label>
-                        <input type="text" id="inpFileUrl" class="form-control" style="border-color:#81c784; margin-bottom:10px;" placeholder="Dán link vào đây...">
-                        <input type="text" id="inpFileName" class="form-control" style="border-color:#81c784;" placeholder="Tên file hiển thị">
+                    <div style="background: #e8f5e9; border: 1px dashed #4caf50; padding: 15px; border-radius: 8px; margin-bottom: 20px; display:flex; gap:10px; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:250px;">
+                            <label style="font-weight:bold; color:#2e7d32;">📎 Link Google Drive đính kèm (Để tải file)</label>
+                            <input type="text" id="inpFileUrl" class="form-control" style="border-color:#81c784; margin-bottom:10px;" placeholder="Dán link drive...">
+                            <input type="text" id="inpFileName" class="form-control" style="border-color:#81c784;" placeholder="Tên file hiển thị (VD: Mẫu 01)">
+                        </div>
+                        <div style="flex:1; min-width:250px; border-left: 2px solid #81c784; padding-left:15px;">
+                            <label style="font-weight:bold; color:#c0392b;">📑 Trang PDF Nguồn (Cho tính năng Split-screen)</label>
+                            <input type="number" id="inpPdfPage" class="form-control" style="border-color:#e74c3c; margin-top:5px;" placeholder="Ví dụ: 15 (Số trang trong file Hướng dẫn)">
+                            <div style="font-size:0.85rem; color:#666;">Nhập số trang để bật nút "Căn cứ tại" mở PDF chia đôi màn hình.</div>
+                        </div>
                     </div>
 
                     <button class="btn btn-add" style="background:#17a2b8" onclick="addSubItem()">+ Thêm mục con cấp dưới trực tiếp</button>
@@ -424,6 +459,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
+        const MASTER_PDF_URL = "https://files.catbox.moe/55shid.pdf";
+
         let hasUnsavedChanges = false;
         let isSystemChangingContent = false; 
 
@@ -445,7 +482,7 @@
         }
 
         quillSummary.on('text-change', markAsUnsaved); quillDetail.on('text-change', markAsUnsaved);
-        ['inpTag', 'inpTitle', 'inpFileUrl', 'inpFileName'].forEach(id => { document.getElementById(id).addEventListener('input', markAsUnsaved); });
+        ['inpTag', 'inpTitle', 'inpFileUrl', 'inpFileName', 'inpPdfPage'].forEach(id => { document.getElementById(id).addEventListener('input', markAsUnsaved); });
 
         function processLegacyText(text) {
             if (!text) return '';
@@ -473,6 +510,23 @@
             document.getElementById('readingProgress').style.width = progress + "%";
             document.getElementById("backToTop").style.display = scrollTop > 300 ? "block" : "none";
         });
+
+        function openPdfViewer(pageNum, keyword) {
+            let url = MASTER_PDF_URL;
+            if (pageNum) {
+                url += `#page=${pageNum}`;
+                if (keyword) url += `&search=${encodeURIComponent(keyword)}`;
+            }
+            document.getElementById('pdfFrame').src = url;
+            document.getElementById('pdfSidebar').classList.add('active');
+            document.body.classList.add('pdf-open');
+        }
+
+        function closePdfViewer() {
+            document.getElementById('pdfSidebar').classList.remove('active');
+            document.body.classList.remove('pdf-open');
+            setTimeout(() => { document.getElementById('pdfFrame').src = ""; }, 300);
+        }
 
         function addRecentView(id, title) {
             if(!id || !title) return;
@@ -565,11 +619,22 @@
                     let safeSummary = processLegacyText(item.summary);
                     let displaySummary = highlightText(safeSummary, lastSearchKeyword);
 
+                    // CHỈ RENDER NÚT PDF NẾU LÀ CẤP 2 TRỞ LÊN (level >= 2)
+                    let pdfSourceBtn = (item.level >= 2 && item.pdfPage) ? `<div class="btn-mini btn-mini-pdf" onclick="openPdfViewer('${item.pdfPage}', '${lastSearchKeyword}')" title="Căn cứ tại trang ${item.pdfPage}">📄 Căn cứ tại: Trang ${item.pdfPage}</div>` : '';
+                    
+                    // NÚT XEM CHI TIẾT CŨNG ĐƯỢC CHUYỂN VỀ DẠNG MINI (nhỏ gọn)
+                    let dtBtn = item.detail ? `<div class="btn-mini btn-mini-detail" onclick="showPopup('${item.id}')">📖 Xem chi tiết</div>` : '';
+
                     if(item.level === 0 || item.level === 1) {
                         let hTag = item.level === 0 ? 'h2' : 'h3'; let hClass = item.level === 0 ? 'phan-header' : 'muc-header';
                         innerContent += `<${hTag} class="${hClass}">${displayTitle} ${downloadBtn}</${hTag}>`;
                         if (item.summary) innerContent += `<div class="content-text" style="border:none; padding-left:0;">${displaySummary}</div>`;
-                        if (item.detail) innerContent += `<div class="step-actions"><div class="btn-trich-dan" onclick="showPopup('${item.id}')">📖 Xem quy định chi tiết</div></div>`;
+                        
+                        // Cấp 0 và 1 CHỈ hiển thị nút Xem chi tiết (Nếu có)
+                        if (item.detail) {
+                            innerContent += `<div class="step-actions-right">${dtBtn}</div>`;
+                        }
+
                         div.innerHTML = innerContent; container.appendChild(div);
                     } else {
                         let levelClass = item.level === 2 ? 'level-2' : (item.level === 3 ? 'level-3' : 'level-4');
@@ -581,11 +646,17 @@
                         div.className = `step-box ${levelClass}`; 
                         let tagHtml = item.tag ? `<span class="tag-label">${highlightText(item.tag, lastSearchKeyword)}</span>` : ''; 
                         let summaryHtml = item.summary ? `<div class="content-text">${displaySummary}</div>` : '';
-                        let detailBtn = item.detail ? `<div class="step-actions" style="margin: 0 10px 15px 15px;"><div class="btn-trich-dan" onclick="showPopup('${item.id}')">📖 Xem chi tiết</div></div>` : '';
+                        
+                        // Nút nằm ở góc dưới bên phải cho cấp 2, 3, 4, 5...
+                        let detailBtnHtml = '';
+                        if (item.detail || pdfSourceBtn) {
+                            detailBtnHtml = `<div class="step-actions-right">${dtBtn}${pdfSourceBtn}</div>`;
+                        }
+
                         let hasChildren = item.children && item.children.length > 0; 
                         let iconHtml = hasChildren ? `<div class="step-icon">▼</div>` : '';
                         
-                        div.innerHTML = `<div class="step-header" onclick="toggleStep(this, event, '${item.id}', '${item.title ? item.title.replace(/'/g, "\\'") : ''}')"><div class="step-title-wrapper">${tagHtml}${titleHtml}</div>${iconHtml}</div><div class="step-body-wrapper"><div class="step-body"><div class="step-body-inner" id="inner-${item.id}">${summaryHtml}${detailBtn}</div></div></div>`;
+                        div.innerHTML = `<div class="step-header" onclick="toggleStep(this, event, '${item.id}', '${item.title ? item.title.replace(/'/g, "\\'") : ''}')"><div class="step-title-wrapper">${tagHtml}${titleHtml}</div>${iconHtml}</div><div class="step-body-wrapper"><div class="step-body"><div class="step-body-inner" id="inner-${item.id}">${summaryHtml}${detailBtnHtml}</div></div></div>`;
                         container.appendChild(div); nextContainer = div.querySelector(`#inner-${item.id}`);
                     }
                     if(item.children && item.children.length > 0) processNode(item.children, nextContainer);
@@ -615,7 +686,7 @@
         }
 
         function toggleStep(headerEl, event, id, title) {
-            if (event && (event.target.closest('a') || event.target.closest('.btn-trich-dan'))) return; 
+            if (event && (event.target.closest('a') || event.target.closest('.btn-mini'))) return; 
             if (event) event.stopPropagation();
             const stepBox = headerEl.parentElement; let parentInner = stepBox.parentElement;
             if (parentInner) { 
@@ -760,7 +831,15 @@
             if (!currentEditNodeId) return; const btn = document.getElementById('btnSaveSingle'); btn.innerText = "⏳ Đang lưu..."; btn.disabled = true;
             let sumVal = quillSummary.root.innerHTML; if(sumVal === '<p><br></p>') sumVal = '';
             let detVal = quillDetail.root.innerHTML; if(detVal === '<p><br></p>') detVal = '';
-            let updatedData = { tag: document.getElementById('inpTag').value, title: document.getElementById('inpTitle').value, summary: sumVal, detail: detVal, fileUrl: document.getElementById('inpFileUrl').value, fileName: document.getElementById('inpFileName').value };
+            
+            let updatedData = { 
+                tag: document.getElementById('inpTag').value, 
+                title: document.getElementById('inpTitle').value, 
+                summary: sumVal, detail: detVal, 
+                fileUrl: document.getElementById('inpFileUrl').value, 
+                fileName: document.getElementById('inpFileName').value,
+                pdfPage: document.getElementById('inpPdfPage').value
+            };
 
             const docRef = db.collection("sotay").doc("dulieu");
             db.runTransaction((transaction) => {
@@ -819,8 +898,11 @@
             
             document.getElementById('editorPlaceholder').style.display = 'none'; document.getElementById('editorArea').style.display = 'block'; 
             isSystemChangingContent = true;
-            document.getElementById('inpTag').value = nodeData.tag || ''; document.getElementById('inpTitle').value = nodeData.title || ''; 
-            document.getElementById('inpFileUrl').value = nodeData.fileUrl || ''; document.getElementById('inpFileName').value = nodeData.fileName || '';
+            document.getElementById('inpTag').value = nodeData.tag || ''; 
+            document.getElementById('inpTitle').value = nodeData.title || ''; 
+            document.getElementById('inpFileUrl').value = nodeData.fileUrl || ''; 
+            document.getElementById('inpFileName').value = nodeData.fileName || '';
+            document.getElementById('inpPdfPage').value = nodeData.pdfPage || '';
             
             quillSummary.root.innerHTML = processLegacyText(nodeData.summary || ''); 
             quillDetail.root.innerHTML = processLegacyText(nodeData.detail || '');
@@ -835,5 +917,4 @@
 
     </script>
 </body>
-
 </html>
