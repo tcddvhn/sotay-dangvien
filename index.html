@@ -384,7 +384,7 @@
         <div class="login-card">
             <div class="close-login" onclick="closeLoginForm()">✕</div>
             <div class="login-header">
-                <div class="party-logo"><img src="https://i.postimg.cc/q70sSzw6/image_359e62.png"></div>
+                <div class="party-logo"><img src="image_359e62.png" onerror="this.src='https://i.postimg.cc/Qd05R7n2/image-359e62.png'"></div>
                 <h2>ĐĂNG NHẬP</h2><p>Hệ thống Quản trị Đồng thời</p>
             </div>
             <div class="login-body">
@@ -439,10 +439,51 @@
                             <input type="text" id="inpFileUrl" class="form-control" style="border-color:#81c784; margin-bottom:10px;" placeholder="Dán link drive...">
                             <input type="text" id="inpFileName" class="form-control" style="border-color:#81c784;" placeholder="Tên file hiển thị (VD: Mẫu 01)">
                         </div>
+                        
                         <div style="flex:1; min-width:250px; border-left: 2px solid #81c784; padding-left:15px;">
-                            <label style="font-weight:bold; color:#c0392b;">📑 Trang PDF Nguồn (Cho tính năng Split-screen)</label>
-                            <input type="number" id="inpPdfPage" class="form-control" style="border-color:#e74c3c; margin-top:5px;" placeholder="Ví dụ: 15 (Số trang trong file Hướng dẫn)">
-                            <div style="font-size:0.85rem; color:#666;">Nhập số trang để bật nút "Căn cứ tại" mở PDF chia đôi màn hình.</div>
+                            <label style="font-weight:bold; color:#c0392b;">📑 Trích dẫn PDF (Tối đa 4 tài liệu)</label>
+                            <div style="font-size:0.85rem; color:#666; margin-bottom: 8px;">Chọn văn bản và nhập số trang để tạo nút "Căn cứ".</div>
+                            
+                            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                                <select id="inpPdfDoc1" class="form-control" style="margin-bottom:0; flex:2; border-color:#e74c3c; padding: 8px; font-size:1rem;">
+                                    <option value="">-- Chọn văn bản --</option>
+                                    <option value="hd02">Hướng dẫn 02</option>
+                                    <option value="qd294">Quy định 294</option>
+                                    <option value="hd38">Hướng dẫn 38</option>
+                                    <option value="hd06">Hướng dẫn 06</option>
+                                </select>
+                                <input type="number" id="inpPdfPage1" class="form-control" style="margin-bottom:0; flex:1; border-color:#e74c3c; padding: 8px; font-size:1rem;" placeholder="Trang">
+                            </div>
+                            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                                <select id="inpPdfDoc2" class="form-control" style="margin-bottom:0; flex:2; border-color:#e74c3c; padding: 8px; font-size:1rem;">
+                                    <option value="">-- Chọn văn bản --</option>
+                                    <option value="hd02">Hướng dẫn 02</option>
+                                    <option value="qd294">Quy định 294</option>
+                                    <option value="hd38">Hướng dẫn 38</option>
+                                    <option value="hd06">Hướng dẫn 06</option>
+                                </select>
+                                <input type="number" id="inpPdfPage2" class="form-control" style="margin-bottom:0; flex:1; border-color:#e74c3c; padding: 8px; font-size:1rem;" placeholder="Trang">
+                            </div>
+                            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                                <select id="inpPdfDoc3" class="form-control" style="margin-bottom:0; flex:2; border-color:#e74c3c; padding: 8px; font-size:1rem;">
+                                    <option value="">-- Chọn văn bản --</option>
+                                    <option value="hd02">Hướng dẫn 02</option>
+                                    <option value="qd294">Quy định 294</option>
+                                    <option value="hd38">Hướng dẫn 38</option>
+                                    <option value="hd06">Hướng dẫn 06</option>
+                                </select>
+                                <input type="number" id="inpPdfPage3" class="form-control" style="margin-bottom:0; flex:1; border-color:#e74c3c; padding: 8px; font-size:1rem;" placeholder="Trang">
+                            </div>
+                            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                                <select id="inpPdfDoc4" class="form-control" style="margin-bottom:0; flex:2; border-color:#e74c3c; padding: 8px; font-size:1rem;">
+                                    <option value="">-- Chọn văn bản --</option>
+                                    <option value="hd02">Hướng dẫn 02</option>
+                                    <option value="qd294">Quy định 294</option>
+                                    <option value="hd38">Hướng dẫn 38</option>
+                                    <option value="hd06">Hướng dẫn 06</option>
+                                </select>
+                                <input type="number" id="inpPdfPage4" class="form-control" style="margin-bottom:0; flex:1; border-color:#e74c3c; padding: 8px; font-size:1rem;" placeholder="Trang">
+                            </div>
                         </div>
                     </div>
 
@@ -465,9 +506,15 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // CẬP NHẬT ĐƯỜNG DẪN ĐẾN PDF.JS VIEWER VÀ FILE PDF GỐC
-        const PDF_VIEWER_URL = "web/viewer.html"; 
-        const MY_LOCAL_PDF = "../huongdan.pdf"; // Lưu ý: Lùi 2 cấp từ thư mục web ra thư mục gốc. Bạn nhớ đổi tên file PDF trên Github thành huongdan.pdf nhé!
+        const PDF_VIEWER_URL = "pdfjs/web/viewer.html"; 
+        
+        // CẤU HÌNH THƯ VIỆN CÁC TÀI LIỆU PDF (Sau này thêm file cứ khai báo vào đây)
+        const PDF_COLLECTION = {
+            "hd02": { name: "Hướng dẫn 02", shortName: "HD 02", file: "huongdan.pdf" },
+            "qd294": { name: "Quy định 294", shortName: "QĐ 294", file: "quydinh294.pdf" },
+            "hd38": { name: "Hướng dẫn 38", shortName: "HD 38", file: "huongdan38.pdf" },
+            "hd06": { name: "Hướng dẫn 06", shortName: "HD 06", file: "huongdan06.pdf" }
+        };
 
         let hasUnsavedChanges = false;
         let isSystemChangingContent = false; 
@@ -490,7 +537,10 @@
         }
 
         quillSummary.on('text-change', markAsUnsaved); quillDetail.on('text-change', markAsUnsaved);
-        ['inpTag', 'inpTitle', 'inpFileUrl', 'inpFileName', 'inpPdfPage'].forEach(id => { document.getElementById(id).addEventListener('input', markAsUnsaved); });
+        ['inpTag', 'inpTitle', 'inpFileUrl', 'inpFileName', 'inpPdfDoc1', 'inpPdfPage1', 'inpPdfDoc2', 'inpPdfPage2', 'inpPdfDoc3', 'inpPdfPage3', 'inpPdfDoc4', 'inpPdfPage4'].forEach(id => { 
+            let el = document.getElementById(id);
+            if(el) el.addEventListener('input', markAsUnsaved); 
+        });
 
         function processLegacyText(text) {
             if (!text) return '';
@@ -519,20 +569,20 @@
             document.getElementById("backToTop").style.display = scrollTop > 300 ? "block" : "none";
         });
 
-        // HÀM MỞ PDF.JS ĐÃ ĐƯỢC CẬP NHẬT ĐỂ SỬ DỤNG VIEWER MỚI TRÊN GITHUB
-        function openPdfViewer(pageNum, keyword) {
-            // Cấu trúc chuẩn: viewer.html?file=huongdan.pdf#page=5
-            let fullUrl = `${PDF_VIEWER_URL}?file=${encodeURIComponent(MY_LOCAL_PDF)}`;
+        // CẬP NHẬT HÀM MỞ PDF HỖ TRỢ ĐA TÀI LIỆU
+        function openPdfViewer(docId, pageNum, keyword) {
+            if (!PDF_COLLECTION[docId]) return;
+            let pdfFileName = PDF_COLLECTION[docId].file;
+            let localPdfPath = "../../" + pdfFileName; 
+            
+            let fullUrl = `${PDF_VIEWER_URL}?file=${encodeURIComponent(localPdfPath)}`;
             
             if (pageNum) {
                 fullUrl += `#page=${pageNum}`;
-                if (keyword) fullUrl += `&search=${encodeURIComponent(keyword)}`; // Hỗ trợ highlight text
+                if (keyword) fullUrl += `&search=${encodeURIComponent(keyword)}`;
             }
             
-            // Gán link cho nút Mở Tab Mới để người dùng xem full màn hình nếu muốn
             document.getElementById('btnOpenNewTab').href = fullUrl;
-
-            // Mở iframe bằng trình viewer.html chuyên nghiệp
             document.getElementById('pdfFrame').src = fullUrl;
             document.getElementById('pdfSidebar').classList.add('active');
             document.body.classList.add('pdf-open');
@@ -645,7 +695,18 @@
                     let safeSummary = processLegacyText(item.summary);
                     let displaySummary = highlightText(safeSummary, lastSearchKeyword);
 
-                    let pdfSourceBtn = (item.level >= 2 && item.pdfPage) ? `<div class="btn-mini btn-mini-pdf" onclick="openPdfViewer('${item.pdfPage}', '${lastSearchKeyword}')" title="Căn cứ tại trang ${item.pdfPage}">📄 Căn cứ tại: Trang ${item.pdfPage}</div>` : '';
+                    // XỬ LÝ RENDER NHIỀU NÚT PDF
+                    let refs = item.pdfRefs || [];
+                    if (item.pdfPage && refs.length === 0) refs.push({doc: 'hd02', page: item.pdfPage}); // Hỗ trợ dữ liệu cũ
+                    
+                    let pdfSourceBtn = '';
+                    refs.forEach(r => {
+                        if (r.doc && r.page && PDF_COLLECTION[r.doc]) {
+                            let sName = PDF_COLLECTION[r.doc].shortName;
+                            pdfSourceBtn += `<div class="btn-mini btn-mini-pdf" onclick="openPdfViewer('${r.doc}', '${r.page}', '${lastSearchKeyword}')" title="Căn cứ: ${PDF_COLLECTION[r.doc].name} - Trang ${r.page}">📄 ${sName}-Tr.${r.page}</div>`;
+                        }
+                    });
+
                     let dtBtn = item.detail ? `<div class="btn-mini btn-mini-detail" onclick="showPopup('${item.id}')">📖 Xem chi tiết</div>` : '';
 
                     if(item.level === 0 || item.level === 1) {
@@ -653,8 +714,8 @@
                         innerContent += `<${hTag} class="${hClass}">${displayTitle} ${downloadBtn}</${hTag}>`;
                         if (item.summary) innerContent += `<div class="content-text" style="border:none; padding-left:0;">${displaySummary}</div>`;
                         
-                        if (item.detail) {
-                            innerContent += `<div class="step-actions-right">${dtBtn}</div>`;
+                        if (item.detail || pdfSourceBtn) {
+                            innerContent += `<div class="step-actions-right">${dtBtn}${pdfSourceBtn}</div>`;
                         }
 
                         div.innerHTML = innerContent; container.appendChild(div);
@@ -853,13 +914,21 @@
             let sumVal = quillSummary.root.innerHTML; if(sumVal === '<p><br></p>') sumVal = '';
             let detVal = quillDetail.root.innerHTML; if(detVal === '<p><br></p>') detVal = '';
             
+            // XỬ LÝ LẤY DỮ LIỆU TỪ 4 Ô NHẬP PDF
+            let pdfRefs = [];
+            for(let i=1; i<=4; i++) {
+                let docVal = document.getElementById('inpPdfDoc'+i).value;
+                let pageVal = document.getElementById('inpPdfPage'+i).value;
+                if(docVal && pageVal) pdfRefs.push({ doc: docVal, page: pageVal });
+            }
+
             let updatedData = { 
                 tag: document.getElementById('inpTag').value, 
                 title: document.getElementById('inpTitle').value, 
                 summary: sumVal, detail: detVal, 
                 fileUrl: document.getElementById('inpFileUrl').value, 
                 fileName: document.getElementById('inpFileName').value,
-                pdfPage: document.getElementById('inpPdfPage').value
+                pdfRefs: pdfRefs
             };
 
             const docRef = db.collection("sotay").doc("dulieu");
@@ -923,7 +992,22 @@
             document.getElementById('inpTitle').value = nodeData.title || ''; 
             document.getElementById('inpFileUrl').value = nodeData.fileUrl || ''; 
             document.getElementById('inpFileName').value = nodeData.fileName || '';
-            document.getElementById('inpPdfPage').value = nodeData.pdfPage || '';
+            
+            // RESET VÀ ĐIỀN DỮ LIỆU CŨ CHO 4 Ô PDF
+            let refs = nodeData.pdfRefs || [];
+            if (nodeData.pdfPage && refs.length === 0) refs.push({doc: 'hd02', page: nodeData.pdfPage}); // Kéo dữ liệu cũ lên dòng 1
+            
+            for(let i=1; i<=4; i++) {
+                let docEl = document.getElementById('inpPdfDoc'+i);
+                let pageEl = document.getElementById('inpPdfPage'+i);
+                if (refs[i-1]) {
+                    docEl.value = refs[i-1].doc || '';
+                    pageEl.value = refs[i-1].page || '';
+                } else {
+                    docEl.value = '';
+                    pageEl.value = '';
+                }
+            }
             
             quillSummary.root.innerHTML = processLegacyText(nodeData.summary || ''); 
             quillDetail.root.innerHTML = processLegacyText(nodeData.detail || '');
