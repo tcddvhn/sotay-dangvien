@@ -136,13 +136,13 @@
         .inline-download { display: inline-flex; align-items: center; gap: 5px; justify-content: center; background-color: transparent; color: #27ae60; padding: 4px 10px; border: 1px solid #2ecc71; font-size: 0.85rem; font-weight: bold; text-decoration: none; margin-left: 10px; vertical-align: middle; white-space: normal; font-family: -apple-system, sans-serif; transition: 0.2s; word-break: break-word;}
         .inline-download:hover { background-color: #27ae60; color: white; }
 
-        /* GIAO DIỆN ACCORDION DÀNH RIÊNG CHO HỎI ĐÁP & BIỂU MẪU CẤP 3, 4 */
+        /* GIAO DIỆN ACCORDION DÀNH RIÊNG CHO HỎI ĐÁP & BIỂU MẪU - ĐÃ SỬA THÀNH ĐỘNG (DYNAMIC) */
         .list-main-group-title { margin-top:25px; margin-bottom:12px; font-weight:bold; color:var(--primary-color); border-bottom:1px solid var(--border-color); padding-bottom:5px; font-size:1.1rem; display:flex; align-items:flex-start; gap:8px; line-height: 1.4;}
         .list-sub-group { margin-bottom: 8px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-box); transition: 0.3s; overflow: hidden;}
         .list-sub-group-header { padding: 12px 15px; font-weight: 600; font-size: 1.05rem; color: var(--text-main); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; user-select: none; }
         .list-sub-group-header:hover { background: rgba(0,0,0,0.03); }
         
-        /* Màu nền nhạt dần tạo chiều sâu (3% - 5%) */
+        /* Màu nền nhạt dần tạo chiều sâu (3% - 5%) cho Accordion */
         .list-sub-group.sub-group-l3 > .list-sub-group-header { background-color: #f8f9fa; border-left: 3px solid #3498db; }
         .list-sub-group.sub-group-l4 > .list-sub-group-header { background-color: #f1f2f6; border-left: 3px solid #9b59b6; }
         
@@ -820,7 +820,7 @@
             addRecentView(id, nodeData.title);
         }
 
-        // --- THUẬT TOÁN ĐỆ QUY HIỂN THỊ HỎI ĐÁP VÀ BIỂU MẪU (ACCORDION) ---
+        // --- KIỂM TRA ĐỘNG THƯ MỤC CHỨA BIỂU MẪU / HỎI ĐÁP ---
         function hasTagOrFile(node, type) {
             let tagRaw = (node.tag || '').toLowerCase();
             if (type === 'faq' && tagRaw.includes('hỏi đáp')) return true;
@@ -833,7 +833,19 @@
             return false;
         }
 
-        function buildListHtml(nodes, type) {
+        // Kiểm tra xem node hiện tại có chứa nhóm con nào không (để quyết định là Thư mục đỏ hay Hộp gập)
+        function containsSubGroupsWithContent(node, type) {
+            if (!node.children || node.children.length === 0) return false;
+            for (let c of node.children) {
+                // Nếu con của nó lại có con nữa VÀ nhánh đó chứa dữ liệu mong muốn
+                if (c.children && c.children.length > 0 && hasTagOrFile(c, type)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function buildListHtmlDynamic(nodes, type, currentLevel = 0) {
             let html = '';
             nodes.forEach(n => {
                 if (!hasTagOrFile(n, type)) return;
@@ -847,8 +859,9 @@
                 let displaySummary = summaryText ? ` <span style="color: var(--text-muted); font-weight: normal; font-size: 0.95rem;">- ${summaryText}</span>` : '';
                 let displayTitle = n.fileName || n.title;
 
-                let childrenHtml = n.children ? buildListHtml(n.children, type) : '';
+                let childrenHtml = n.children ? buildListHtmlDynamic(n.children, type, currentLevel + 1) : '';
 
+                // Nếu chính nó là một item dữ liệu (biểu mẫu/câu hỏi)
                 if (isItemMatch) {
                     html += `<div class="list-view-item" onclick="viewStandaloneItem('${n.id}')" style="margin-bottom: 10px;">
                                 <div class="list-title" style="margin-bottom: 0; line-height: 1.5;">
@@ -858,9 +871,10 @@
                             </div>`;
                 }
 
+                // Nếu nó có nhóm con bên trong
                 if (childrenHtml) {
-                    // Cấp hiển thị 0, 1, 2: Bung mở sẵn chữ đỏ
-                    if (n.level <= 2) {
+                    // Thuật toán Động: Nếu nó CÒN CHỨA NHÓM CON BÊN TRONG -> Vẽ Thư mục màu Đỏ
+                    if (containsSubGroupsWithContent(n, type)) {
                         html += `<div class="list-main-group">
                                     <div class="list-main-group-title">
                                         <svg width="20" height="20" style="flex-shrink:0; margin-top:2px;"><use href="#icon-folder"></use></svg> 
@@ -868,9 +882,11 @@
                                     </div>
                                     <div class="list-main-group-body" style="padding-left: 5px;">${childrenHtml}</div>
                                  </div>`;
-                    } else {
-                        // Cấp 3, 4: Hộp thoại gập (Accordion) với nền xám nhạt tăng dần 3% - 5%
-                        let bgClass = n.level === 3 ? 'sub-group-l3' : 'sub-group-l4';
+                    } 
+                    // Nếu nó CHỈ CHỨA DỮ LIỆU LÁ (Không có nhóm con nào nữa) -> Vẽ Hộp gập Accordion
+                    else {
+                        // Tính toán độ đậm nhạt của nền xám dựa theo độ sâu thực tế
+                        let bgClass = (currentLevel % 2 === 0) ? 'sub-group-l3' : 'sub-group-l4';
                         html += `<div class="list-sub-group ${bgClass}">
                                     <div class="list-sub-group-header" onclick="this.parentElement.classList.toggle('open')">
                                         <div style="display:flex; align-items:flex-start; gap:8px;">
@@ -888,8 +904,8 @@
         }
 
         function renderFAQAndForms() {
-            let faqHtml = buildListHtml(APP_DATA, 'faq');
-            let formHtml = buildListHtml(APP_DATA, 'form');
+            let faqHtml = buildListHtmlDynamic(APP_DATA, 'faq');
+            let formHtml = buildListHtmlDynamic(APP_DATA, 'form');
             
             document.getElementById('faqListContainer').innerHTML = faqHtml || '<div class="no-result">Chưa có dữ liệu hỏi đáp.</div>';
             document.getElementById('formListContainer').innerHTML = formHtml || '<div class="no-result">Chưa có biểu mẫu nào.</div>';
