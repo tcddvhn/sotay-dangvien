@@ -84,11 +84,9 @@
         .menu-link { flex: 1; cursor: pointer; text-decoration: none; color: inherit; padding-left: 5px; border-radius: 4px; transition: 0.2s; line-height: 1.4; word-break: break-word; white-space: normal;}
         .menu-link.active-menu { color: var(--yellow-party) !important; font-weight: bold; background: rgba(255,255,255,0.05); padding: 4px 8px; border-left: 3px solid var(--yellow-party); }
         
-        /* Cố định nút Admin ở đáy Menu */
         .admin-trigger { padding: 15px; border-top: 1px solid rgba(255,255,255,0.05); cursor: pointer; color: #7f8c8d; text-align: center; background: var(--bg-sidebar); padding-bottom: calc(15px + var(--nav-bottom-height) + env(safe-area-inset-bottom)); flex-shrink: 0; font-family: -apple-system, sans-serif; font-size: 0.95rem; font-weight: bold;}
         .admin-trigger:hover { color: white; background: rgba(255,255,255,0.05); }
 
-        /* FIX LỆCH ICON HEADER MOBILE */
         .top-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); background: var(--primary-color); z-index: 990; display: flex; align-items: center; padding: 0 max(15px, env(safe-area-inset-right)) 0 max(15px, env(safe-area-inset-left)); justify-content: space-between; color: white; font-weight: bold; font-family: -apple-system, sans-serif; transition: right 0.3s ease, left 0.3s ease; }
         .menu-toggle-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; margin-right: 15px; padding:0; display:flex; align-items:center;}
         .header-title { font-size: 1.15rem; letter-spacing: 0.5px; flex:1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
@@ -258,7 +256,7 @@
 
         /* KHU VỰC ADMIN CÓ LOGO CỜ ĐẢNG */
         #loginOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000; align-items: center; justify-content: center; overflow: hidden; background-color: #8c0000; font-family: -apple-system, sans-serif; }
-        .trong-dong-bg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://i.postimg.cc/zf6J3RQ8/img-5-hinh-nen-powerpoint-trong-dong.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: 0.1;}
+        .trong-dong-bg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://i.postimg.cc/zf6J3RQ8/img_5_hinh_nen_powerpoint_trong_dong.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: 0.1;}
         .login-card { background: #fff; width: 90%; max-width: 400px; padding: 40px 30px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; border-top: 4px solid var(--primary-color); color: #333;}
         .close-login { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; transition: 0.2s; }
         .login-header { text-align: center; margin-bottom: 25px; }
@@ -700,7 +698,7 @@
                 else renderDashboard({ totalVisits: 0, searchCount: 0, dailyVisits: {} }); 
             }).catch(err => {
                 console.log("Firebase Dashboard error:", err);
-                renderDashboard({ totalVisits: 1, searchCount: 1, dailyVisits: {} }); // Mock khi lỗi
+                renderDashboard({ totalVisits: 1, searchCount: 1, dailyVisits: {} }); 
             }); 
         }
         setInterval(fetchAndRenderDashboard, 3600000);
@@ -730,7 +728,7 @@
                 function initExpand(nodes) {
                     nodes.forEach(n => {
                         expandedAdminNodes.add(n.id);
-                        if (n.level < 1) expandedUserMenuNodes.add(n.id); // CHỈ MỞ RỘNG CẤP LỚN NHẤT TRÊN SIDEBAR
+                        if (n.level < 1) expandedUserMenuNodes.add(n.id); 
                         if (n.children) initExpand(n.children);
                     });
                 }
@@ -753,10 +751,49 @@
             document.getElementById('homeCategories').innerHTML = html || '<p>Chưa có dữ liệu</p>';
         }
 
-        // NHÓM BIỂU MẪU THEO CẤP TỰ ĐỘNG
+        // TẠO HÀM MỚI: HIỂN THỊ ĐỘC LẬP TẠI CHỖ CHO HỎI ĐÁP & BIỂU MẪU
+        function viewStandaloneItem(id) {
+            let nodeData = findNode(id, APP_DATA);
+            if(!nodeData) return;
+            
+            let displayTitle = highlightText(nodeData.title || 'Chưa đặt tên', lastSearchKeyword);
+            let safeSummary = processLegacyText(nodeData.summary);
+            let safeDetail = processLegacyText(nodeData.detail);
+            
+            let downloadBtn = nodeData.fileUrl ? `<div style="margin-top: 20px;"><a href="${nodeData.fileUrl}" target="_blank" class="inline-download" style="padding: 10px 15px; font-size: 1rem; border-radius: 4px;"><svg width="18" height="18"><use href="#icon-download"></use></svg> Tải file: ${nodeData.fileName || 'Biểu mẫu'}</a></div>` : '';
+            
+            let pdfSourceBtn = '';
+            let refs = nodeData.pdfRefs || []; 
+            if (nodeData.pdfPage && refs.length === 0) refs.push({doc: 'hd02', page: nodeData.pdfPage}); 
+            let safeKwForPdf = (lastSearchKeyword || '').replace(/'/g, "\\'"); 
+            refs.forEach(r => { 
+                if (r.doc && r.page && PDF_COLLECTION[r.doc]) { 
+                    let sName = PDF_COLLECTION[r.doc].shortName; 
+                    pdfSourceBtn += `<div class="btn-mini btn-mini-pdf" onclick="openPdfViewer('${r.doc}', '${r.page}', '${safeKwForPdf}')" title="Căn cứ: ${PDF_COLLECTION[r.doc].name} - Trang ${r.page}"><svg width="14" height="14"><use href="#icon-pdf"></use></svg> ${sName}-Tr.${r.page}</div>`; 
+                } 
+            });
+            let pdfContainer = pdfSourceBtn ? `<div style="margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px dashed var(--border-color); padding-top: 15px;"><b><svg width="16" height="16"><use href="#icon-book-open"></use></svg> Văn bản căn cứ:</b><br> ${pdfSourceBtn}</div>` : '';
+
+            let html = `<div style="font-family: -apple-system, sans-serif; margin-bottom: 15px;">`;
+            if(nodeData.tag) html += `<span class="tag-label" style="display:inline-block; margin-bottom:8px; background:var(--bg-hover); padding:4px 8px; border-radius:4px; border:1px solid var(--border-color);">${highlightText(nodeData.tag, lastSearchKeyword)}</span>`;
+            html += `<h2 style="color: var(--primary-color); margin-top: 0; font-size: 1.35rem; line-height: 1.4;">${displayTitle}</h2></div>`;
+            
+            if (safeSummary) html += `<div style="font-weight: bold; margin-bottom: 15px; color: var(--text-main); font-size: 1.15rem; background: var(--bg-hover); padding: 15px; border-left: 4px solid var(--yellow-party); border-radius: 4px;">${safeSummary}</div>`;
+            if (safeDetail) html += `<div style="text-align: justify; font-size: 1.15rem; line-height: 1.6;">${safeDetail}</div>`;
+            else if (!safeSummary) html += `<div style="color: var(--text-muted); font-style: italic;">Chưa cập nhật nội dung chi tiết...</div>`;
+            
+            html += downloadBtn + pdfContainer;
+
+            document.getElementById('noi-dung-chi-tiet').innerHTML = html;
+            document.getElementById('modalTrichDan').style.display = 'flex';
+            
+            addRecentView(id, nodeData.title);
+        }
+
+        // DUYỆT CÂY CHUẨN XÁC THEO THỨ TỰ ARRAY THAY VÌ OBJECT
         function renderFAQAndForms() {
             let faqHtml = ''; 
-            let formsByGroup = {};
+            let formGroups = []; 
 
             function traverse(nodes, parentTitle, currentGroup) {
                 nodes.forEach(n => {
@@ -766,16 +803,22 @@
                     let group = currentGroup;
                     if (n.level === 0 || n.level === 1) group = n.title;
 
+                    // Click mở popup độc lập
                     if (tagRaw.includes('hỏi đáp')) {
-                        faqHtml += `<div class="list-view-item" onclick="jumpToResult('${n.id}')">
+                        faqHtml += `<div class="list-view-item" onclick="viewStandaloneItem('${n.id}')">
                                         <div class="list-title"><svg width="18" height="18"><use href="#icon-faq"></use></svg> ${n.title}</div>
                                         <div class="list-meta"><svg width="14" height="14"><use href="#icon-folder"></use></svg> ${path}</div>
                                     </div>`;
                     }
                     if (tagRaw.includes('biểu mẫu') || n.fileUrl) {
                         let finalGroup = group || 'Biểu mẫu chung';
-                        if (!formsByGroup[finalGroup]) formsByGroup[finalGroup] = [];
-                        formsByGroup[finalGroup].push({ node: n, path: path });
+                        // Sử dụng mảng để duy trì tuyệt đối thứ tự từ trên xuống dưới
+                        let groupObj = formGroups.find(g => g.name === finalGroup);
+                        if (!groupObj) {
+                            groupObj = { name: finalGroup, items: [] };
+                            formGroups.push(groupObj);
+                        }
+                        groupObj.items.push({ node: n, path: path });
                     }
                     if (n.children) traverse(n.children, path, group);
                 });
@@ -785,15 +828,16 @@
             document.getElementById('faqListContainer').innerHTML = faqHtml || '<div class="no-result">Chưa có dữ liệu hỏi đáp.</div>';
             
             let formHtml = '';
-            for (let group in formsByGroup) {
-                formHtml += `<div style="margin-top:25px; margin-bottom:12px; font-weight:bold; color:var(--primary-color); border-bottom:1px solid var(--border-color); padding-bottom:5px; font-size:1.1rem; display:flex; align-items:center; gap:8px;"><svg width="20" height="20"><use href="#icon-folder"></use></svg> ${group}</div>`;
-                formsByGroup[group].forEach(item => {
-                    formHtml += `<div class="list-view-item" onclick="jumpToResult('${item.node.id}')">
+            formGroups.forEach(group => {
+                formHtml += `<div style="margin-top:25px; margin-bottom:12px; font-weight:bold; color:var(--primary-color); border-bottom:1px solid var(--border-color); padding-bottom:5px; font-size:1.1rem; display:flex; align-items:center; gap:8px;"><svg width="20" height="20"><use href="#icon-folder"></use></svg> ${group.name}</div>`;
+                group.items.forEach(item => {
+                    // Click mở popup độc lập
+                    formHtml += `<div class="list-view-item" onclick="viewStandaloneItem('${item.node.id}')">
                                     <div class="list-title"><svg width="18" height="18"><use href="#icon-file"></use></svg> ${item.node.fileName || item.node.title}</div>
                                     <div class="list-meta"><svg width="14" height="14"><use href="#icon-folder"></use></svg> ${item.path}</div>
                                 </div>`;
                 });
-            }
+            });
             document.getElementById('formListContainer').innerHTML = formHtml || '<div class="no-result">Chưa có biểu mẫu nào.</div>';
         }
 
@@ -882,14 +926,12 @@
 
         function toggleUserMenuNode(event, id) { event.stopPropagation(); if (expandedUserMenuNodes.has(id)) expandedUserMenuNodes.delete(id); else expandedUserMenuNodes.add(id); renderSidebarMenu(); }
 
-        // MỞ TÌM KIẾM THEO NGỮ CẢNH
         function openSearchModal() { 
             document.getElementById('modalSearch').style.display = 'flex'; 
             document.getElementById('searchInput').value = ''; 
             document.getElementById('faqSuggestions').style.display = 'block'; 
             document.getElementById('searchResults').innerHTML = '<div class="no-result">Gõ từ khóa để tìm...</div>'; 
             
-            // Đọc Tab hiện tại để gán Filter
             let activeTab = document.querySelector('.tab-pane.active').id;
             let filterSelect = document.getElementById('searchTagFilter');
             if(activeTab === 'tab-hoidap') filterSelect.value = 'hỏi đáp';
@@ -936,7 +978,7 @@
             } 
             
             faqDiv.style.display = 'none'; 
-            histDiv.style.display = 'none'; // Ẩn lịch sử khi có kết quả
+            histDiv.style.display = 'none'; 
             lastSearchKeyword = kwRaw; 
             let results = [];
             
@@ -959,7 +1001,6 @@
             }
             renderUserInterface();
             
-            // Tăng biến đếm tìm kiếm trên Firebase
             thongKeRef.set({ searchCount: firebase.firestore.FieldValue.increment(1) }, { merge: true }).catch(e=>console.log(e));
         }
 
