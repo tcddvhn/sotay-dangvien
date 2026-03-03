@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Sổ tay Nghiệp vụ công tác TCĐ,ĐV</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -50,11 +50,26 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body { font-family: 'Times New Roman', Times, serif; line-height: 1.6; color: var(--text-main); margin: 0; background-color: var(--bg-main); font-size: 1.15rem; transition: background-color 0.3s, color 0.3s; overflow-x: hidden; }
+        /* 1. CSS env(safe-area) xử lý viền tai thỏ */
+        body { font-family: 'Times New Roman', Times, serif; line-height: 1.6; color: var(--text-main); margin: 0; background-color: var(--bg-main); font-size: 1.15rem; transition: background-color 0.3s, color 0.3s; overflow-x: hidden; padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+        .top-header { padding-top: env(safe-area-inset-top); }
+        #breadcrumbBar { top: calc(var(--header-height) + env(safe-area-inset-top)); }
+        .main-content { padding-top: calc(75px + env(safe-area-inset-top)); padding-bottom: env(safe-area-inset-bottom); }
+        .sidebar { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+
+        /* 2. Giảm hiệu ứng chuyển động cho người nhạy cảm (Accessibility) */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
         
         #readingProgress { position: fixed; top: 0; left: 0; height: 3px; background: var(--yellow-party); width: 0%; z-index: 9999; transition: width 0.1s; }
 
-        #breadcrumbBar { position: sticky; top: var(--header-height); background: var(--bg-main); padding: 10px 15px; font-size: 0.85rem; color: var(--text-muted); z-index: 800; font-family: -apple-system, sans-serif; border-bottom: 1px solid var(--border-color); display: none; white-space: nowrap; overflow-x: auto; font-weight: bold;}
+        #breadcrumbBar { position: sticky; background: var(--bg-main); padding: 10px 15px; font-size: 0.85rem; color: var(--text-muted); z-index: 800; font-family: -apple-system, sans-serif; border-bottom: 1px solid var(--border-color); display: none; white-space: nowrap; overflow-x: auto; font-weight: bold;}
         #breadcrumbBar span { cursor: pointer; color: var(--primary-color); }
         #breadcrumbBar span:hover { text-decoration: underline; }
 
@@ -62,7 +77,7 @@
         .toggle-btn { background: var(--bg-box); color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 4px var(--shadow-color); transition: 0.3s; font-family: -apple-system, sans-serif; font-weight: bold;}
         .toggle-btn:hover { background: var(--bg-hover); }
 
-        .sidebar { width: 320px; background-color: var(--bg-sidebar); color: white; padding: 20px 0; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 1000; transition: transform 0.3s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .sidebar { width: 320px; background-color: var(--bg-sidebar); color: white; padding-left: 0; padding-right: 0; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; z-index: 1000; transition: transform 0.3s ease; box-shadow: 2px 0 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         .sidebar h3 { border-bottom: 1px solid #555; padding-bottom: 15px; margin-top: 20px; text-transform: uppercase; font-size: 1.1rem; text-align: center; color: var(--yellow-party); font-family: -apple-system, sans-serif; }
         
         .mini-dashboard { background: rgba(0,0,0,0.15); margin: 0 10px 15px 10px; padding: 12px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); font-family: -apple-system, sans-serif;}
@@ -97,11 +112,11 @@
         .header-title { font-size: 1.15rem; letter-spacing: 0.5px; flex:1;}
         .header-actions { display: flex; gap: 10px; align-items: center; }
 
-        @media (min-width: 1200px) { .main-content { padding: 85px 80px 40px 80px !important; } }
+        @media (min-width: 1200px) { .main-content { padding-left: 80px; padding-right: 80px; } }
         @media (min-width: 992px) { 
             .top-header { left: 320px; } 
             .menu-toggle-btn { display: none; } 
-            .main-content { margin-left: 320px; padding: 85px 60px 40px 60px; } 
+            .main-content { margin-left: 320px; padding-left: 60px; padding-right: 60px; } 
             #btnSearchFab { left: 350px !important; } 
             body.pdf-open .main-content { margin-right: var(--pdf-panel-width); padding-right: 30px !important; padding-left: 30px !important;}
             body.pdf-open .top-header { right: var(--pdf-panel-width); }
@@ -110,7 +125,7 @@
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
 
-        .main-content { padding: 75px 15px 20px 15px; min-height: 100vh; transition: margin-left 0.3s ease, margin-right 0.3s ease, padding 0.3s ease; }
+        .main-content { min-height: 100vh; transition: margin-left 0.3s ease, margin-right 0.3s ease, padding 0.3s ease; }
         h1 { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); padding-bottom: 15px; margin-top: 0; font-size: 1.5rem; text-transform: uppercase; line-height: 1.3; font-family: -apple-system, sans-serif; }
         
         .phan-header { background-color: var(--bg-phan); padding: 15px; border-left: 6px solid var(--primary-color); margin-top: 30px; color: var(--text-phan); font-size: 1.25em; font-weight: bold; border-radius: 4px; transition: background-color 0.3s;}
@@ -160,20 +175,20 @@
 
         .pdf-sidebar { position: fixed; top: 0; right: calc(-1 * var(--pdf-panel-width)); width: var(--pdf-panel-width); height: 100vh; background: #525659; z-index: 1001; transition: right 0.3s ease; box-shadow: -5px 0 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
         .pdf-sidebar.active { right: 0; }
-        .pdf-header { background: #323639; height: var(--header-height); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 2;}
+        .pdf-header { background: #323639; height: var(--header-height); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 2; padding-top: env(safe-area-inset-top);}
         .close-pdf { color: white; cursor: pointer; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 4px; font-size: 0.9rem; font-family: -apple-system, sans-serif; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 5px;}
         .close-pdf:hover { background: #e74c3c; }
         
-        .pdf-content-wrapper { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: #525659; position: relative;}
+        .pdf-content-wrapper { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: #525659; position: relative; padding-bottom: env(safe-area-inset-bottom);}
         #pdfFrame { width: 100%; height: 100%; border: none; display: block;}
 
         mark.search-highlight { background-color: #ffe082; color: #000; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
-        #btnSearchFab { position: fixed; bottom: 30px; left: 20px; z-index: 90; border: none; background: transparent; color: var(--primary-dark); cursor: pointer; font-size: 2rem; transition: 0.3s; padding: 0; filter: drop-shadow(2px 2px 2px rgba(255,255,255,0.9)); }
+        #btnSearchFab { position: fixed; bottom: calc(30px + env(safe-area-inset-bottom)); left: calc(20px + env(safe-area-inset-left)); z-index: 90; border: none; background: transparent; color: var(--primary-dark); cursor: pointer; font-size: 2rem; transition: 0.3s; padding: 0; filter: drop-shadow(2px 2px 2px rgba(255,255,255,0.9)); }
         #btnSearchFab:hover { transform: scale(1.1); color: var(--primary-color); }
-        #backToTop { display: none; position: fixed; bottom: 30px; right: 20px; z-index: 90; border: none; background: transparent; color: var(--primary-color); cursor: pointer; font-size: 2.2rem; transition: 0.3s; padding: 0; font-weight: bold; filter: drop-shadow(2px 2px 2px rgba(255,255,255,0.9)); }
+        #backToTop { display: none; position: fixed; bottom: calc(30px + env(safe-area-inset-bottom)); right: calc(20px + env(safe-area-inset-right)); z-index: 90; border: none; background: transparent; color: var(--primary-color); cursor: pointer; font-size: 2.2rem; transition: 0.3s; padding: 0; font-weight: bold; filter: drop-shadow(2px 2px 2px rgba(255,255,255,0.9)); }
         #backToTop:hover { transform: translateY(-5px); color: var(--primary-dark); }
         
-        body.pdf-open #backToTop { right: calc(var(--pdf-panel-width) + 20px); }
+        body.pdf-open #backToTop { right: calc(var(--pdf-panel-width) + 20px + env(safe-area-inset-right)); }
 
         .modal-user { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); padding: 10px; align-items: center; justify-content: center; backdrop-filter: blur(3px);}
         .modal-user-content { background-color: var(--bg-box); color: var(--text-main); width: 100%; max-width: 800px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 85vh; animation: slideUp 0.3s; }
@@ -210,10 +225,10 @@
             .sidebar { transform: translateX(-100%); width: 85%; max-width: 320px; } 
             .sidebar.active { transform: translateX(0); } 
             .close-sidebar-btn { display: block; }
-            #btnSearchFab, #backToTop { bottom: 20px; } 
+            #btnSearchFab, #backToTop { bottom: calc(20px + env(safe-area-inset-bottom)); } 
             .step-header { padding: 16px 15px; } 
-            #breadcrumbBar { top: 55px; }
-            .modal-user { padding: 15px; }
+            #breadcrumbBar { top: calc(55px + env(safe-area-inset-top)); }
+            .modal-user { padding: 15px; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);}
             .modal-user-content { height: 90vh !important; max-height: 90vh !important; border-radius: 12px !important; }
             .modal-user-header { border-radius: 12px 12px 0 0 !important; }
             .step-body .step-box.level-2 > .step-header { padding-left: 15px; }
@@ -222,7 +237,7 @@
             
             .pdf-sidebar { width: 100%; right: -100%; }
             body.pdf-open .main-content { margin-right: 0; padding-right: 15px !important;}
-            body.pdf-open #backToTop { right: 20px; }
+            body.pdf-open #backToTop { right: calc(20px + env(safe-area-inset-right)); }
         }
 
         #loginOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000; align-items: center; justify-content: center; overflow: hidden; background-color: #8c0000; font-family: -apple-system, sans-serif; }
@@ -280,12 +295,12 @@
 
     <div class="top-header">
         <div style="display:flex; align-items:center;">
-            <button class="menu-toggle-btn" onclick="toggleMenu()">☰</button>
+            <button class="menu-toggle-btn" onclick="toggleMenu()" aria-label="Mở danh mục">☰</button>
             <span class="header-title">SỔ TAY NGHIỆP VỤ TCĐ, ĐV</span>
         </div>
         <div class="header-actions">
-            <button class="toggle-btn" onclick="openSearchModal()" title="Tìm kiếm" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;">🔍</button>
-            <button class="toggle-btn" onclick="toggleDarkMode()" title="Chế độ Tối/Sáng" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;">🌓</button>
+            <button class="toggle-btn" onclick="openSearchModal()" title="Tìm kiếm" aria-label="Tìm kiếm nội dung" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;">🔍</button>
+            <button class="toggle-btn" onclick="toggleDarkMode()" title="Chế độ Tối/Sáng" aria-label="Chuyển chế độ tối sáng" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;">🌓</button>
         </div>
     </div>
 
@@ -294,7 +309,7 @@
     <div class="overlay" onclick="toggleMenu(false)"></div>
     
     <div class="sidebar" id="sidebar">
-        <div class="close-sidebar-btn"><span onclick="toggleMenu(false)" style="cursor:pointer; color:#fff; font-size:1.5rem;">✕</span></div>
+        <div class="close-sidebar-btn"><span onclick="toggleMenu(false)" style="cursor:pointer; color:#fff; font-size:1.5rem;" aria-label="Đóng danh mục">✕</span></div>
         <h3 style="margin-top:0">MỤC LỤC</h3>
         
         <div class="mini-dashboard" id="miniDashboard">
@@ -333,14 +348,14 @@
         </div>
     </div>
 
-    <button id="btnSearchFab" onclick="openSearchModal()" title="Tìm kiếm">🔍</button>
-    <button id="backToTop" onclick="topFunction()">⬆</button>
+    <button id="btnSearchFab" onclick="openSearchModal()" title="Tìm kiếm" aria-label="Tìm kiếm nhanh">🔍</button>
+    <button id="backToTop" onclick="topFunction()" aria-label="Lên đầu trang">⬆</button>
 
     <div id="modalSearch" class="modal-user" onclick="closeModalOnBgClick(event, 'modalSearch')">
         <div class="modal-user-content">
             <div class="modal-user-header">
                 <span>💬 Trợ lý Hỏi Đáp & Tìm kiếm</span>
-                <span onclick="closeSearchModal()" class="btn-close-modal" title="Đóng">✕</span>
+                <span onclick="closeSearchModal()" class="btn-close-modal" title="Đóng" aria-label="Đóng cửa sổ">✕</span>
             </div>
             <div class="search-container">
                 <div class="search-input-wrapper">
@@ -372,7 +387,7 @@
         <div class="modal-user-content">
             <div class="modal-user-header">
                 <span>Nội dung chi tiết</span>
-                <span onclick="closePopup('modalTrichDan')" class="btn-close-modal" title="Đóng">✕</span>
+                <span onclick="closePopup('modalTrichDan')" class="btn-close-modal" title="Đóng" aria-label="Đóng cửa sổ">✕</span>
             </div>
             <div class="modal-user-body" id="noi-dung-chi-tiet"></div>
         </div>
@@ -401,7 +416,7 @@
                 <div style="font-weight:bold; margin-bottom:5px; color: var(--primary-color);">CÂY THƯ MỤC CHUNG</div>
                 <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 10px; font-style: italic;">Mẹo: Kéo thả thư mục để chuyển cấp</div>
                 
-                <input type="text" id="adminSearchInput" class="form-control" style="padding: 8px; font-size: 0.95rem; font-family: -apple-system, sans-serif; margin-bottom: 10px;" placeholder="🔍 Lọc nhanh thư mục để sửa..." oninput="filterAdminTree()">
+                <input type="text" id="adminSearchInput" class="form-control" style="padding: 8px; font-size: 0.95rem; font-family: -apple-system, sans-serif; margin-bottom: 10px;" placeholder="🔍 Lọc nhanh thư mục để sửa...">
 
                 <button class="btn btn-add" style="width: 100%;" onclick="addNewRoot()">+ Thêm Phần Lớn</button>
                 <div class="tree-container" id="adminTree"></div>
@@ -508,7 +523,6 @@
     <script>
         const PDF_VIEWER_URL = "web/viewer.html"; 
         
-        // CẤU HÌNH THƯ VIỆN CÁC TÀI LIỆU PDF (Sau này thêm file cứ khai báo vào đây)
         const PDF_COLLECTION = {
             "hd02": { name: "Hướng dẫn 02", shortName: "HD 02", file: "huongdan.pdf" },
             "qd294": { name: "Quy định 294", shortName: "QĐ 294", file: "quydinh294.pdf" },
@@ -522,6 +536,15 @@
         var toolbarOptions = [['bold', 'italic', 'underline'], [{'list': 'ordered'}, [{'list': 'bullet'}], ['link', 'clean']]];
         var quillSummary = new Quill('#inpSummary', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Nhập nội dung tóm tắt...' });
         var quillDetail = new Quill('#inpDetail', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Soạn thảo trích dẫn gốc...' });
+
+        // Tối ưu hàm delay (Debounce) cho tính năng Search mượt mà
+        function debounceOpt(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
 
         function markAsUnsaved() {
             if (isSystemChangingContent || !currentEditNodeId || hasUnsavedChanges) return;
@@ -561,15 +584,22 @@
             localStorage.setItem('sotay_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
         }
 
+        // 3. Tối ưu Scroll Progress và Back To Top bằng requestAnimationFrame (hiệu năng x10)
+        let scrollTicking = false;
         window.addEventListener('scroll', () => {
-            let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            let progress = (scrollTop / height) * 100;
-            document.getElementById('readingProgress').style.width = progress + "%";
-            document.getElementById("backToTop").style.display = scrollTop > 300 ? "block" : "none";
-        });
+            if (!scrollTicking) {
+                window.requestAnimationFrame(() => {
+                    let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                    let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    let progress = height > 0 ? (scrollTop / height) * 100 : 0;
+                    document.getElementById('readingProgress').style.width = progress + "%";
+                    document.getElementById("backToTop").style.display = scrollTop > 300 ? "block" : "none";
+                    scrollTicking = false;
+                });
+                scrollTicking = true;
+            }
+        }, { passive: true });
 
-        // CẬP NHẬT HÀM MỞ PDF HỖ TRỢ ĐA TÀI LIỆU
         function openPdfViewer(docId, pageNum, keyword) {
             if (!PDF_COLLECTION[docId]) return;
             let pdfFileName = PDF_COLLECTION[docId].file;
@@ -683,9 +713,8 @@
                     let safeSummary = processLegacyText(item.summary);
                     let displaySummary = highlightText(safeSummary, lastSearchKeyword);
 
-                    // XỬ LÝ RENDER NHIỀU NÚT PDF
                     let refs = item.pdfRefs || [];
-                    if (item.pdfPage && refs.length === 0) refs.push({doc: 'hd02', page: item.pdfPage}); // Hỗ trợ dữ liệu cũ
+                    if (item.pdfPage && refs.length === 0) refs.push({doc: 'hd02', page: item.pdfPage}); 
                     
                     let pdfSourceBtn = '';
                     refs.forEach(r => {
@@ -830,6 +859,10 @@
             }
             renderUserInterface();
         }
+
+        // 4. Áp dụng Debounce cho tính năng tìm kiếm Người Dùng
+        const debouncedPerformSearch = debounceOpt(performSearch, 350);
+        document.getElementById('searchInput').addEventListener('input', debouncedPerformSearch);
         document.getElementById('searchInput').addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(); });
         document.getElementById('searchTagFilter').addEventListener('change', performSearch);
         
@@ -902,7 +935,6 @@
             let sumVal = quillSummary.root.innerHTML; if(sumVal === '<p><br></p>') sumVal = '';
             let detVal = quillDetail.root.innerHTML; if(detVal === '<p><br></p>') detVal = '';
             
-            // XỬ LÝ LẤY DỮ LIỆU TỪ 4 Ô NHẬP PDF
             let pdfRefs = [];
             for(let i=1; i<=4; i++) {
                 let docVal = document.getElementById('inpPdfDoc'+i).value;
@@ -955,6 +987,10 @@
             });
         }
 
+        // 4. Áp dụng Debounce cho tính năng tìm kiếm Admin
+        const debouncedAdminSearch = debounceOpt(filterAdminTree, 350);
+        document.getElementById('adminSearchInput').addEventListener('input', debouncedAdminSearch);
+
         function renderAdminTree() {
             const tree = document.getElementById('adminTree'); tree.innerHTML = '';
             function buildHtml(nodes) {
@@ -981,9 +1017,8 @@
             document.getElementById('inpFileUrl').value = nodeData.fileUrl || ''; 
             document.getElementById('inpFileName').value = nodeData.fileName || '';
             
-            // RESET VÀ ĐIỀN DỮ LIỆU CŨ CHO 4 Ô PDF
             let refs = nodeData.pdfRefs || [];
-            if (nodeData.pdfPage && refs.length === 0) refs.push({doc: 'hd02', page: nodeData.pdfPage}); // Kéo dữ liệu cũ lên dòng 1
+            if (nodeData.pdfPage && refs.length === 0) refs.push({doc: 'hd02', page: nodeData.pdfPage}); 
             
             for(let i=1; i<=4; i++) {
                 let docEl = document.getElementById('inpPdfDoc'+i);
@@ -1003,13 +1038,11 @@
             setTimeout(() => { isSystemChangingContent = false; }, 100);
         }
 
-        // HÀM ĐĂNG NHẬP MỚI DÙNG FIREBASE AUTH
         function processLogin() { 
             let user = document.getElementById('username').value.trim().toLowerCase(); 
             let pass = document.getElementById('password').value; 
             let errBox = document.getElementById('loginError'); 
             
-            // Tự động gắn đuôi email để người dùng chỉ cần gõ tên (vd: admin)
             let email = user.includes('@') ? user : user + '@sotay.com';
 
             const btnLogin = document.querySelector('.btn-login');
@@ -1017,7 +1050,6 @@
 
             firebase.auth().signInWithEmailAndPassword(email, pass)
                 .then((userCredential) => {
-                    // Đăng nhập thành công
                     loggedInUser = userCredential.user.email.split('@')[0];
                     document.getElementById('loginOverlay').style.display = 'none'; 
                     document.getElementById('adminPanel').style.display = 'block'; 
@@ -1026,7 +1058,6 @@
                     btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
                 })
                 .catch((error) => {
-                    // Đăng nhập thất bại
                     errBox.style.display = 'block'; 
                     document.getElementById('password').value = '';
                     btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
@@ -1036,7 +1067,6 @@
         function openLoginForm() { toggleMenu(false); document.getElementById('loginOverlay').style.display = 'flex'; }
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
         
-        // CẬP NHẬT HÀM THOÁT ĐỂ ĐĂNG XUẤT KHỎI FIREBASE
         function closeAdminPanel() { 
             if(!confirmUnsaved()) return; 
             firebase.auth().signOut().then(() => {
