@@ -204,7 +204,6 @@
         .btn-close-modal:hover { color: var(--primary-color); transform: scale(1.1); }
 
         .search-container { padding: 15px; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; flex: 1; overflow: hidden;}
-        /* CƠ CHẾ FLEX-WRAP ĐỂ TỰ XUỐNG DÒNG Ô TÌM KIẾM TRÊN MÀN HÌNH NHỎ */
         .search-input-wrapper { display: flex; gap: 10px; border: none; margin-bottom: 15px; flex-shrink: 0; flex-wrap: wrap; width:100%;}
         .search-input-wrapper select { flex: 1; min-width: 120px; padding: 12px; border: 1px solid var(--border-color); font-size: 0.95rem; outline: none; background: var(--bg-box); color: var(--text-main); font-weight:bold; border-radius: 4px; box-sizing:border-box;}
         .search-input-core { display: flex; flex: 2; min-width: 160px; border: 1px solid var(--primary-color); overflow: hidden; border-radius: 4px; box-sizing:border-box;}
@@ -253,7 +252,7 @@
             body.pdf-open #backToTop { right: calc(15px + env(safe-area-inset-right)); }
         }
 
-        /* CHỐNG VỠ GIAO DIỆN TRÊN ĐIỆN THOẠI MÀN HÌNH NHỎ (Dưới 400px - VD: iPhone SE, Android hẹp) */
+        /* CHỐNG VỠ GIAO DIỆN TRÊN ĐIỆN THOẠI MÀN HÌNH NHỎ (Dưới 400px) */
         @media (max-width: 400px) {
             body { font-size: 1.02rem; }
             .header-title { font-size: 1.05rem; }
@@ -807,9 +806,11 @@
             addRecentView(id, nodeData.title);
         }
 
+        // THUẬT TOÁN DUYỆT TUẦN TỰ (Sequential Traversal) GIÚP CHUẨN THỨ TỰ CÂY QUẢN TRỊ 100%
         function renderFAQAndForms() {
             let faqHtml = ''; 
-            let formGroups = []; 
+            let formHtml = '';
+            let currentFormGroup = '';
 
             function traverse(nodes, parentTitle, currentGroup) {
                 nodes.forEach(n => {
@@ -819,20 +820,31 @@
                     let group = currentGroup;
                     if (n.level === 0 || n.level === 1) group = n.title;
 
+                    // Tự động bóc tách các thẻ HTML thừa để nội dung tóm tắt hiển thị mượt mà trên 1 dòng
+                    let summaryText = n.summary ? n.summary.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim() : '';
+
                     if (tagRaw.includes('hỏi đáp')) {
                         faqHtml += `<div class="list-view-item" onclick="viewStandaloneItem('${n.id}')">
-                                        <div class="list-title"><svg width="18" height="18" style="flex-shrink:0;"></svg><use href="#icon-faq"></use></svg> <span>${n.title}</span></div>
+                                        <div class="list-title"><svg width="18" height="18" style="flex-shrink:0; margin-top:2px;"><use href="#icon-faq"></use></svg> <span>${n.title}</span></div>
                                         <div class="list-meta"><svg width="14" height="14" style="flex-shrink:0;"><use href="#icon-folder"></use></svg> <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${path}</span></div>
                                     </div>`;
                     }
                     if (tagRaw.includes('biểu mẫu') || n.fileUrl) {
                         let finalGroup = group || 'Biểu mẫu chung';
-                        let groupObj = formGroups.find(g => g.name === finalGroup);
-                        if (!groupObj) {
-                            groupObj = { name: finalGroup, items: [] };
-                            formGroups.push(groupObj);
+                        
+                        // Nếu nhóm thay đổi so với item trước đó thì in ra Tiêu đề Nhóm
+                        if (currentFormGroup !== finalGroup) {
+                            formHtml += `<div style="margin-top:25px; margin-bottom:12px; font-weight:bold; color:var(--primary-color); border-bottom:1px solid var(--border-color); padding-bottom:5px; font-size:1.1rem; display:flex; align-items:flex-start; gap:8px;"><svg width="20" height="20" style="flex-shrink:0; margin-top:2px;"><use href="#icon-folder"></use></svg> <span>${finalGroup}</span></div>`;
+                            currentFormGroup = finalGroup;
                         }
-                        groupObj.items.push({ node: n, path: path });
+
+                        // Giao diện {Tên biểu mẫu} - {Nội dung tóm tắt}
+                        let displayTitle = n.fileName || n.title;
+                        let displaySummary = summaryText ? ` <span style="color: var(--text-muted); font-weight: normal; font-size: 0.95rem;">- ${summaryText}</span>` : '';
+
+                        formHtml += `<div class="list-view-item" onclick="viewStandaloneItem('${n.id}')">
+                                        <div class="list-title" style="margin-bottom: 0; line-height: 1.5;"><svg width="18" height="18" style="flex-shrink:0; margin-top:2px;"><use href="#icon-file"></use></svg> <span>${displayTitle}${displaySummary}</span></div>
+                                    </div>`;
                     }
                     if (n.children) traverse(n.children, path, group);
                 });
@@ -840,17 +852,6 @@
             traverse(APP_DATA, '', 'Biểu mẫu chung');
             
             document.getElementById('faqListContainer').innerHTML = faqHtml || '<div class="no-result">Chưa có dữ liệu hỏi đáp.</div>';
-            
-            let formHtml = '';
-            formGroups.forEach(group => {
-                formHtml += `<div style="margin-top:25px; margin-bottom:12px; font-weight:bold; color:var(--primary-color); border-bottom:1px solid var(--border-color); padding-bottom:5px; font-size:1.1rem; display:flex; align-items:flex-start; gap:8px;"><svg width="20" height="20" style="flex-shrink:0; margin-top:2px;"><use href="#icon-folder"></use></svg> <span>${group.name}</span></div>`;
-                group.items.forEach(item => {
-                    formHtml += `<div class="list-view-item" onclick="viewStandaloneItem('${item.node.id}')">
-                                    <div class="list-title"><svg width="18" height="18" style="flex-shrink:0; margin-top:2px;"><use href="#icon-file"></use></svg> <span>${item.node.fileName || item.node.title}</span></div>
-                                    <div class="list-meta"><svg width="14" height="14" style="flex-shrink:0;"><use href="#icon-folder"></use></svg> <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.path}</span></div>
-                                </div>`;
-                });
-            });
             document.getElementById('formListContainer').innerHTML = formHtml || '<div class="no-result">Chưa có biểu mẫu nào.</div>';
         }
 
