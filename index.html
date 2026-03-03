@@ -303,8 +303,7 @@
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; overflow-y: auto; font-family: -apple-system, sans-serif; color:#333;}
         .admin-layout { display: flex; height: 100%; flex-direction: column; }
         @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
-        .admin-sidebar { background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 10px; height: 40vh; display: flex; flex-direction: column; }
-        @media (min-width: 768px) { .admin-sidebar { width: 350px; min-width: 200px; max-width: 60vw; height: 100vh; border-right: 1px solid #ddd; border-bottom: none; resize: horizontal; overflow: auto; } }
+        .admin-sidebar { width: 350px; min-width: 200px; max-width: 60vw; height: 100vh; border-right: 1px solid #ddd; border-bottom: none; resize: flex; flex-direction: column; background: #f8f9fa; padding: 10px; }
         .tree-container { flex: 1; overflow-y: auto; border: 1px solid #ddd; background: #fff; padding: 10px; font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; border-radius: 4px;}
         .tree-node { margin-bottom: 2px; }
         .tree-item { padding: 8px 10px; cursor: pointer; display: flex; align-items: center; transition: all 0.2s ease; border: 1px solid transparent; color: #444; border-radius: 4px;}
@@ -320,15 +319,15 @@
         .btn-order { font-size: 0.9rem; padding: 2px 5px; background: #eee; border: none; cursor: pointer; color: #666; display: none; border-radius: 2px;}
         .btn-order:hover { background: #ddd; color: var(--primary-color); }
         .tree-item:hover .btn-order { display: inline-block; }
-        .admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 60vh; position: relative;}
-        @media (min-width: 768px) { .admin-main { height: 100vh; } }
+        .admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 100vh; position: relative;}
         .form-control { font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; width: 100%; padding: 12px; border: 1px solid #ccc; margin-bottom: 15px; outline: none; color:#333; border-radius: 4px; box-sizing:border-box;}
         .form-control:focus { border-color: #007bff; }
         .btn { padding: 12px 20px; border: none; font-weight: bold; color: white; cursor: pointer; margin-bottom: 10px; font-family: -apple-system, sans-serif; border-radius: 4px;}
         .btn-close { background: #6c757d; } .btn-delete { background: #e74c3c; } .btn-add { background: #3498db; }
-        .ql-toolbar { font-family: -apple-system, sans-serif; background: #f8f9fa; border-color:#ccc !important; border-radius: 4px 4px 0 0;}
-        .ql-container { font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; background: #fff; margin-bottom: 15px; border-color:#ccc !important; border-radius: 0 0 4px 4px;}
-        .ql-editor { min-height: 120px; }
+        .ql-toolbar.ql-snow { border-radius: 6px 6px 0 0; background: #f8f9fa; border-color: var(--border-color); }
+        .ql-container.ql-snow { border-radius: 0 0 6px 6px; border-color: var(--border-color); }
+        #inpSummary .ql-editor { min-height: 80px; }
+        #inpDetail .ql-editor { min-height: 250px; }
     </style>
 </head>
 <body>
@@ -820,7 +819,6 @@
             addRecentView(id, nodeData.title);
         }
 
-        // --- KIỂM TRA ĐỘNG THƯ MỤC CHỨA BIỂU MẪU / HỎI ĐÁP ---
         function hasTagOrFile(node, type) {
             let tagRaw = (node.tag || '').toLowerCase();
             if (type === 'faq' && tagRaw.includes('hỏi đáp')) return true;
@@ -833,7 +831,6 @@
             return false;
         }
 
-        // Kiểm tra xem node hiện tại có chứa nhóm con nào không
         function containsSubGroupsWithContent(node, type) {
             if (!node.children || node.children.length === 0) return false;
             for (let c of node.children) {
@@ -856,7 +853,6 @@
 
                 let summaryText = n.summary ? n.summary.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim() : '';
                 
-                // (3) & (4): Điều chỉnh hiển thị tiêu đề và tóm tắt theo type
                 let displaySummary = '';
                 if (type === 'form' && summaryText) {
                     displaySummary = ` <span style="color: var(--text-muted); font-weight: normal; font-size: 0.95rem;">- ${summaryText}</span>`;
@@ -876,15 +872,9 @@
                 }
 
                 if (childrenHtml) {
-                    // (2): Mọi thư mục cha, thư mục ông, thư mục cụ (Level 0, Level 1, Level 2...) 
-                    // Nếu nó không chứa nhóm con nào nữa (chỉ chứa lá) VÀ level <= 2, thì KHÔNG hiển thị nó thành Accordion,
-                    // mà hiển thị nội dung bên trong nó luôn.
-                    // Nghĩa là: Accordion chỉ áp dụng cho Level 3 trở đi.
-                    
                     let hasSubGroups = containsSubGroupsWithContent(n, type);
                     
                     if (hasSubGroups) {
-                         // (1) Giữ nguyên: có chứa nhóm con -> Icon Thư mục chữ Đỏ
                         html += `<div class="list-main-group">
                                     <div class="list-main-group-title">
                                         <svg width="20" height="20" style="flex-shrink:0; margin-top:2px;"><use href="#icon-folder"></use></svg> 
@@ -893,14 +883,9 @@
                                     <div class="list-main-group-body" style="padding-left: 5px;">${childrenHtml}</div>
                                  </div>`;
                     } else {
-                        // Không chứa nhóm con, chỉ chứa lá
                         if (currentLevel <= 2) {
-                             // (2) Nếu level <= 2 mà không có thư mục con -> Không hiển thị Cấp độ 2 này nữa, chỉ show lá ra.
-                             // Hoặc nếu bạn muốn nó là Folder Đỏ thì thay bằng khối html list-main-group-title ở trên.
-                             // Theo yêu cầu: "còn lại nếu cấp độ 2 không có thư mục con thì không hiển thị cấp độ 2 nữa"
                              html += childrenHtml; 
                         } else {
-                            // Cấp độ 3, 4 trở đi -> Accordion
                             let bgClass = (currentLevel % 2 === 0) ? 'sub-group-l3' : 'sub-group-l4';
                             html += `<div class="list-sub-group ${bgClass}">
                                         <div class="list-sub-group-header" onclick="this.parentElement.classList.toggle('open')">
