@@ -833,11 +833,10 @@
             return false;
         }
 
-        // Kiểm tra xem node hiện tại có chứa nhóm con nào không (để quyết định là Thư mục đỏ hay Hộp gập)
+        // Kiểm tra xem node hiện tại có chứa nhóm con nào không
         function containsSubGroupsWithContent(node, type) {
             if (!node.children || node.children.length === 0) return false;
             for (let c of node.children) {
-                // Nếu con của nó lại có con nữa VÀ nhánh đó chứa dữ liệu mong muốn
                 if (c.children && c.children.length > 0 && hasTagOrFile(c, type)) {
                     return true;
                 }
@@ -856,12 +855,17 @@
                 if (type === 'form' && (tagRaw.includes('biểu mẫu') || n.fileUrl)) isItemMatch = true;
 
                 let summaryText = n.summary ? n.summary.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim() : '';
-                let displaySummary = summaryText ? ` <span style="color: var(--text-muted); font-weight: normal; font-size: 0.95rem;">- ${summaryText}</span>` : '';
+                
+                // (3) & (4): Điều chỉnh hiển thị tiêu đề và tóm tắt theo type
+                let displaySummary = '';
+                if (type === 'form' && summaryText) {
+                    displaySummary = ` <span style="color: var(--text-muted); font-weight: normal; font-size: 0.95rem;">- ${summaryText}</span>`;
+                }
+
                 let displayTitle = n.fileName || n.title;
 
                 let childrenHtml = n.children ? buildListHtmlDynamic(n.children, type, currentLevel + 1) : '';
 
-                // Nếu chính nó là một item dữ liệu (biểu mẫu/câu hỏi)
                 if (isItemMatch) {
                     html += `<div class="list-view-item" onclick="viewStandaloneItem('${n.id}')" style="margin-bottom: 10px;">
                                 <div class="list-title" style="margin-bottom: 0; line-height: 1.5;">
@@ -871,10 +875,16 @@
                             </div>`;
                 }
 
-                // Nếu nó có nhóm con bên trong
                 if (childrenHtml) {
-                    // Thuật toán Động: Nếu nó CÒN CHỨA NHÓM CON BÊN TRONG -> Vẽ Thư mục màu Đỏ
-                    if (containsSubGroupsWithContent(n, type)) {
+                    // (2): Mọi thư mục cha, thư mục ông, thư mục cụ (Level 0, Level 1, Level 2...) 
+                    // Nếu nó không chứa nhóm con nào nữa (chỉ chứa lá) VÀ level <= 2, thì KHÔNG hiển thị nó thành Accordion,
+                    // mà hiển thị nội dung bên trong nó luôn.
+                    // Nghĩa là: Accordion chỉ áp dụng cho Level 3 trở đi.
+                    
+                    let hasSubGroups = containsSubGroupsWithContent(n, type);
+                    
+                    if (hasSubGroups) {
+                         // (1) Giữ nguyên: có chứa nhóm con -> Icon Thư mục chữ Đỏ
                         html += `<div class="list-main-group">
                                     <div class="list-main-group-title">
                                         <svg width="20" height="20" style="flex-shrink:0; margin-top:2px;"><use href="#icon-folder"></use></svg> 
@@ -882,21 +892,27 @@
                                     </div>
                                     <div class="list-main-group-body" style="padding-left: 5px;">${childrenHtml}</div>
                                  </div>`;
-                    } 
-                    // Nếu nó CHỈ CHỨA DỮ LIỆU LÁ (Không có nhóm con nào nữa) -> Vẽ Hộp gập Accordion
-                    else {
-                        // Tính toán độ đậm nhạt của nền xám dựa theo độ sâu thực tế
-                        let bgClass = (currentLevel % 2 === 0) ? 'sub-group-l3' : 'sub-group-l4';
-                        html += `<div class="list-sub-group ${bgClass}">
-                                    <div class="list-sub-group-header" onclick="this.parentElement.classList.toggle('open')">
-                                        <div style="display:flex; align-items:flex-start; gap:8px;">
-                                            <svg width="18" height="18" style="flex-shrink:0; margin-top:2px; color:var(--text-muted);"><use href="#icon-folder"></use></svg> 
-                                            <span style="line-height:1.4;">${n.title}</span>
+                    } else {
+                        // Không chứa nhóm con, chỉ chứa lá
+                        if (currentLevel <= 2) {
+                             // (2) Nếu level <= 2 mà không có thư mục con -> Không hiển thị Cấp độ 2 này nữa, chỉ show lá ra.
+                             // Hoặc nếu bạn muốn nó là Folder Đỏ thì thay bằng khối html list-main-group-title ở trên.
+                             // Theo yêu cầu: "còn lại nếu cấp độ 2 không có thư mục con thì không hiển thị cấp độ 2 nữa"
+                             html += childrenHtml; 
+                        } else {
+                            // Cấp độ 3, 4 trở đi -> Accordion
+                            let bgClass = (currentLevel % 2 === 0) ? 'sub-group-l3' : 'sub-group-l4';
+                            html += `<div class="list-sub-group ${bgClass}">
+                                        <div class="list-sub-group-header" onclick="this.parentElement.classList.toggle('open')">
+                                            <div style="display:flex; align-items:flex-start; gap:8px;">
+                                                <svg width="18" height="18" style="flex-shrink:0; margin-top:2px; color:var(--text-muted);"><use href="#icon-folder"></use></svg> 
+                                                <span style="line-height:1.4;">${n.title}</span>
+                                            </div>
+                                            <svg width="16" height="16" class="sub-group-arrow"><use href="#icon-chevron-down"></use></svg>
                                         </div>
-                                        <svg width="16" height="16" class="sub-group-arrow"><use href="#icon-chevron-down"></use></svg>
-                                    </div>
-                                    <div class="list-sub-group-body">${childrenHtml}</div>
-                                 </div>`;
+                                        <div class="list-sub-group-body">${childrenHtml}</div>
+                                     </div>`;
+                        }
                     }
                 }
             });
