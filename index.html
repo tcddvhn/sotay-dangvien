@@ -141,7 +141,6 @@
         .step-body { overflow: hidden; opacity: 0; transform: translateY(-5px); transition: opacity 0.35s ease, transform 0.35s ease; }
         .step-box.active > .step-body-wrapper > .step-body { opacity: 1; transform: translateY(0); }
         
-        /* PHẦN HIỂN THỊ NỘI DUNG ĐƯỢC GIỮ NGUYÊN CSS NHƯ YÊU CẦU */
         .step-body-inner { padding: 0; }
         .content-text { padding: 15px 10px 15px 15px; border-top: 1px dashed var(--border-light); text-align: justify; }
 
@@ -310,7 +309,7 @@
     </div>
 
     <div class="main-content">
-        <h1>NGHIỆP VỤ CÔNG TÁC TỔ CHỨC ĐẢNG</h1>
+        <h1>NGHIỆP VỤ CÔNG TÁC TỔ CHỨC ĐẢNG, ĐẢNG VIÊN</h1>
         <div class="top-controls">
             <div style="display:flex; gap:10px;">
                 <button class="toggle-btn" onclick="expandAll()">📂 Mở rộng tất cả</button>
@@ -503,6 +502,7 @@
 
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
@@ -519,7 +519,7 @@
         let hasUnsavedChanges = false;
         let isSystemChangingContent = false; 
 
-        var toolbarOptions = [['bold', 'italic', 'underline'], [{'list': 'ordered'}, {'list': 'bullet'}], ['link', 'clean']];
+        var toolbarOptions = [['bold', 'italic', 'underline'], [{'list': 'ordered'}, [{'list': 'bullet'}], ['link', 'clean']]];
         var quillSummary = new Quill('#inpSummary', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Nhập nội dung tóm tắt...' });
         var quillDetail = new Quill('#inpDetail', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Soạn thảo trích dẫn gốc...' });
 
@@ -619,18 +619,6 @@
         const firebaseConfig = { apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs", authDomain: "sotay-dangvien.firebaseapp.com", projectId: "sotay-dangvien", storageBucket: "sotay-dangvien.firebasestorage.app", messagingSenderId: "699788813951", appId: "1:699788813951:web:14eb81183799f83e0f814a" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
-
-        const ADMIN_ACCOUNTS = { 
-            "admin": { pass: "123456", name: "Quản trị viên Hệ thống" },
-            "tranphuongha": { pass: "123456", name: "Trần Phương Hà-Chuyên viên" },
-            "ledinhkien": { pass: "123456", name: "Lê Đình Kiên-Chuyên viên" },
-            "nguyenhuuhung": { pass: "123456", name: "Nguyễn Hữu Hùng-chuyên viên chính" },
-            "tranthikieuanh": { pass: "123456", name: "Trần Thị Kiều Anh-Chuyên viên" },
-            "trieuthingoc": { pass: "123456", name: "Triệu Thị Ngọc- Phó Trưởng Ban Thường trực" },
-            "nguyensinghiem": { pass: "123456", name: "Nguyễn Sĩ Nghiêm-Phó Trưởng phòng" },
-            "nguyenthugiang": { pass: "123456", name: "Nguyễn Thu Giang-Phó Trưởng phòng" },
-            "phamthithuhanh": { pass: "123456", name: "Phạm Thi Thu Hạnh-Phó Trưởng phòng" } 
-        };
 
         let APP_DATA = []; let currentEditNodeId = null; let loggedInUser = null; let expandedAdminNodes = new Set(); let isFirstLoadAdmin = true; let expandedUserMenuNodes = new Set(); let lastSearchKeyword = "";
         const thongKeRef = db.collection("sotay").doc("thongke");
@@ -1015,12 +1003,48 @@
             setTimeout(() => { isSystemChangingContent = false; }, 100);
         }
 
-        function processLogin() { let user = document.getElementById('username').value.trim().toLowerCase(); let pass = document.getElementById('password').value; let errBox = document.getElementById('loginError'); if (ADMIN_ACCOUNTS[user] && ADMIN_ACCOUNTS[user].pass === pass) { loggedInUser = user; document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b>${ADMIN_ACCOUNTS[user].name}</b>`; renderAdminTree(); } else { errBox.style.display = 'block'; document.getElementById('password').value = ''; } }
+        // HÀM ĐĂNG NHẬP MỚI DÙNG FIREBASE AUTH
+        function processLogin() { 
+            let user = document.getElementById('username').value.trim().toLowerCase(); 
+            let pass = document.getElementById('password').value; 
+            let errBox = document.getElementById('loginError'); 
+            
+            // Tự động gắn đuôi email để người dùng chỉ cần gõ tên (vd: admin)
+            let email = user.includes('@') ? user : user + '@sotay.com';
+
+            const btnLogin = document.querySelector('.btn-login');
+            btnLogin.innerHTML = "ĐANG KIỂM TRA..."; btnLogin.disabled = true;
+
+            firebase.auth().signInWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    // Đăng nhập thành công
+                    loggedInUser = userCredential.user.email.split('@')[0];
+                    document.getElementById('loginOverlay').style.display = 'none'; 
+                    document.getElementById('adminPanel').style.display = 'block'; 
+                    document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b style="text-transform: capitalize;">${loggedInUser}</b>`; 
+                    renderAdminTree();
+                    btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
+                })
+                .catch((error) => {
+                    // Đăng nhập thất bại
+                    errBox.style.display = 'block'; 
+                    document.getElementById('password').value = '';
+                    btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
+                });
+        }
+
         function openLoginForm() { toggleMenu(false); document.getElementById('loginOverlay').style.display = 'flex'; }
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
-        function closeAdminPanel() { if(!confirmUnsaved()) return; document.getElementById('adminPanel').style.display = 'none'; loggedInUser = null; }
+        
+        // CẬP NHẬT HÀM THOÁT ĐỂ ĐĂNG XUẤT KHỎI FIREBASE
+        function closeAdminPanel() { 
+            if(!confirmUnsaved()) return; 
+            firebase.auth().signOut().then(() => {
+                document.getElementById('adminPanel').style.display = 'none'; 
+                loggedInUser = null; 
+            });
+        }
 
     </script>
 </body>
-
 </html>
