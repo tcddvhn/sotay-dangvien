@@ -136,13 +136,12 @@
         .inline-download { display: inline-flex; align-items: center; gap: 5px; justify-content: center; background-color: transparent; color: #27ae60; padding: 4px 10px; border: 1px solid #2ecc71; font-size: 0.85rem; font-weight: bold; text-decoration: none; margin-left: 10px; vertical-align: middle; white-space: normal; font-family: -apple-system, sans-serif; transition: 0.2s; word-break: break-word;}
         .inline-download:hover { background-color: #27ae60; color: white; }
 
-        /* GIAO DIỆN ACCORDION DÀNH RIÊNG CHO HỎI ĐÁP & BIỂU MẪU - ĐÃ SỬA THÀNH ĐỘNG (DYNAMIC) */
+        /* GIAO DIỆN ACCORDION DÀNH RIÊNG CHO HỎI ĐÁP & BIỂU MẪU */
         .list-main-group-title { margin-top:25px; margin-bottom:12px; font-weight:bold; color:var(--primary-color); border-bottom:1px solid var(--border-color); padding-bottom:5px; font-size:1.1rem; display:flex; align-items:flex-start; gap:8px; line-height: 1.4;}
         .list-sub-group { margin-bottom: 8px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-box); transition: 0.3s; overflow: hidden;}
         .list-sub-group-header { padding: 12px 15px; font-weight: 600; font-size: 1.05rem; color: var(--text-main); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; user-select: none; }
         .list-sub-group-header:hover { background: rgba(0,0,0,0.03); }
         
-        /* Màu nền nhạt dần tạo chiều sâu (3% - 5%) cho Accordion */
         .list-sub-group.sub-group-l3 > .list-sub-group-header { background-color: #f8f9fa; border-left: 3px solid #3498db; }
         .list-sub-group.sub-group-l4 > .list-sub-group-header { background-color: #f1f2f6; border-left: 3px solid #9b59b6; }
         
@@ -303,8 +302,9 @@
         #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; overflow-y: auto; font-family: -apple-system, sans-serif; color:#333;}
         .admin-layout { display: flex; height: 100%; flex-direction: column; }
         @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
-        .admin-sidebar { width: 350px; min-width: 200px; max-width: 60vw; height: 100vh; border-right: 1px solid #ddd; border-bottom: none; resize: flex; flex-direction: column; background: #f8f9fa; padding: 10px; }
-        .tree-container { flex: 1; overflow-y: auto; border: 1px solid #ddd; background: #fff; padding: 10px; font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; border-radius: 4px;}
+        /* Tối ưu thanh cuộn bên phần Sidebar của Quản trị */
+        .admin-sidebar { width: 350px; min-width: 200px; max-width: 60vw; height: 100vh; border-right: 1px solid #ddd; border-bottom: none; resize: horizontal; display: flex; flex-direction: column; background: #f8f9fa; padding: 10px; box-sizing: border-box;}
+        .tree-container { flex: 1; min-height: 0; overflow-y: auto; border: 1px solid #ddd; background: #fff; padding: 10px; font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; border-radius: 4px;}
         .tree-node { margin-bottom: 2px; }
         .tree-item { padding: 8px 10px; cursor: pointer; display: flex; align-items: center; transition: all 0.2s ease; border: 1px solid transparent; color: #444; border-radius: 4px;}
         .tree-item.active { background: #e3f2fd; color: #0d47a1; font-weight: bold; border-left: 4px solid #007bff; }
@@ -553,10 +553,31 @@
                     <div style="text-align: right; margin-bottom: 10px;">
                         <button class="btn btn-delete" style="font-size: 0.8rem;" onclick="deleteCurrentItem()">Xóa mục này</button>
                     </div>
-                    <label style="font-weight:bold; color:#555;">Loại (Tag):</label>
-                    <input type="text" id="inpTag" class="form-control" placeholder="VD: Hỏi đáp, Quy trình...">
-                    <label style="font-weight:bold; color:#555;">Tiêu đề:</label>
-                    <input type="text" id="inpTitle" class="form-control" placeholder="Nhập tiêu đề...">
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <label style="font-weight:bold; color:#555;">Loại (Tag):</label>
+                            <select id="inpTag" class="form-control" style="margin-bottom:0;">
+                                <option value="">-- Chọn một loại --</option>
+                                <option value="Quy định">Quy định</option>
+                                <option value="Quy trình">Quy trình</option>
+                                <option value="Biểu mẫu">Biểu mẫu</option>
+                                <option value="Hỏi đáp">Hỏi đáp</option>
+                            </select>
+                        </div>
+                        <div style="flex: 2; min-width: 250px;">
+                            <label style="font-weight:bold; color:#555;">Tiêu đề:</label>
+                            <input type="text" id="inpTitle" class="form-control" style="margin-bottom:0;" placeholder="Nhập tiêu đề...">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:bold; color:var(--text-main);">
+                            <input type="checkbox" id="inpForceAccordion" style="width:18px; height:18px;">
+                            Ép hiển thị dạng Hộp gập (Accordion) ngay cả khi không có mục con bên trong
+                        </label>
+                    </div>
+
                     <label style="font-weight:bold; color:#555;">Nội dung tóm tắt:</label>
                     <div id="inpSummary"></div>
                     <label style="font-weight:bold; color:#555;">Trích dẫn gốc:</label>
@@ -627,7 +648,7 @@
         function resetSaveButton() { hasUnsavedChanges = false; const btn = document.getElementById('btnSaveSingle'); btn.style.background = "#27ae60"; btn.style.color = "#fff"; btn.innerHTML = "LƯU MỤC NÀY"; }
 
         quillSummary.on('text-change', markAsUnsaved); quillDetail.on('text-change', markAsUnsaved);
-        ['inpTag', 'inpTitle', 'inpFileUrl', 'inpFileName', 'inpPdfDoc1', 'inpPdfPage1', 'inpPdfDoc2', 'inpPdfPage2', 'inpPdfDoc3', 'inpPdfPage3', 'inpPdfDoc4', 'inpPdfPage4'].forEach(id => { let el = document.getElementById(id); if(el) el.addEventListener('input', markAsUnsaved); });
+        ['inpTag', 'inpTitle', 'inpFileUrl', 'inpFileName', 'inpPdfDoc1', 'inpPdfPage1', 'inpPdfDoc2', 'inpPdfPage2', 'inpPdfDoc3', 'inpPdfPage3', 'inpPdfDoc4', 'inpPdfPage4', 'inpForceAccordion'].forEach(id => { let el = document.getElementById(id); if(el) el.addEventListener('input', markAsUnsaved); });
 
         function processLegacyText(text) { if (!text) return ''; if (text.indexOf('<p') === -1 && text.indexOf('<br') === -1 && text.indexOf('<ul') === -1 && text.indexOf('<ol') === -1) { return text.replace(/\n/g, '<br>'); } return text; }
 
@@ -661,6 +682,15 @@
             else if(tabId === 'hoidap') headerTitle.innerText = "HỎI ĐÁP NGHIỆP VỤ";
             else if(tabId === 'bieumau') headerTitle.innerText = "BIỂU MẪU TẢI VỀ";
             
+            // Tắt highlight khi chuyển tab
+            if (lastSearchKeyword !== "") {
+                lastSearchKeyword = "";
+                document.getElementById('searchInput').value = "";
+                document.getElementById('homeSearchInput').value = "";
+                renderUserInterface();
+                renderFAQAndForms();
+            }
+
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
@@ -858,7 +888,9 @@
                     displaySummary = ` <span style="color: var(--text-muted); font-weight: normal; font-size: 0.95rem;">- ${summaryText}</span>`;
                 }
 
-                let displayTitle = n.fileName || n.title;
+                // highlight Title and Summary in dynamic lists if searched
+                let hTitle = highlightText(n.fileName || n.title, lastSearchKeyword);
+                let hSummary = displaySummary ? highlightText(displaySummary, lastSearchKeyword) : '';
 
                 let childrenHtml = n.children ? buildListHtmlDynamic(n.children, type, currentLevel + 1) : '';
 
@@ -866,7 +898,7 @@
                     html += `<div class="list-view-item" onclick="viewStandaloneItem('${n.id}')" style="margin-bottom: 10px;">
                                 <div class="list-title" style="margin-bottom: 0; line-height: 1.5;">
                                     <svg width="18" height="18" style="flex-shrink:0; margin-top:2px; color:${type==='faq'?'#f39c12':'#2980b9'};"><use href="${type==='faq'?'#icon-faq':'#icon-file'}"></use></svg> 
-                                    <span>${displayTitle}${displaySummary}</span>
+                                    <span>${hTitle}${hSummary}</span>
                                 </div>
                             </div>`;
                 }
@@ -878,20 +910,22 @@
                         html += `<div class="list-main-group">
                                     <div class="list-main-group-title">
                                         <svg width="20" height="20" style="flex-shrink:0; margin-top:2px;"><use href="#icon-folder"></use></svg> 
-                                        <span>${n.title}</span>
+                                        <span>${highlightText(n.title, lastSearchKeyword)}</span>
                                     </div>
                                     <div class="list-main-group-body" style="padding-left: 5px;">${childrenHtml}</div>
                                  </div>`;
                     } else {
-                        if (currentLevel <= 2) {
+                        // Nếu cấp nhỏ hơn hoặc bằng 3 (Level 0,1,2,3) và KHÔNG bị ép buộc Accordion -> Hiển thị thẳng con
+                        if (currentLevel <= 3 && !n.forceAccordion) {
                              html += childrenHtml; 
                         } else {
+                            // Cấp 4,5 hoặc bị ép buộc ép Accordion
                             let bgClass = (currentLevel % 2 === 0) ? 'sub-group-l3' : 'sub-group-l4';
                             html += `<div class="list-sub-group ${bgClass}">
                                         <div class="list-sub-group-header" onclick="this.parentElement.classList.toggle('open')">
                                             <div style="display:flex; align-items:flex-start; gap:8px;">
                                                 <svg width="18" height="18" style="flex-shrink:0; margin-top:2px; color:var(--text-muted);"><use href="#icon-folder"></use></svg> 
-                                                <span style="line-height:1.4;">${n.title}</span>
+                                                <span style="line-height:1.4;">${highlightText(n.title, lastSearchKeyword)}</span>
                                             </div>
                                             <svg width="16" height="16" class="sub-group-arrow"><use href="#icon-chevron-down"></use></svg>
                                         </div>
@@ -1133,7 +1167,16 @@
             if (!currentEditNodeId) return; const btn = document.getElementById('btnSaveSingle'); btn.innerText = "⏳ Đang lưu..."; btn.disabled = true;
             let sumVal = quillSummary.root.innerHTML; if(sumVal === '<p><br></p>') sumVal = ''; let detVal = quillDetail.root.innerHTML; if(detVal === '<p><br></p>') detVal = '';
             let pdfRefs = []; for(let i=1; i<=4; i++) { let docVal = document.getElementById('inpPdfDoc'+i).value; let pageVal = document.getElementById('inpPdfPage'+i).value; if(docVal && pageVal) pdfRefs.push({ doc: docVal, page: pageVal }); }
-            let updatedData = { tag: document.getElementById('inpTag').value, title: document.getElementById('inpTitle').value, summary: sumVal, detail: detVal, fileUrl: document.getElementById('inpFileUrl').value, fileName: document.getElementById('inpFileName').value, pdfRefs: pdfRefs };
+            let updatedData = { 
+                tag: document.getElementById('inpTag').value, 
+                title: document.getElementById('inpTitle').value, 
+                summary: sumVal, 
+                detail: detVal, 
+                fileUrl: document.getElementById('inpFileUrl').value, 
+                fileName: document.getElementById('inpFileName').value, 
+                pdfRefs: pdfRefs,
+                forceAccordion: document.getElementById('inpForceAccordion').checked
+            };
             const docRef = db.collection("sotay").doc("dulieu");
             db.runTransaction((transaction) => {
                 return transaction.get(docRef).then((doc) => {
@@ -1178,6 +1221,7 @@
             document.getElementById('editorPlaceholder').style.display = 'none'; document.getElementById('editorArea').style.display = 'block'; 
             isSystemChangingContent = true;
             document.getElementById('inpTag').value = nodeData.tag || ''; document.getElementById('inpTitle').value = nodeData.title || ''; document.getElementById('inpFileUrl').value = nodeData.fileUrl || ''; document.getElementById('inpFileName').value = nodeData.fileName || '';
+            document.getElementById('inpForceAccordion').checked = nodeData.forceAccordion || false;
             let refs = nodeData.pdfRefs || []; if (nodeData.pdfPage && refs.length === 0) refs.push({doc: 'hd02', page: nodeData.pdfPage}); 
             for(let i=1; i<=4; i++) { let docEl = document.getElementById('inpPdfDoc'+i); let pageEl = document.getElementById('inpPdfPage'+i); if (refs[i-1]) { docEl.value = refs[i-1].doc || ''; pageEl.value = refs[i-1].page || ''; } else { docEl.value = ''; pageEl.value = ''; } }
             quillSummary.root.innerHTML = processLegacyText(nodeData.summary || ''); quillDetail.root.innerHTML = processLegacyText(nodeData.detail || '');
