@@ -18,7 +18,7 @@
             --primary-dark: #a30000; 
             --yellow-party: #f39c12; 
             --bg-sidebar: #1e2b3c; 
-            --header-height: 55px;
+            --header-height: 70px; /* Tăng chiều cao banner trên cùng */
             --nav-bottom-height: 65px;
             --bg-main: #f8f9fa;
             --bg-box: #ffffff;
@@ -55,7 +55,7 @@
         .top-header { padding-top: env(safe-area-inset-top); }
         #breadcrumbBar { top: calc(var(--header-height) + env(safe-area-inset-top)); }
         
-        .main-content { padding-top: calc(75px + env(safe-area-inset-top)); padding-bottom: calc(var(--nav-bottom-height) + 20px + env(safe-area-inset-bottom)); min-height: 100vh; transition: 0.3s ease; }
+        .main-content { padding-top: calc(90px + env(safe-area-inset-top)); padding-bottom: calc(var(--nav-bottom-height) + 20px + env(safe-area-inset-bottom)); min-height: 100vh; transition: 0.3s ease; }
         
         #readingProgress { position: fixed; top: 0; left: 0; height: 3px; background: var(--yellow-party); width: 0%; z-index: 9999; transition: width 0.1s; }
 
@@ -86,10 +86,21 @@
         .admin-trigger { padding: 15px; border-top: 1px solid rgba(255,255,255,0.05); cursor: pointer; color: #7f8c8d; text-align: center; background: var(--bg-sidebar); padding-bottom: calc(15px + var(--nav-bottom-height) + env(safe-area-inset-bottom)); flex-shrink: 0; font-family: -apple-system, sans-serif; font-size: 0.95rem; font-weight: bold;}
         .admin-trigger:hover { color: white; background: rgba(255,255,255,0.05); }
 
-        .top-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); background: var(--primary-color); z-index: 990; display: flex; align-items: center; padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left)); justify-content: space-between; color: white; font-weight: bold; font-family: -apple-system, sans-serif; transition: right 0.3s ease, left 0.3s ease; }
+        .top-header { 
+            position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); 
+            background-color: var(--primary-color);
+            background-image: linear-gradient(rgba(204, 0, 0, 0.85), rgba(204, 0, 0, 0.85)), url('https://i.postimg.cc/zf6J3RQ8/img_5_hinh_nen_powerpoint_trong_dong.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: 990; display: flex; align-items: center; padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left)); justify-content: space-between; color: white; font-weight: bold; font-family: -apple-system, sans-serif; transition: right 0.3s ease, left 0.3s ease; 
+        }
         .menu-toggle-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; margin-right: 10px; padding:0; display:flex; align-items:center;}
-        .header-title { font-size: 1.15rem; letter-spacing: 0.5px; flex:1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .header-title { font-size: 1.15rem; letter-spacing: 0.5px; flex:1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);}
         .header-actions { display: flex; gap: 4px; align-items: center;}
+        
+        /* Hiển thị ngày giờ */
+        .header-datetime { display: flex; flex-direction: column; align-items: flex-end; font-size: 0.75rem; margin-right: 12px; line-height: 1.2; font-family: -apple-system, sans-serif; font-weight: 500; color: rgba(255, 255, 255, 0.9); text-shadow: 1px 1px 2px rgba(0,0,0,0.3);}
+        .header-datetime #liveTime { font-size: 0.95rem; font-weight: bold; color: var(--yellow-party); }
 
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
@@ -162,7 +173,8 @@
         .nav-item.active { color: var(--primary-color); }
         .nav-item:hover { background: var(--bg-hover); color: var(--primary-color);}
 
-        .hero-search { background: var(--primary-color); padding: 35px 15px; border-radius: 0; margin: -15px -15px 25px -15px; text-align: center; color: white; }
+        /* Điều chỉnh banner đỏ tìm kiếm gọn hơn */
+        .hero-search { background: var(--primary-color); padding: 20px 15px; border-radius: 0; margin: -15px -15px 25px -15px; text-align: center; color: white; }
         .hero-search h2 { margin-top: 0; margin-bottom: 20px; font-family: -apple-system, sans-serif; font-size: 1.3rem;}
         .hero-search-box { display: flex; background: white; padding: 4px; border-radius: 4px; flex-wrap: nowrap; align-items:center;}
         .hero-search-box input { flex: 1; border: none; padding: 12px 10px; font-size: 1.05rem; outline: none; font-family: -apple-system, sans-serif; color:#333; min-width:0;}
@@ -271,11 +283,13 @@
             .header-title { font-size: 1.05rem; }
             .menu-toggle-btn { margin-right: 5px; font-size: 20px;}
             .header-actions { gap: 2px; }
+            .header-datetime { font-size: 0.65rem; margin-right: 8px;}
+            .header-datetime #liveTime { font-size: 0.85rem;}
             .toggle-btn { padding: 5px 8px; font-size: 0.75rem; }
             .bottom-nav { height: calc(60px + env(safe-area-inset-bottom)); }
             .nav-item { font-size: 0.65rem; padding: 0;}
             .nav-item svg { width: 20px; height: 20px; }
-            .hero-search { padding: 25px 15px; }
+            .hero-search { padding: 15px; } /* Thu gọn cho Mobile */
             .hero-search-box input { padding: 10px 8px; font-size: 1rem; }
             .hero-search-box button { padding: 0 12px; }
             .step-header { padding: 12px 10px; }
@@ -360,6 +374,10 @@
             <span class="header-title" id="mainHeaderTitle">SỔ TAY NGHIỆP VỤ TCĐ, ĐV</span>
         </div>
         <div class="header-actions">
+            <div class="header-datetime">
+                <span id="liveDate">--/--/----</span>
+                <span id="liveTime">--:--</span>
+            </div>
             <button class="toggle-btn" onclick="openSearchModal()" title="Tìm kiếm" aria-label="Tìm kiếm nội dung" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;"><svg width="22" height="22"><use href="#icon-search"></use></svg></button>
             <button class="toggle-btn" onclick="toggleDarkMode()" title="Chế độ Tối/Sáng" aria-label="Chuyển chế độ tối sáng" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;"><svg width="22" height="22"><use href="#icon-moon"></use></svg></button>
         </div>
@@ -590,22 +608,26 @@
                             <input type="text" id="inpFileName" class="form-control" placeholder="Tên file hiển thị (VD: Mẫu 01)">
                         </div>
                         <div style="flex:1; min-width:250px; border-left: 1px solid var(--border-color); padding-left:15px;">
-                            <label style="font-weight:bold; color:var(--text-main);">Trích dẫn PDF (Tối đa 4 tài liệu)</label>
+                            <label style="font-weight:bold; color:var(--text-main);">Trích dẫn PDF (Tối đa 5 tài liệu)</label>
                             <div style="font-size:0.85rem; color:#666; margin-bottom: 8px;">Chọn văn bản và nhập số trang để tạo nút căn cứ.</div>
                             <div style="display:flex; gap:5px; margin-bottom:5px;">
-                                <select id="inpPdfDoc1" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd06">Hướng dẫn 06</option></select>
+                                <select id="inpPdfDoc1" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd21">Hướng dẫn 21</option><option value="hd06">Hướng dẫn 06</option></select>
                                 <input type="number" id="inpPdfPage1" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
                             </div>
                             <div style="display:flex; gap:5px; margin-bottom:5px;">
-                                <select id="inpPdfDoc2" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd06">Hướng dẫn 06</option></select>
+                                <select id="inpPdfDoc2" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd21">Hướng dẫn 21</option><option value="hd06">Hướng dẫn 06</option></select>
                                 <input type="number" id="inpPdfPage2" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
                             </div>
                             <div style="display:flex; gap:5px; margin-bottom:5px;">
-                                <select id="inpPdfDoc3" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd06">Hướng dẫn 06</option></select>
+                                <select id="inpPdfDoc3" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd21">Hướng dẫn 21</option><option value="hd06">Hướng dẫn 06</option></select>
+                                <input type="number" id="inpPdfPage3" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
+                            </div>                            
+			    <div style="display:flex; gap:5px; margin-bottom:5px;">
+                                <select id="inpPdfDoc4" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd21">Hướng dẫn 21</option><option value="hd06">Hướng dẫn 06</option></select>
                                 <input type="number" id="inpPdfPage3" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
                             </div>
                             <div style="display:flex; gap:5px; margin-bottom:5px;">
-                                <select id="inpPdfDoc4" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd06">Hướng dẫn 06</option></select>
+                                <select id="inpPdfDoc5" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd21">Hướng dẫn 21</option><option value="hd06">Hướng dẫn 06</option></select>
                                 <input type="number" id="inpPdfPage4" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
                             </div>
                         </div>
@@ -628,11 +650,30 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
+        // Cập nhật Ngày Giờ hiển thị
+        function updateDateTime() {
+            const now = new Date();
+            const days = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+            const dayOfWeek = days[now.getDay()];
+            const dd = String(now.getDate()).padStart(2, '0');
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const yyyy = now.getFullYear();
+            
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            document.getElementById('liveDate').innerText = `${dayOfWeek}, ${dd}/${mm}/${yyyy}`;
+            document.getElementById('liveTime').innerText = `${hours}:${minutes}`;
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime(); // Gọi ngay lần đầu
+
         const PDF_VIEWER_URL = "web/viewer.html"; 
         const PDF_COLLECTION = {
             "hd02": { name: "Hướng dẫn 02", shortName: "HD 02", file: "huongdan.pdf" },
             "qd294": { name: "Quy định 294", shortName: "QĐ 294", file: "quydinh294.pdf" },
-            "hd38": { name: "Hướng dẫn 38", shortName: "HD 38", file: "huongdan38.pdf" },
+	    "hd38": { name: "Hướng dẫn 38", shortName: "HD 38", file: "huongdan38.pdf" },
+            "hd21": { name: "Hướng dẫn 21", shortName: "HD 21", file: "huongdan21.pdf" },
             "hd06": { name: "Hướng dẫn 06", shortName: "HD 06", file: "huongdan06.pdf" }
         };
 
