@@ -932,7 +932,7 @@
                         } else {
                             let bgClass = (currentLevel % 2 === 0) ? 'sub-group-l3' : 'sub-group-l4';
                             html += `<div class="list-sub-group ${bgClass}">
-                                        <div class="list-sub-group-header" onclick="this.parentElement.classList.toggle('open')">
+                                        <div class="list-sub-group-header" onclick="toggleAccordion(this)">
                                             <div style="display:flex; align-items:flex-start; gap:8px;">
                                                 <svg width="18" height="18" style="flex-shrink:0; margin-top:2px; color:var(--text-muted);"><use href="#icon-folder"></use></svg> 
                                                 <span style="line-height:1.4;">${highlightText(n.title, lastSearchKeyword)}</span>
@@ -1253,6 +1253,24 @@
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
         function closeAdminPanel() { if(!confirmUnsaved()) return; firebase.auth().signOut().then(() => { document.getElementById('adminPanel').style.display = 'none'; loggedInUser = null; }); }
 
+function toggleAccordion(headerEl) {
+            let parentGroup = headerEl.parentElement; 
+            let isCurrentlyOpen = parentGroup.classList.contains('open');
+            let container = parentGroup.parentElement; 
+            
+            // Tìm và thu gọn tất cả các mục cùng cấp đang mở
+            let siblings = container.children;
+            for (let i = 0; i < siblings.length; i++) {
+                if (siblings[i].classList.contains('list-sub-group')) {
+                    siblings[i].classList.remove('open');
+                }
+            }
+            
+            // Xổ ra mục hiện tại (nếu trước đó nó đang đóng)
+            if (!isCurrentlyOpen) {
+                parentGroup.classList.add('open');
+            }
+        }
     </script>
 </body>
 </html>
