@@ -303,7 +303,7 @@
         .admin-layout { display: flex; height: 100%; flex-direction: column; }
         @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
         /* Tối ưu thanh cuộn bên phần Sidebar của Quản trị */
-        .admin-sidebar { width: 350px; min-width: 200px; max-width: 60vw; height: 100vh; border-right: 1px solid #ddd; border-bottom: none; resize: horizontal; display: flex; flex-direction: column; background: #f8f9fa; padding: 10px; box-sizing: border-box;}
+        .admin-sidebar { width: 350px; min-width: 200px; max-width: 60vw; height: 100vh; border-right: 1px solid #ddd; border-bottom: none; resize: horizontal; overflow: hidden; display: flex; flex-direction: column; background: #f8f9fa; padding: 10px; box-sizing: border-box;}
         .tree-container { flex: 1; min-height: 0; overflow-y: auto; border: 1px solid #ddd; background: #fff; padding: 10px; font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; border-radius: 4px;}
         .tree-node { margin-bottom: 2px; }
         .tree-item { padding: 8px 10px; cursor: pointer; display: flex; align-items: center; transition: all 0.2s ease; border: 1px solid transparent; color: #444; border-radius: 4px;}
@@ -1245,4 +1245,5 @@
 
     </script>
 </body>
+
 </html>
