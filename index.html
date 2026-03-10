@@ -824,7 +824,7 @@
             let safeSummary = processLegacyText(nodeData.summary);
             let safeDetail = processLegacyText(nodeData.detail);
             
-            let downloadBtn = nodeData.fileUrl ? `<div style="margin-top: 20px;"><a href="${nodeData.fileUrl}" target="_blank" class="inline-download" style="padding: 10px 15px; font-size: 1rem; border-radius: 4px;"><svg width="18" height="18"><use href="#icon-download"></use></svg> Tải file: ${nodeData.fileName || 'Biểu mẫu'}</a></div>` : '';
+            let downloadBtn = nodeData.fileUrl ? `<div style="margin-top: 20px;"><a href="${nodeData.fileUrl}" target="_blank" class="inline-download" style="padding: 10px 15px; font-size: 1rem; border-radius: 4px;"><svg width="18" height="18"><use href="#icon-download"></use></svg> Tải về</a></div>` : '';
             
             let pdfSourceBtn = '';
             let refs = nodeData.pdfRefs || []; 
@@ -900,11 +900,18 @@
                 let childrenHtml = n.children ? buildListHtmlDynamic(n.children, type, currentLevel + 1) : '';
 
                 if (isItemMatch) {
-                    html += `<div class="list-view-item" onclick="viewStandaloneItem('${n.id}')" style="margin-bottom: 10px;">
-                                <div class="list-title" style="margin-bottom: 0; line-height: 1.5;">
+                    let quickDownloadBtn = '';
+                    if (type === 'form' && n.fileUrl) {
+                        // Thêm nút tải trực tiếp ở bên phải, chặn sự kiện click vào dòng
+                        quickDownloadBtn = `<a href="${n.fileUrl}" target="_blank" class="inline-download" style="flex-shrink: 0; padding: 6px 12px; margin-left: 10px; border-radius: 4px; background: var(--bg-box);" onclick="event.stopPropagation()"><svg width="14" height="14" style="margin-right:4px;"><use href="#icon-download"></use></svg>Tải về</a>`;
+                    }
+
+                    html += `<div class="list-view-item" onclick="viewStandaloneItem('${n.id}')" style="margin-bottom: 10px; display: flex; align-items: flex-start; justify-content: space-between;">
+                                <div class="list-title" style="margin-bottom: 0; line-height: 1.5; flex: 1; padding-right: 10px;">
                                     <svg width="18" height="18" style="flex-shrink:0; margin-top:2px; color:${type==='faq'?'#f39c12':'#2980b9'};"><use href="${type==='faq'?'#icon-faq':'#icon-file'}"></use></svg> 
                                     <span>${hTitle}${hSummary}</span>
                                 </div>
+                                ${quickDownloadBtn}
                             </div>`;
                 }
 
@@ -920,11 +927,9 @@
                                     <div class="list-main-group-body" style="padding-left: 5px;">${childrenHtml}</div>
                                  </div>`;
                     } else {
-                        // Nếu cấp nhỏ hơn hoặc bằng 3 (Level 0,1,2,3) và KHÔNG bị ép buộc Accordion -> Hiển thị thẳng con
                         if (currentLevel <= 3 && !n.forceAccordion) {
                              html += childrenHtml; 
                         } else {
-                            // Cấp 4,5 hoặc bị ép buộc ép Accordion
                             let bgClass = (currentLevel % 2 === 0) ? 'sub-group-l3' : 'sub-group-l4';
                             html += `<div class="list-sub-group ${bgClass}">
                                         <div class="list-sub-group-header" onclick="this.parentElement.classList.toggle('open')">
