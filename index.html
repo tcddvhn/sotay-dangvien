@@ -634,58 +634,46 @@
 
     <script>
 // =====================================================================
-// KẾT NỐI HỆ THỐNG THỐNG KÊ (WEB APP)
+// KẾT NỐI HỆ THỐNG THỐNG KÊ (WEB APP) - PHIÊN BẢN GỘP GET/POST
 // =====================================================================
-const STATS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwi-3O5tJQeXy8We87nOdg3f0lYf2-DUI71G9jNyx-Z_fVUy6lWIQ4nXvvi9FFB0v0w/exec";
+const STATS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwi-3O5tJQeXy8We87nOdg3f0lYf2-DUI71G9jNyx-Z_fVUy6lWIQ4nXvvi9FFB0v0w/exec"; 
 
-// 1. Hàm Tải số liệu từ máy chủ và vẽ biểu đồ
-function fetchAndRenderStats() {
+// Hàm Ghi nhận và Tải số liệu (Gộp 2 trong 1)
+function recordAndLoadStats(actionType, detail = "") {
     if (!STATS_WEB_APP_URL) return;
-    
-    fetch(STATS_WEB_APP_URL)
+
+    let url = STATS_WEB_APP_URL;
+    // Kiểm tra: nếu là lượt truy cập (visit) thì chỉ báo máy chủ ghi 1 lần mỗi phiên
+    if (actionType === 'visit') {
+        if (sessionStorage.getItem('has_recorded_visit')) {
+            url += "?action=none"; // Chỉ lấy số liệu, không ghi thêm dòng mới
+        } else {
+            url += "?action=visit";
+        }
+    } else if (actionType === 'search') {
+        url += "?action=search&detail=" + encodeURIComponent(detail);
+    }
+
+    fetch(url)
         .then(response => response.json())
         .then(data => {
-            // Gọi hàm renderDashboard đã được tối ưu (Hàm vẽ biểu đồ tôi gửi ở tin nhắn trước)
+            if (actionType === 'visit') sessionStorage.setItem('has_recorded_visit', 'true');
+            // Vẽ biểu đồ Dashboard
             if (typeof renderDashboard === "function") {
                 renderDashboard(data);
             }
         })
-        .catch(err => console.log("Lỗi tải thống kê: ", err));
+        .catch(err => console.log("Lỗi hệ thống thống kê: ", err));
 }
 
-// 2. Hàm Ghi nhận lượt truy cập (Truyền thẳng lên URL)
-function recordVisit() {
-    if (!sessionStorage.getItem('has_recorded_visit')) {
-        // Nối thêm ?action=visit vào đuôi đường link
-        fetch(STATS_WEB_APP_URL + "?action=visit", {
-            method: 'POST',
-            mode: 'no-cors'
-        }).then(() => {
-            sessionStorage.setItem('has_recorded_visit', 'true');
-            setTimeout(fetchAndRenderStats, 1500); 
-        }).catch(err => console.log(err));
-    }
-}
-
-// 3. Hàm Ghi nhận lượt tìm kiếm (Truyền thẳng lên URL)
+// Hàm ghi nhận tìm kiếm (Để đồng chí gọi trong hàm tìm kiếm của mình)
 function recordSearch(keyword) {
-    if (!keyword) return;
-    
-    // Nối thêm action và từ khóa vào đuôi đường link
-    let url = STATS_WEB_APP_URL + "?action=search&detail=" + encodeURIComponent(keyword);
-    
-    fetch(url, {
-        method: 'POST',
-        mode: 'no-cors'
-    }).then(() => {
-        setTimeout(fetchAndRenderStats, 1500);
-    }).catch(err => console.log(err));
+    recordAndLoadStats('search', keyword);
 }
 
 // Tự động chạy khi Sổ tay được mở
 document.addEventListener("DOMContentLoaded", () => {
-    recordVisit();          // Ghi nhận lượt truy cập
-    fetchAndRenderStats();  // Tải bảng thống kê
+    recordAndLoadStats('visit');
 });
         const PDF_VIEWER_URL = "web/viewer.html"; 
         const PDF_COLLECTION = {
@@ -1149,7 +1137,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (JSON.parse(localStorage.getItem('sotay_search_history') || '[]').length > 0) histDiv.style.display = 'block';
                 return; 
             } 
-            
+            recordSearch(query);
             faqDiv.style.display = 'none'; 
             histDiv.style.display = 'none'; 
             lastSearchKeyword = kwRaw; 
