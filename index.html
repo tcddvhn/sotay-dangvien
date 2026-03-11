@@ -1307,8 +1307,9 @@
             try {
                 let response = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Dùng text/plain để tránh lỗi CORS
-                    body: JSON.stringify({ message: message })
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ message: message }),
+                    redirect: 'follow' // Thêm dòng này để trình duyệt đi theo luồng dữ liệu của Google
                 });
                 
                 let result = await response.json();
