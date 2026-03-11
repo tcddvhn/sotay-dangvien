@@ -316,6 +316,24 @@
         .ql-container.ql-snow { border-radius: 0 0 6px 6px; border-color: var(--border-color); }
         #inpSummary .ql-editor { min-height: 80px; }
         #inpDetail .ql-editor { min-height: 250px; }
+/* --- GIAO DIỆN CHATBOT --- */
+        #chatWidget { position: fixed; bottom: calc(var(--nav-bottom-height) + 20px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; }
+        #chatBtn { background: var(--primary-color); color: white; border: none; width: 55px; height: 55px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        #chatBtn:hover { transform: scale(1.05); background: var(--primary-dark); }
+        #chatBox { width: 350px; max-width: 90vw; height: 450px; background: var(--bg-box); border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); display: none; flex-direction: column; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border-color); animation: slideUpChat 0.3s ease; }
+        @keyframes slideUpChat { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-header { background: var(--primary-color); color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-family: -apple-system, sans-serif; }
+        .chat-close { cursor: pointer; font-size: 1.2rem; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: var(--bg-main); font-family: -apple-system, sans-serif; font-size: 0.95rem; }
+        .msg { padding: 10px 15px; border-radius: 18px; max-width: 85%; line-height: 1.4; word-wrap: break-word; }
+        .msg-bot { background: var(--bg-box); border: 1px solid var(--border-color); align-self: flex-start; border-bottom-left-radius: 4px; color: var(--text-main); }
+        .msg-user { background: var(--primary-color); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .chat-footer { padding: 10px; background: var(--bg-box); border-top: 1px solid var(--border-color); display: flex; gap: 8px; }
+        .chat-footer input { flex: 1; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 20px; outline: none; font-size: 0.95rem; background: var(--bg-main); color: var(--text-main); }
+        .chat-footer button { background: var(--primary-color); color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .chat-footer button:hover { background: var(--primary-dark); }
+        .typing-indicator { font-style: italic; color: var(--text-muted); font-size: 0.85rem; padding: 0 5px; display: none; }
+        body.pdf-open #chatWidget { right: calc(var(--pdf-panel-width) + 15px + env(safe-area-inset-right)); }
     </style>
 </head>
 <body>
@@ -442,7 +460,25 @@
             <iframe id="pdfFrame" src=""></iframe>
         </div>
     </div>
-
+    <div id="chatWidget">
+        <div id="chatBox">
+            <div class="chat-header">
+                <span>🤖 Trợ lý AI Sổ tay</span>
+                <span class="chat-close" onclick="toggleChat()">✕</span>
+            </div>
+            <div class="chat-body" id="chatBody">
+                <div class="msg msg-bot">Xin chào! Tôi là trợ lý AI của Sổ tay TCĐ,ĐV. Tôi có thể giúp gì cho bạn hôm nay?</div>
+            </div>
+            <div class="typing-indicator" id="typingIndicator">AI đang trả lời...</div>
+            <div class="chat-footer">
+                <input type="text" id="chatInput" placeholder="Nhập câu hỏi của bạn..." onkeypress="if(event.key==='Enter') sendMessage()">
+                <button onclick="sendMessage()">GỬI</button>
+            </div>
+        </div>
+        <button id="chatBtn" onclick="toggleChat()" title="Mở trợ lý AI">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        </button>
+    </div>
     <button id="backToTop" onclick="topFunction()" aria-label="Lên đầu trang">
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
     </button>
@@ -1239,6 +1275,64 @@
             
             if (!isCurrentlyOpen) {
                 parentGroup.classList.add('open');
+            }
+        }
+    // --- CHATBOT LOGIC ---
+        function toggleChat() {
+            let chatBox = document.getElementById('chatBox');
+            chatBox.style.display = (chatBox.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        async function sendMessage() {
+            let inputEl = document.getElementById('chatInput');
+            let message = inputEl.value.trim();
+            if(!message) return;
+
+            let chatBody = document.getElementById('chatBody');
+            let typingEl = document.getElementById('typingIndicator');
+
+            // Hiển thị tin nhắn người dùng
+            let userDiv = document.createElement('div');
+            userDiv.className = 'msg msg-user';
+            userDiv.innerText = message;
+            chatBody.appendChild(userDiv);
+            
+            inputEl.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+            typingEl.style.display = 'block';
+
+            // DÁN URL CỦA GOOGLE APPS SCRIPT Ở BƯỚC 2 VÀO ĐÂY
+            const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTav-8SEP36sVKBQaZALxKBBScKaQEg5TUGdt4LUSgnf9PNAbs-ByH7xTgbpfglRE/exec";
+
+            try {
+                let response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Dùng text/plain để tránh lỗi CORS
+                    body: JSON.stringify({ message: message })
+                });
+                
+                let result = await response.json();
+                typingEl.style.display = 'none';
+
+                let botDiv = document.createElement('div');
+                botDiv.className = 'msg msg-bot';
+                
+                // Chuyển dấu sao Markdown thành thẻ in đậm HTML
+                let replyText = result.reply || "Xin lỗi, tôi không thể trả lời lúc này.";
+                replyText = replyText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                replyText = replyText.replace(/\*(.*?)\*/g, '<i>$1</i>');
+                replyText = replyText.replace(/\n/g, '<br>');
+
+                botDiv.innerHTML = replyText;
+                chatBody.appendChild(botDiv);
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+            } catch (error) {
+                typingEl.style.display = 'none';
+                let botDiv = document.createElement('div');
+                botDiv.className = 'msg msg-bot';
+                botDiv.innerText = "❌ Lỗi kết nối đến máy chủ AI.";
+                chatBody.appendChild(botDiv);
             }
         }
 
