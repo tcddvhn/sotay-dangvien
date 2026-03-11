@@ -1137,7 +1137,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (JSON.parse(localStorage.getItem('sotay_search_history') || '[]').length > 0) histDiv.style.display = 'block';
                 return; 
             } 
-            recordSearch(query);
             faqDiv.style.display = 'none'; 
             histDiv.style.display = 'none'; 
             lastSearchKeyword = kwRaw; 
