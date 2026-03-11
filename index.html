@@ -439,38 +439,8 @@
             <button class="toggle-btn" onclick="toggleDarkMode()" title="Chế độ Tối/Sáng" aria-label="Chuyển chế độ tối sáng" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;"><svg width="22" height="22"><use href="#icon-moon"></use></svg></button>
         </div>
     </div>
-<div class="stats-dashboard" style="margin: 20px auto; background: white; padding: 8px; border-radius: 6px; box-shadow: 0 1px 5px rgba(0,0,0,0.1); border: 1px solid #eee; max-width: 280px; font-family: -apple-system, sans-serif;">
-        
-        <div style="text-align: center; margin-bottom: 6px;">
-            <span style="color: #cc0000; font-weight: bold; font-size: 0.7rem; text-transform: uppercase;">📊 Kết quả Khảo sát</span>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; text-align: center; gap: 4px;">
-            <div style="flex: 1; background: #f8f9fa; padding: 4px 2px; border-radius: 4px; border-bottom: 2px solid #4CAF50;">
-                <div style="font-size: 11px;">😊</div>
-                <div style="font-size: 8px; font-weight: bold; margin: 2px 0; color: #333; white-space: nowrap;">Rất hài lòng</div>
-                <div id="valRatHaiLong" style="font-size: 11px; color: #4CAF50; font-weight: bold;">0</div>
-            </div>
-            
-            <div style="flex: 1; background: #f8f9fa; padding: 4px 2px; border-radius: 4px; border-bottom: 2px solid #2196F3;">
-                <div style="font-size: 11px;">🙂</div>
-                <div style="font-size: 8px; font-weight: bold; margin: 2px 0; color: #333; white-space: nowrap;">Hài lòng</div>
-                <div id="valHaiLong" style="font-size: 11px; color: #2196F3; font-weight: bold;">0</div>
-            </div>
-            
-            <div style="flex: 1; background: #f8f9fa; padding: 4px 2px; border-radius: 4px; border-bottom: 2px solid #f39c12;">
-                <div style="font-size: 11px;">⚙️</div>
-                <div style="font-size: 8px; font-weight: bold; margin: 2px 0; color: #333; white-space: nowrap;">Bổ sung</div>
-                <div id="valCanBoSung" style="font-size: 11px; color: #f39c12; font-weight: bold;">0</div>
-            </div>
-            
-            <div style="flex: 1; background: #fff4f4; padding: 4px 2px; border-radius: 4px; border-bottom: 2px solid #cc0000;">
-                <div style="font-size: 11px;">📝</div>
-                <div style="font-size: 8px; font-weight: bold; margin: 2px 0; color: #cc0000; white-space: nowrap;">Góp ý</div>
-                <div id="valGopY" style="font-size: 11px; color: #cc0000; font-weight: bold;">0</div>
-            </div>
-        </div>
-    </div>    <nav id="bottomNav" class="bottom-nav">
+
+    <nav id="bottomNav" class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
             <svg class="nav-icon" width="24" height="24"><use href="#icon-home"></use></svg>
             <span>Trang chủ</span>
@@ -758,27 +728,7 @@
     <script>
         // --- CẤU HÌNH LINK WEB APP KHẢO SÁT MỚI CỦA ĐỒNG CHÍ ---
         const SURVEY_APP_URL = "https://script.google.com/macros/s/AKfycby1oXVzH9EeR0v1j2goesabdRwKECaUWLJNuPaeOJNBbsF0p5kAsgc53c-ISqOg491z/exec";
-	// Hàm tự động tải và hiển thị thống kê
-        function loadSurveyStats() {
-            // Lưu ý: Không dùng mode: 'no-cors' ở đây vì ta cần đọc dữ liệu json trả về
-            fetch(SURVEY_APP_URL)
-                .then(response => response.json())
-                .then(data => {
-                    // Cập nhật số liệu lên giao diện (Nếu không có thì mặc định là 0)
-                    document.getElementById('valRatHaiLong').innerText = data.ratHaiLong || 0;
-                    document.getElementById('valHaiLong').innerText = data.haiLong || 0;
-                    
-                    // Số người chọn "Cần bổ sung" tương đương với số người đã gửi "Góp ý"
-                    document.getElementById('valCanBoSung').innerText = data.gopY || 0; 
-                    document.getElementById('valGopY').innerText = data.gopY || 0;
-                })
-                .catch(err => {
-                    console.log("Chưa thể tải dữ liệu thống kê: ", err);
-                });
-        }
 
-        // Tự động chạy hàm tải thống kê ngay khi mở trang web
-        document.addEventListener('DOMContentLoaded', loadSurveyStats);
         // --- LOGIC HỆ THỐNG KHẢO SÁT & GÓP Ý ---
         
         // 1. Kiểm tra bộ nhớ trình duyệt xem người dùng đã từng khảo sát chưa
@@ -788,7 +738,7 @@
         if (!hasSurveyed) {
             setTimeout(() => {
                 document.getElementById('surveyModal').style.display = 'flex';
-            }, 12000); // 12000 = 2 phút. Đồng chí có thể sửa số này nếu muốn nhanh/chậm hơn
+            }, 3000); // 3000 = 2 phút. Đồng chí có thể sửa số này nếu muốn nhanh/chậm hơn
         }
 
         // Hàm đóng khảo sát và GHI NHỚ không bao giờ hiện lại nữa
@@ -1738,5 +1688,4 @@
         }
     </script>
 </body>
-
 </html>
