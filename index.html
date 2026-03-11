@@ -1319,7 +1319,7 @@
                 botDiv.className = 'msg msg-bot';
                 
                 // Chuyển dấu sao Markdown thành thẻ in đậm HTML
-                let replyText = result.reply || "Xin lỗi, tôi không thể trả lời lúc này.";
+                let replyText = result.reply || result.error || "Xin lỗi, tôi không thể trả lời lúc này.";
                 replyText = replyText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
                 replyText = replyText.replace(/\*(.*?)\*/g, '<i>$1</i>');
                 replyText = replyText.replace(/\n/g, '<br>');
