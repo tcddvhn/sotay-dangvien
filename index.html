@@ -1130,16 +1130,24 @@
             document.getElementById('searchTagFilter').value = '';
             performSearch(); 
         }
-
+	// Hàm loại bỏ dấu tiếng Việt để tìm kiếm chính xác hơn
+function removeAccents(str) {
+    if (!str) return '';
+    return str.normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/đ/g, 'd')
+              .replace(/Đ/g, 'D');
+}
 function performSearch() {
     let kwRaw = document.getElementById('searchInput').value.trim(); 
+    // Bây giờ lệnh dưới đây sẽ không còn báo lỗi nữa vì đã có hàm ở Bước 1
     let kwNoAccent = removeAccents(kwRaw); 
+    
     let filterTag = document.getElementById('searchTagFilter').value.toLowerCase();
     let resContainer = document.getElementById('searchResults'); 
     let faqDiv = document.getElementById('faqSuggestions');
     let histDiv = document.getElementById('searchHistoryArea');
 
-    // 1. Kiểm tra điều kiện tìm kiếm
     if (kwNoAccent.length < 2 && filterTag === '') { 
         resContainer.innerHTML = '<div class="no-result">Vui lòng gõ ít nhất 2 ký tự hoặc chọn bộ lọc.</div>'; 
         faqDiv.style.display = 'block'; 
@@ -1147,15 +1155,16 @@ function performSearch() {
         return; 
     }
 
-    // 2. GỌI LỆNH GHI NHẬN TÌM KIẾM (Đã sửa tên biến thành kwRaw)
-    // Chỉ ghi nhận khi từ khóa hợp lệ
+    // GỌI LỆNH GHI NHẬN TÌM KIẾM VÀO GOOGLE SHEETS
+    // Lưu ý: Dùng kwRaw để trong Sheet hiện từ khóa có dấu cho dễ đọc
     if (typeof recordSearch === "function") {
         recordSearch(kwRaw);
     }
 
-    // 3. Logic tìm kiếm tiếp theo của đồng chí...
+    // Tiếp tục các logic tìm kiếm và hiển thị kết quả của đồng chí...
     faqDiv.style.display = 'none';
     histDiv.style.display = 'none';
+
             lastSearchKeyword = kwRaw; 
             let results = [];
             
