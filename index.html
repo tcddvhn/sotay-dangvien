@@ -632,6 +632,56 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
+// =====================================================================
+// KẾT NỐI HỆ THỐNG THỐNG KÊ (WEB APP)
+// =====================================================================
+const STATS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwi-3O5tJQeXy8We87nOdg3f0lYf2-DUI71G9jNyx-Z_fVUy6lWIQ4nXvvi9FFB0v0w/exec";
+
+// 1. Hàm Tải số liệu từ máy chủ và vẽ biểu đồ
+function fetchAndRenderStats() {
+    if (!STATS_WEB_APP_URL) return;
+    
+    fetch(STATS_WEB_APP_URL)
+        .then(response => response.json())
+        .then(data => {
+            // Gọi hàm renderDashboard đã được tối ưu (Hàm vẽ biểu đồ tôi gửi ở tin nhắn trước)
+            if (typeof renderDashboard === "function") {
+                renderDashboard(data);
+            }
+        })
+        .catch(err => console.log("Lỗi tải thống kê: ", err));
+}
+
+// 2. Hàm Ghi nhận lượt truy cập (Chỉ tính 1 lần mỗi phiên duyệt web)
+function recordVisit() {
+    if (!sessionStorage.getItem('has_recorded_visit')) {
+        fetch(STATS_WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({ action: 'visit' })
+        });
+        sessionStorage.setItem('has_recorded_visit', 'true');
+    }
+}
+
+// 3. Hàm Ghi nhận lượt tìm kiếm
+function recordSearch(keyword) {
+    if (!keyword) return;
+    fetch(STATS_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify({ action: 'search', detail: keyword })
+    });
+    
+    // Tải lại bảng thống kê để số liệu cập nhật ngay lập tức
+    setTimeout(fetchAndRenderStats, 1500); // Chờ 1.5s để server ghi xong rồi tải lại
+}
+
+// Tự động chạy khi Sổ tay được mở
+document.addEventListener("DOMContentLoaded", () => {
+    recordVisit();          // Ghi nhận lượt truy cập
+    fetchAndRenderStats();  // Tải bảng thống kê
+});
         const PDF_VIEWER_URL = "web/viewer.html"; 
         const PDF_COLLECTION = {
             "hd02": { name: "Hướng dẫn 02", shortName: "HD 02", file: "huongdan.pdf" },
