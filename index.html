@@ -34,7 +34,34 @@
             --shadow-color: rgba(0,0,0,0.03);
             --pdf-panel-width: 50%;
         }
-
+	.survey-modal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.7); display: none; align-items: center; 
+            justify-content: center; z-index: 30000; font-family: -apple-system, sans-serif;
+        }
+        .survey-content { 
+            background: white; padding: 25px; border-radius: 12px; 
+            width: 350px; max-width: 85vw; text-align: center; 
+            border-top: 6px solid #cc0000; box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            animation: popIn 0.3s ease-out;
+        }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .survey-options button { 
+            display: block; width: 100%; margin: 10px 0; padding: 12px; 
+            border: 1px solid #ddd; border-radius: 8px; cursor: pointer; 
+            background: #f9f9f9; font-weight: bold; transition: 0.2s; font-size: 0.95rem;
+        }
+        .survey-options button:hover { background: #fff3e0; border-color: #f39c12; transform: translateY(-2px); }
+        
+        #feedbackText { 
+            width: 100%; height: 100px; margin: 15px 0; padding: 10px; 
+            border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; resize: none; font-family: inherit;
+        }
+        .btn-submit { 
+            background: #cc0000; color: white; border: none; 
+            padding: 10px 20px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.95rem;
+        }
         body.dark-mode {
             --bg-main: #121212;
             --bg-box: #1e1e1e;
@@ -699,7 +726,74 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        const PDF_VIEWER_URL = "web/viewer.html"; 
+        // --- CẤU HÌNH LINK WEB APP KHẢO SÁT MỚI CỦA ĐỒNG CHÍ ---
+        const SURVEY_APP_URL = "https://script.google.com/macros/s/AKfycby1oXVzH9EeR0v1j2goesabdRwKECaUWLJNuPaeOJNBbsF0p5kAsgc53c-ISqOg491z/exec";
+
+        // --- LOGIC HỆ THỐNG KHẢO SÁT & GÓP Ý ---
+        
+        // 1. Kiểm tra bộ nhớ trình duyệt xem người dùng đã từng khảo sát chưa
+        const hasSurveyed = localStorage.getItem("surveyCompleted");
+
+        // 2. Nếu chưa từng khảo sát, hẹn giờ 2 phút (120.000 ms) để hiện Popup
+        if (!hasSurveyed) {
+            setTimeout(() => {
+                document.getElementById('surveyModal').style.display = 'flex';
+            }, 3000); // 3000 = 2 phút. Đồng chí có thể sửa số này nếu muốn nhanh/chậm hơn
+        }
+
+        // Hàm đóng khảo sát và GHI NHỚ không bao giờ hiện lại nữa
+        function closeSurvey() {
+            document.getElementById('surveyModal').style.display = 'none';
+            localStorage.setItem("surveyCompleted", "true"); // Lưu vết vào trình duyệt
+        }
+
+        // Hiện bước nhập góp ý (khi bấm Cần bổ sung)
+        function showFeedbackPart() {
+            document.getElementById('surveyStep1').style.display = 'none';
+            document.getElementById('surveyStep2').style.display = 'block';
+        }
+
+        // Hiện bước cảm ơn
+        function showThanks() {
+            document.getElementById('surveyStep1').style.display = 'none';
+            document.getElementById('surveyStep2').style.display = 'none';
+            document.getElementById('surveyThanks').style.display = 'block';
+            localStorage.setItem("surveyCompleted", "true"); // Khảo sát xong, lưu vết không hiện lại
+        }
+
+        // Gửi khảo sát mức độ hài lòng (Rất hài lòng / Hài lòng)
+        function sendSurvey(level) {
+            fetch(SURVEY_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ type: 'survey', content: level })
+            });
+            showThanks(); // Bay thẳng sang Cảm ơn
+        }
+
+        // Gửi góp ý chi tiết (Khi chọn Cần bổ sung)
+        function sendFeedback() {
+            const text = document.getElementById('feedbackText').value.trim();
+            if (!text) {
+                alert("Mời đồng chí nhập nội dung cần bổ sung!");
+                return;
+            }
+
+            const btn = document.querySelector('#surveyStep2 .btn-submit');
+            btn.innerText = "ĐANG GỬI...";
+            btn.disabled = true;
+
+            fetch(SURVEY_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ type: 'feedback', content: text })
+            }).then(() => {
+                showThanks(); // Xong việc -> Hiện cảm ơn
+            }).catch(() => {
+                showThanks(); 
+            });
+        }
+	const PDF_VIEWER_URL = "web/viewer.html"; 
         const PDF_COLLECTION = {
             "hd02": { name: "Hướng dẫn 02", shortName: "HD 02", file: "huongdan.pdf" },
             "qd294": { name: "Quy định 294", shortName: "QĐ 294", file: "quydinh294.pdf" },
@@ -1462,6 +1556,136 @@
                 chatBox.style.display = 'none'; // Tự động đóng
             }
         }, true); // Tham số true giúp bắt sự kiện nhạy và chuẩn xác hơn
+    </script>
+<div id="surveyModal" class="survey-modal">
+        <div class="survey-content" id="surveyStep1">
+            <h3 style="color: #cc0000; margin-top: 0; font-family: -apple-system, sans-serif;">Đánh giá mức độ hữu ích</h3>
+            <p style="font-family: -apple-system, sans-serif; font-size: 0.95rem;">Đồng chí đánh giá thế nào về nội dung của Sổ tay?</p>
+            <div class="survey-options">
+                <button onclick="sendSurvey('Rất hài lòng')">😊 Rất hài lòng</button>
+                <button onclick="sendSurvey('Hài lòng')">🙂 Hài lòng</button>
+                <button onclick="showFeedbackPart()" style="border-color: #f39c12; color: #d35400;">⚙️ Cần cập nhật, bổ sung</button>
+            </div>
+            <button onclick="closeSurvey()" style="margin-top: 15px; background: transparent; color: #999; border: none; font-size: 0.85rem; text-decoration: underline; cursor: pointer;">Đóng và không hiện lại</button>
+        </div>
+
+        <div class="survey-content" id="surveyStep2" style="display:none;">
+            <h3 style="color: #cc0000; margin-top: 0; font-family: -apple-system, sans-serif;">Nội dung đóng góp</h3>
+            <p style="font-size: 0.85rem; color: #666; font-family: -apple-system, sans-serif;">Mời đồng chí cho biết nội dung cần hoàn thiện hoặc bổ sung:</p>
+            <textarea id="feedbackText" placeholder="Ví dụ: Cần bổ sung quy định về..."></textarea>
+            <button class="btn-submit" onclick="sendFeedback()">GỬI Ý KIẾN</button>
+            <button class="btn-submit" onclick="closeSurvey()" style="background: #7f8c8d; margin-top: 10px;">BỎ QUA</button>
+        </div>
+
+        <div class="survey-content" id="surveyThanks" style="display:none;">
+            <div style="font-size: 40px;">🎉</div>
+            <h3 style="color: #2e7d32; font-family: -apple-system, sans-serif;">Trân trọng cảm ơn đồng chí!</h3>
+            <p style="font-family: -apple-system, sans-serif; font-size: 0.95rem;">Ý kiến của đồng chí đã được ghi nhận để giúp Sổ tay hoàn thiện hơn.</p>
+            <button class="btn-submit" onclick="closeSurvey()" style="margin-top: 15px;">ĐÓNG</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. CẤU HÌNH LINK WEB APP (Đồng chí dán 2 link của mình vào đây) ---
+        const CHAT_APP_URL = "DÁN_LINK_WEB_APP_CHATBOT_AI_VÀO_ĐÂY"; 
+        const SURVEY_APP_URL = "DÁN_LINK_WEB_APP_KHẢO_SÁT_VÀO_ĐÂY";
+
+        // --- 2. QUẢN LÝ CHATBOT AI ---
+        function toggleChat() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.style.display = (chatBox.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Hiện hiệu ứng AI đang gõ
+            const typingIndicator = document.getElementById('typingIndicator') || document.getElementById('typing');
+            if(typingIndicator) typingIndicator.style.display = 'block'; 
+
+            try {
+                const response = await fetch(CHAT_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ type: 'chat', message: message })
+                });
+                const data = await response.json();
+                addMessage(data.reply || data.error, 'bot');
+            } catch (e) {
+                addMessage("Hệ thống AI đang quá tải, đồng chí vui lòng thử lại sau.", 'bot');
+            } finally {
+                if(typingIndicator) typingIndicator.style.display = 'none';
+            }
+        }
+
+        function addMessage(text, sender) {
+            const body = document.getElementById('chatBody');
+            const div = document.createElement('div');
+            div.className = `msg msg-${sender}`;
+            div.innerText = text;
+            body.appendChild(div);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        // --- 3. QUẢN LÝ KHẢO SÁT & GÓP Ý ---
+        const hasSurveyed = localStorage.getItem("surveyCompleted");
+
+        if (!hasSurveyed) {
+            // LƯU Ý: Tôi đang để 5000 (5 giây) để đồng chí TEST. 
+            // Sau khi test bảng hiện ra thành công, đồng chí hãy đổi số 5000 này thành 120000 (2 phút) nhé!
+            setTimeout(() => {
+                document.getElementById('surveyModal').style.display = 'flex';
+            }, 5000); 
+        }
+
+        function closeSurvey() {
+            document.getElementById('surveyModal').style.display = 'none';
+            localStorage.setItem("surveyCompleted", "true"); 
+        }
+
+        function showFeedbackPart() {
+            document.getElementById('surveyStep1').style.display = 'none';
+            document.getElementById('surveyStep2').style.display = 'block';
+        }
+
+        function showThanks() {
+            document.getElementById('surveyStep1').style.display = 'none';
+            document.getElementById('surveyStep2').style.display = 'none';
+            document.getElementById('surveyThanks').style.display = 'block';
+            localStorage.setItem("surveyCompleted", "true"); 
+        }
+
+        function sendSurvey(level) {
+            fetch(SURVEY_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ type: 'survey', content: level })
+            });
+            showThanks(); 
+        }
+
+        function sendFeedback() {
+            const text = document.getElementById('feedbackText').value.trim();
+            if (!text) return alert("Mời đồng chí nhập nội dung cần bổ sung!");
+
+            const btn = document.querySelector('#surveyStep2 .btn-submit');
+            btn.innerText = "ĐANG GỬI...";
+            btn.disabled = true;
+
+            fetch(SURVEY_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ type: 'feedback', content: text })
+            }).then(() => {
+                showThanks(); 
+            }).catch(() => {
+                showThanks(); 
+            });
+        }
     </script>
 </body>
 </html>
