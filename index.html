@@ -1131,25 +1131,31 @@
             performSearch(); 
         }
 
-        function removeAccents(str) { return str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : ""; }
-        
-        function performSearch() {
-            let kwRaw = document.getElementById('searchInput').value.trim(); 
-            let kwNoAccent = removeAccents(kwRaw); 
-            let filterTag = document.getElementById('searchTagFilter').value.toLowerCase();
-            let resContainer = document.getElementById('searchResults'); 
-            let faqDiv = document.getElementById('faqSuggestions');
-            let histDiv = document.getElementById('searchHistoryArea');
+function performSearch() {
+    let kwRaw = document.getElementById('searchInput').value.trim(); 
+    let kwNoAccent = removeAccents(kwRaw); 
+    let filterTag = document.getElementById('searchTagFilter').value.toLowerCase();
+    let resContainer = document.getElementById('searchResults'); 
+    let faqDiv = document.getElementById('faqSuggestions');
+    let histDiv = document.getElementById('searchHistoryArea');
 
-            if (kwNoAccent.length < 2 && filterTag === '') { 
-                resContainer.innerHTML = '<div class="no-result">Vui lòng gõ ít nhất 2 ký tự hoặc chọn bộ lọc.</div>'; 
-                faqDiv.style.display = 'block'; 
-                if (JSON.parse(localStorage.getItem('sotay_search_history') || '[]').length > 0) histDiv.style.display = 'block';
-                return; 
-            } 
-            recordSearch(query);
-            faqDiv.style.display = 'none'; 
-            histDiv.style.display = 'none'; 
+    // 1. Kiểm tra điều kiện tìm kiếm
+    if (kwNoAccent.length < 2 && filterTag === '') { 
+        resContainer.innerHTML = '<div class="no-result">Vui lòng gõ ít nhất 2 ký tự hoặc chọn bộ lọc.</div>'; 
+        faqDiv.style.display = 'block'; 
+        if (JSON.parse(localStorage.getItem('sotay_search_history') || '[]').length > 0) histDiv.style.display = 'block';
+        return; 
+    }
+
+    // 2. GỌI LỆNH GHI NHẬN TÌM KIẾM (Đã sửa tên biến thành kwRaw)
+    // Chỉ ghi nhận khi từ khóa hợp lệ
+    if (typeof recordSearch === "function") {
+        recordSearch(kwRaw);
+    }
+
+    // 3. Logic tìm kiếm tiếp theo của đồng chí...
+    faqDiv.style.display = 'none';
+    histDiv.style.display = 'none';
             lastSearchKeyword = kwRaw; 
             let results = [];
             
