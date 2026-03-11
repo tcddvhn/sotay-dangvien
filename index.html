@@ -322,7 +322,22 @@
         #chatBtn:hover { transform: scale(1.05); background: var(--primary-dark); }
         #chatBox { width: 350px; max-width: 90vw; height: 450px; background: var(--bg-box); border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); display: none; flex-direction: column; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border-color); animation: slideUpChat 0.3s ease; }
         @keyframes slideUpChat { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .chat-header { background: var(--primary-color); color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-family: -apple-system, sans-serif; }
+        .chat-header { 
+            background: var(--primary-color); 
+            color: white; 
+            padding: 6px 15px; /* Đã giảm từ 15px xuống 6px để thu nhỏ 1/2 chiều cao */
+            font-size: 0.95rem; 
+            font-weight: bold; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-family: -apple-system, sans-serif; 
+            cursor: grab; /* Hiện bàn tay khi di chuột vào */
+            user-select: none; /* Tránh bôi đen chữ khi vô tình nhấp đúp */
+        }
+        .chat-header:active {
+            cursor: grabbing; /* Bàn tay nắm lại khi đang kéo */
+        }
         .chat-close { cursor: pointer; font-size: 1.2rem; }
         .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: var(--bg-main); font-family: -apple-system, sans-serif; font-size: 0.95rem; }
         .msg { padding: 10px 15px; border-radius: 18px; max-width: 85%; line-height: 1.4; word-wrap: break-word; }
@@ -470,7 +485,7 @@
         <div id="chatBox">
             <div class="chat-header">
                 <span>🤖 Trợ lý AI Sổ tay</span>
-                <span class="chat-close" onclick="toggleChat()">✕</span>
+                <span class="chat-close" onclick="toggleChat(); event.stopPropagation();">✕</span>
             </div>
             <div class="chat-body" id="chatBody">
                 <div class="msg msg-bot">Xin chào! Tôi là trợ lý AI của Sổ tay TCĐ,ĐV. Tôi có thể giúp gì cho bạn hôm nay?</div>
@@ -1346,6 +1361,54 @@
                 botDiv.className = 'msg msg-bot';
                 botDiv.innerText = "Tôi đang nghiên cứu câu hỏi của bạn, bạn có thể hỏi tiếp nội dung khác!";
                 chatBody.appendChild(botDiv);
+            }
+        }
+    // --- CHỨC NĂNG KÉO THẢ BONG BÓNG CHAT ---
+        const chatWidget = document.getElementById("chatWidget");
+        const chatHeader = document.querySelector(".chat-header");
+
+        let isDragging = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
+
+        // Bắt sự kiện cho Chuột (Desktop)
+        chatHeader.addEventListener("mousedown", dragStart);
+        document.addEventListener("mouseup", dragEnd);
+        document.addEventListener("mousemove", drag);
+
+        // Bắt sự kiện cho Cảm ứng (Mobile)
+        chatHeader.addEventListener("touchstart", dragStart, { passive: false });
+        document.addEventListener("touchend", dragEnd);
+        document.addEventListener("touchmove", drag, { passive: false });
+
+        function dragStart(e) {
+            // Không kích hoạt kéo nếu bấm vào nút X
+            if (e.target.classList.contains('chat-close')) return; 
+            
+            initialX = e.type === "touchstart" ? e.touches[0].clientX - xOffset : e.clientX - xOffset;
+            initialY = e.type === "touchstart" ? e.touches[0].clientY - yOffset : e.clientY - yOffset;
+            
+            if (e.target === chatHeader || chatHeader.contains(e.target)) {
+                isDragging = true;
+            }
+        }
+
+        function dragEnd() {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault(); // Ngăn trang web cuộn theo khi đang kéo trên điện thoại
+                
+                currentX = e.type === "touchmove" ? e.touches[0].clientX - initialX : e.clientX - initialX;
+                currentY = e.type === "touchmove" ? e.touches[0].clientY - initialY : e.clientY - initialY;
+
+                xOffset = currentX;
+                yOffset = currentY;
+
+                // Di chuyển toàn bộ Widget (cả khung chat và nút tròn)
+                chatWidget.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
             }
         }
 
