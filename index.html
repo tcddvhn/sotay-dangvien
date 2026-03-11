@@ -18,7 +18,7 @@
             --primary-dark: #a30000; 
             --yellow-party: #f39c12; 
             --bg-sidebar: #1e2b3c; 
-            --header-height: 70px;
+            --header-height: 55px;
             --nav-bottom-height: 65px;
             --bg-main: #f8f9fa;
             --bg-box: #ffffff;
@@ -30,38 +30,11 @@
             --bg-hover: #f1f2f6;
             --bg-phan: #fcebeb;
             --text-phan: #cc0000;
-            --text-muc: #0d47a1;
+            --text-muc: #b71c1c;
             --shadow-color: rgba(0,0,0,0.03);
             --pdf-panel-width: 50%;
         }
-	.survey-modal { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.7); display: none; align-items: center; 
-            justify-content: center; z-index: 30000; font-family: -apple-system, sans-serif;
-        }
-        .survey-content { 
-            background: white; padding: 25px; border-radius: 12px; 
-            width: 350px; max-width: 85vw; text-align: center; 
-            border-top: 6px solid #cc0000; box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-            animation: popIn 0.3s ease-out;
-        }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        .survey-options button { 
-            display: block; width: 100%; margin: 10px 0; padding: 12px; 
-            border: 1px solid #ddd; border-radius: 8px; cursor: pointer; 
-            background: #f9f9f9; font-weight: bold; transition: 0.2s; font-size: 0.95rem;
-        }
-        .survey-options button:hover { background: #fff3e0; border-color: #f39c12; transform: translateY(-2px); }
-        
-        #feedbackText { 
-            width: 100%; height: 100px; margin: 15px 0; padding: 10px; 
-            border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; resize: none; font-family: inherit;
-        }
-        .btn-submit { 
-            background: #cc0000; color: white; border: none; 
-            padding: 10px 20px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.95rem;
-        }
+
         body.dark-mode {
             --bg-main: #121212;
             --bg-box: #1e1e1e;
@@ -82,7 +55,7 @@
         .top-header { padding-top: env(safe-area-inset-top); }
         #breadcrumbBar { top: calc(var(--header-height) + env(safe-area-inset-top)); }
         
-        .main-content { padding-top: calc(90px + env(safe-area-inset-top)); padding-bottom: calc(var(--nav-bottom-height) + 20px + env(safe-area-inset-bottom)); min-height: 100vh; transition: 0.3s ease; }
+        .main-content { padding-top: calc(75px + env(safe-area-inset-top)); padding-bottom: calc(var(--nav-bottom-height) + 20px + env(safe-area-inset-bottom)); min-height: 100vh; transition: 0.3s ease; }
         
         #readingProgress { position: fixed; top: 0; left: 0; height: 3px; background: var(--yellow-party); width: 0%; z-index: 9999; transition: width 0.1s; }
 
@@ -94,22 +67,38 @@
         .toggle-btn { background: var(--bg-box); color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 14px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.2s; font-family: -apple-system, sans-serif; font-weight: bold; white-space: nowrap;}
         .toggle-btn:hover { background: var(--bg-hover); }
 
-        .top-header { 
-            position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); 
-            background-color: var(--primary-color);
-            background-image: linear-gradient(rgba(204, 0, 0, 0.85), rgba(204, 0, 0, 0.85)), url('https://i.postimg.cc/zf6J3RQ8/img_5_hinh_nen_powerpoint_trong_dong.jpg');
-            background-size: cover;
-            background-position: center;
-            z-index: 990; display: flex; align-items: center; padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left)); justify-content: space-between; color: white; font-weight: bold; font-family: -apple-system, sans-serif; transition: right 0.3s ease, left 0.3s ease; 
-        }
-        .header-title { font-size: 1.15rem; letter-spacing: 0.5px; flex:1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);}
+        .sidebar { width: 320px; max-width: 85vw; background-color: var(--bg-sidebar); color: white; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1000; transition: transform 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; transform: translateX(-100%); overflow: hidden; padding-top: env(safe-area-inset-top);}
+        .sidebar.active { transform: translateX(0); } 
+        .sidebar h3 { border-bottom: 1px solid #34495e; padding-bottom: 15px; margin-top: 20px; text-transform: uppercase; font-size: 1.1rem; text-align: center; color: var(--yellow-party); font-family: -apple-system, sans-serif; letter-spacing: 1px; flex-shrink: 0; margin-left: 10px; margin-right: 10px;}
+        .close-sidebar-btn { text-align: right; margin-bottom: 10px; display: block; padding-right: 15px; margin-top: 15px; flex-shrink: 0;}
+        
+        .sidebar-menu-tree { flex: 1; overflow-y: auto; font-family: -apple-system, sans-serif; font-size: 0.95rem; padding: 0 10px; padding-bottom: 20px;}
+        .sidebar-menu-tree ul { list-style: none; padding-left: 15px; margin: 0; display: none; }
+        .sidebar-menu-tree > ul { padding-left: 0; display: block; } 
+        .sidebar-menu-tree ul.active { display: block; }
+        .menu-item-row { display: flex; align-items: flex-start; padding: 10px 5px; border-bottom: 1px solid rgba(255,255,255,0.02); color: #ecf0f1; transition: 0.2s; }
+        .menu-item-row:hover { background-color: rgba(255,255,255,0.05); }
+        .menu-toggle { display: inline-block; width: 20px; text-align: center; cursor: pointer; color: #7f8c8d; user-select: none; font-size: 0.75rem; padding-top: 3px; flex-shrink: 0;}
+        .menu-toggle:hover { color: var(--yellow-party); }
+        .menu-link { flex: 1; cursor: pointer; text-decoration: none; color: inherit; padding-left: 5px; border-radius: 4px; transition: 0.2s; line-height: 1.4; word-break: break-word; white-space: normal;}
+        .menu-link.active-menu { color: var(--yellow-party) !important; font-weight: bold; background: rgba(255,255,255,0.05); padding: 4px 8px; border-left: 3px solid var(--yellow-party); }
+        
+        .admin-trigger { padding: 15px; border-top: 1px solid rgba(255,255,255,0.05); cursor: pointer; color: #7f8c8d; text-align: center; background: var(--bg-sidebar); padding-bottom: calc(15px + var(--nav-bottom-height) + env(safe-area-inset-bottom)); flex-shrink: 0; font-family: -apple-system, sans-serif; font-size: 0.95rem; font-weight: bold;}
+        .admin-trigger:hover { color: white; background: rgba(255,255,255,0.05); }
+
+        .top-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); background: var(--primary-color); z-index: 990; display: flex; align-items: center; padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left)); justify-content: space-between; color: white; font-weight: bold; font-family: -apple-system, sans-serif; transition: right 0.3s ease, left 0.3s ease; }
+        .menu-toggle-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; margin-right: 10px; padding:0; display:flex; align-items:center;}
+        .header-title { font-size: 1.15rem; letter-spacing: 0.5px; flex:1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         .header-actions { display: flex; gap: 4px; align-items: center;}
 
+        .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(2px); }
+        .overlay.active { display: block; }
+
         h1 { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 15px; margin-top: 0; font-size: 1.5rem; text-transform: uppercase; line-height: 1.3; font-family: -apple-system, sans-serif; word-wrap: break-word;}
-        .phan-header { background-color: var(--bg-box); padding: 12px 15px; border: 1px solid var(--border-color); border-left: 4px solid var(--primary-color); margin-top: 20px; color: var(--text-phan); font-size: 1.25em; font-weight: bold; transition: background-color 0.3s; word-wrap: break-word;}
+        .phan-header { background-color: var(--bg-box); padding: 15px; border: 1px solid var(--border-color); border-left: 4px solid var(--primary-color); margin-top: 30px; color: var(--text-phan); font-size: 1.25em; font-weight: bold; transition: background-color 0.3s; word-wrap: break-word;}
         
-        .step-box { background: var(--bg-box); margin-bottom: 8px; position: relative; scroll-margin-top: 100px; transition: background-color 0.3s; }
-        #tab-quydinh > div > .step-box { border: 1px solid var(--border-color); margin-top: 10px; }
+        .step-box { background: var(--bg-box); margin-bottom: 10px; position: relative; scroll-margin-top: 100px; transition: background-color 0.3s; }
+        #tab-quydinh > div > .step-box { border: 1px solid var(--border-color); margin-top: 15px; }
         #tab-quydinh > div > .step-box.level-1 { border-left: 4px solid var(--primary-color) !important; }
         #tab-quydinh > div > .step-box > .step-header { border-bottom: 1px solid transparent; }
         #tab-quydinh > div > .step-box.active > .step-header { border-bottom: 1px solid var(--border-light); background-color: var(--bg-header); }
@@ -117,13 +106,11 @@
         .step-body .step-box > .step-header { background: transparent; border-radius: 0; }
         .step-body .step-box.active > .step-header { background-color: var(--bg-hover); }
 
-        /* Đổi màu các đường kẻ dọc bên trái cho chuẩn màu phân cấp */
-        .step-body .step-box.level-2 > .step-header { border-left: 3px solid #1b5e20; padding-left: 15px; } /* Xanh lá đậm */
-        .step-body .step-box.level-3 > .step-header { border-left: 3px solid #34495e; padding-left: 20px; } /* Xám đen */
-        .step-body .step-box.level-4 > .step-header { border-left: 2px solid #d35400; padding-left: 25px; } /* Cam đất */
+        .step-body .step-box.level-2 > .step-header { border-left: 3px solid #3498db; padding-left: 15px; } 
+        .step-body .step-box.level-3 > .step-header { border-left: 3px solid #2ecc71; padding-left: 25px; } 
+        .step-body .step-box.level-4 > .step-header { border-left: 2px solid var(--primary-color); padding-left: 35px; } 
 
-        /* Giảm padding cho tiêu đề gọn lại */
-        .step-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s; background-color: var(--bg-box);}
+        .step-header { padding: 14px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s; background-color: var(--bg-box);}
         .step-header:hover { background: var(--bg-hover); }
         .step-title-wrapper { flex: 1; padding-right: 10px; font-size: 1.05rem; word-wrap: break-word; overflow-wrap: break-word;}
         .step-icon { color: var(--text-muted); transition: transform 0.3s ease; display:flex; align-items:center; padding-left: 5px; flex-shrink:0;}
@@ -133,19 +120,14 @@
         @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         
         .step-body-inner { padding: 0; }
-        /* Giảm padding nội dung và triệt tiêu khoảng trống thừa của thẻ p (QuillJS) */
-        .content-text { padding: 10px 10px 10px 15px; border-top: 1px solid var(--border-light); text-align: justify; font-size: 1.15rem; word-wrap: break-word; overflow-wrap: break-word; overflow: hidden;}
-        .content-text p { margin-top: 0; margin-bottom: 6px; }
-        .content-text p:last-child { margin-bottom: 0; }
+        .content-text { padding: 15px 10px 15px 15px; border-top: 1px solid var(--border-light); text-align: justify; font-size: 1.15rem; word-wrap: break-word; overflow-wrap: break-word; overflow: hidden;}
         .content-text img, .content-text table { max-width: 100%; height: auto; display: block; }
 
         .step-box.active > .step-header .step-icon { transform: rotate(180deg); color: var(--primary-color); }
-        /* Đổi màu text của Level 4 */
-        .step-number { background: transparent; color: #d35400; padding: 0; font-weight: bold; display: inline-block; font-size: 1.05rem; font-family: -apple-system, sans-serif;}
+        .step-number { background: transparent; color: #3498db; padding: 0; font-weight: bold; display: inline-block; font-size: 1.05rem; font-family: -apple-system, sans-serif;}
         .tag-label { font-size: 0.75rem; text-transform: uppercase; color: #95a5a6; font-weight: bold; margin-bottom: 4px; display: inline-block; letter-spacing: 0.5px; font-family: -apple-system, sans-serif;}
         
-        /* Giảm margin của vùng nút bấm */
-        .step-actions-right { display: flex; gap: 8px; justify-content: flex-end; margin: 5px 15px 10px 15px; flex-wrap: wrap; }
+        .step-actions-right { display: flex; gap: 8px; justify-content: flex-end; margin: 5px 15px 15px 15px; flex-wrap: wrap; }
         .btn-mini { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; font-size: 0.85rem; cursor: pointer; font-weight: 600; font-family: -apple-system, sans-serif; transition: 0.2s; border: 1px solid transparent; white-space: nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis;}
         .btn-mini-detail { background-color: transparent; color: #2980b9; border-color: #3498db; }
         .btn-mini-detail:hover { background-color: #3498db; color: white; }
@@ -180,7 +162,7 @@
         .nav-item.active { color: var(--primary-color); }
         .nav-item:hover { background: var(--bg-hover); color: var(--primary-color);}
 
-        .hero-search { background: var(--primary-color); padding: 20px 15px; border-radius: 0; margin: -15px -15px 25px -15px; text-align: center; color: white; }
+        .hero-search { background: var(--primary-color); padding: 35px 15px; border-radius: 0; margin: -15px -15px 25px -15px; text-align: center; color: white; }
         .hero-search h2 { margin-top: 0; margin-bottom: 20px; font-family: -apple-system, sans-serif; font-size: 1.3rem;}
         .hero-search-box { display: flex; background: white; padding: 4px; border-radius: 4px; flex-wrap: nowrap; align-items:center;}
         .hero-search-box input { flex: 1; border: none; padding: 12px 10px; font-size: 1.05rem; outline: none; font-family: -apple-system, sans-serif; color:#333; min-width:0;}
@@ -263,6 +245,8 @@
         @media (min-width: 992px) { 
             .bottom-nav { width: 80px; height: 100vh; flex-direction: column; justify-content: flex-start; top: 0; left: 0; border-top: none; border-right: 1px solid var(--border-color); padding-top: calc(var(--header-height) + 20px); z-index: 2005;}
             .nav-item { flex: none; height: 80px; width: 100%; margin-bottom: 10px; }
+            .overlay { left: 80px; z-index: 1999;}
+            .sidebar { left: 80px; z-index: 2000; box-shadow: 5px 0 15px rgba(0,0,0,0.05);}
             .top-header { left: 80px; z-index: 1000;} 
             .main-content { margin-left: 80px; padding-left: 60px; padding-right: 60px; padding-bottom: 40px;} 
             body.pdf-open .main-content { margin-right: var(--pdf-panel-width); padding-right: 30px !important; padding-left: 30px !important;}
@@ -285,12 +269,13 @@
         @media (max-width: 400px) {
             body { font-size: 1.02rem; }
             .header-title { font-size: 1.05rem; }
+            .menu-toggle-btn { margin-right: 5px; font-size: 20px;}
             .header-actions { gap: 2px; }
             .toggle-btn { padding: 5px 8px; font-size: 0.75rem; }
             .bottom-nav { height: calc(60px + env(safe-area-inset-bottom)); }
             .nav-item { font-size: 0.65rem; padding: 0;}
             .nav-item svg { width: 20px; height: 20px; }
-            .hero-search { padding: 15px; } 
+            .hero-search { padding: 25px 15px; }
             .hero-search-box input { padding: 10px 8px; font-size: 1rem; }
             .hero-search-box button { padding: 0 12px; }
             .step-header { padding: 12px 10px; }
@@ -343,73 +328,12 @@
         .ql-container.ql-snow { border-radius: 0 0 6px 6px; border-color: var(--border-color); }
         #inpSummary .ql-editor { min-height: 80px; }
         #inpDetail .ql-editor { min-height: 250px; }
-/* --- GIAO DIỆN CHATBOT --- */
-        #chatWidget { position: fixed; bottom: calc(var(--nav-bottom-height) + 20px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; }
-        #chatBtn { background: var(--primary-color); color: white; border: none; width: 55px; height: 55px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        #chatBtn:hover { transform: scale(1.05); background: var(--primary-dark); }
-        /* Cửa sổ chat - Luôn căn giữa màn hình */
-        #chatBox { 
-            position: fixed; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); /* Bí quyết căn chính giữa */
-            z-index: 10000; 
-            width: 350px; 
-            max-width: 90vw; 
-            height: 450px; 
-            background: var(--bg-box); 
-            border-radius: 12px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4); /* Bóng to hơn để nổi bật */
-            display: none; 
-            flex-direction: column; 
-            overflow: hidden; 
-            border: 1px solid var(--border-color); 
-            animation: popUpChat 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
-        }
-        
-        /* Hiệu ứng mở cửa sổ mượt mà */
-        @keyframes popUpChat { 
-            from { opacity: 0; transform: translate(-50%, -45%) scale(0.9); } 
-            to { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
-        }
-        .chat-header { 
-            background: var(--primary-color); 
-            color: white; 
-            padding: 6px 15px; /* Đã giảm từ 15px xuống 6px để thu nhỏ 1/2 chiều cao */
-            font-size: 0.95rem; 
-            font-weight: bold; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            font-family: -apple-system, sans-serif; 
-            cursor: grab; /* Hiện bàn tay khi di chuột vào */
-            user-select: none; /* Tránh bôi đen chữ khi vô tình nhấp đúp */
-        }
-        .chat-header:active {
-            cursor: grabbing; /* Bàn tay nắm lại khi đang kéo */
-        }
-        .chat-close { cursor: pointer; font-size: 1.2rem; }
-        .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: var(--bg-main); font-family: -apple-system, sans-serif; font-size: 0.95rem; }
-        .msg { padding: 10px 15px; border-radius: 18px; max-width: 85%; line-height: 1.4; word-wrap: break-word; }
-        .msg-bot { background: var(--bg-box); border: 1px solid var(--border-color); align-self: flex-start; border-bottom-left-radius: 4px; color: var(--text-main); }
-        .msg-user { background: var(--primary-color); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .chat-footer { padding: 10px; background: var(--bg-box); border-top: 1px solid var(--border-color); display: flex; gap: 8px; }
-        .chat-footer input { flex: 1; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 20px; outline: none; font-size: 0.95rem; background: var(--bg-main); color: var(--text-main); }
-        .chat-footer button { background: var(--primary-color); color: white; border: none; padding: 0 15px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .chat-footer button:hover { background: var(--primary-dark); }
-        /* Hiệu ứng gõ chữ 3 chấm */
-        .typing-indicator { display: none; margin-bottom: 10px; }
-        .typing-indicator .msg-bot { display: inline-flex; align-items: center; gap: 4px; padding: 12px 18px; }
-        .typing-indicator .dot { width: 8px; height: 8px; background-color: var(--primary-color); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
-        .typing-indicator .dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-indicator .dot:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
-        body.pdf-open #chatWidget { right: calc(var(--pdf-panel-width) + 15px + env(safe-area-inset-right)); }
     </style>
 </head>
 <body>
 
     <svg style="display:none;">
+        <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></symbol>
         <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></symbol>
         <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></symbol>
         <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></symbol>
@@ -432,6 +356,7 @@
 
     <div class="top-header">
         <div style="display:flex; align-items:center; min-width:0; flex:1;">
+            <button class="menu-toggle-btn" onclick="toggleMenu()" aria-label="Mở Mục lục"><svg width="24" height="24"><use href="#icon-menu"></use></svg></button>
             <span class="header-title" id="mainHeaderTitle">SỔ TAY NGHIỆP VỤ TCĐ, ĐV</span>
         </div>
         <div class="header-actions">
@@ -459,6 +384,14 @@
         </div>
     </nav>
 
+    <div class="overlay" onclick="toggleMenu(false)"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="close-sidebar-btn"><span onclick="toggleMenu(false)" style="cursor:pointer; color:var(--text-muted); font-size:1.5rem;" aria-label="Đóng Mục lục">✕</span></div>
+        <h3 style="margin-top:0">MỤC LỤC CHI TIẾT</h3>
+        <div class="sidebar-menu-tree" id="menuList"></div>
+        <div class="admin-trigger" onclick="openLoginForm()">⚙️ Quản trị nội dung</div>
+    </div>
+
     <main class="main-content">
         
         <div id="tab-home" class="tab-pane active">
@@ -485,10 +418,6 @@
             </div>
             <div id="homeDashboard" class="recent-box">
                 <div style="text-align:center; color:var(--text-muted); font-size:0.9rem;">Đang tải dữ liệu...</div>
-            </div>
-            
-            <div class="recent-box" onclick="openLoginForm()" style="cursor: pointer; text-align: center; color: var(--text-muted); font-weight: bold; margin-top: 15px; transition: 0.3s;" onmouseover="this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-color)';" onmouseout="this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-color)';">
-                ⚙️ QUẢN TRỊ NỘI DUNG
             </div>
         </div>
 
@@ -531,30 +460,7 @@
             <iframe id="pdfFrame" src=""></iframe>
         </div>
     </div>
-    <div id="chatBox">
-        <div class="chat-header">
-            <span>🤖 Trợ lý AI Sổ tay</span>
-            <span class="chat-close" onclick="toggleChat(); event.stopPropagation();">✕</span>
-        </div>
-        <div class="chat-body" id="chatBody">
-            <div class="msg msg-bot">Xin chào! Tôi là trợ lý AI của Sổ tay TCĐ,ĐV. Tôi có thể giúp gì cho bạn hôm nay?</div>
-        </div>
-        <div class="typing-indicator" id="typingIndicator">
-            <div class="msg msg-bot">
-                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            </div>
-        </div>
-        <div class="chat-footer">
-            <input type="text" id="chatInput" placeholder="Nhập câu hỏi của bạn..." onkeypress="if(event.key==='Enter') sendMessage()">
-            <button onclick="sendMessage()">GỬI</button>
-        </div>
-    </div>
 
-    <div id="chatWidget">
-        <button id="chatBtn" title="Mở trợ lý AI">
-            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-        </button>
-    </div>
     <button id="backToTop" onclick="topFunction()" aria-label="Lên đầu trang">
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
     </button>
@@ -687,7 +593,7 @@
                             <label style="font-weight:bold; color:var(--text-main);">Trích dẫn PDF (Tối đa 5 tài liệu)</label>
                             <div style="font-size:0.85rem; color:#666; margin-bottom: 8px;">Chọn văn bản và nhập số trang để tạo nút căn cứ.</div>
                             <div style="display:flex; gap:5px; margin-bottom:5px;">
-                                <select id="inpPdfDoc1" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd21">Hướng dẫn 21</option><option value="hd06">Hướng dẫn 06</option></select>
+                                <select id="inpPdfDoc1" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd06">Hướng dẫn 06</option></select>
                                 <input type="number" id="inpPdfPage1" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
                             </div>
                             <div style="display:flex; gap:5px; margin-bottom:5px;">
@@ -698,9 +604,9 @@
                                 <select id="inpPdfDoc3" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd21">Hướng dẫn 21</option><option value="hd06">Hướng dẫn 06</option></select>
                                 <input type="number" id="inpPdfPage3" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
                             </div>
-			    <div style="display:flex; gap:5px; margin-bottom:5px;">
+                            <div style="display:flex; gap:5px; margin-bottom:5px;">
                                 <select id="inpPdfDoc4" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd21">Hướng dẫn 21</option><option value="hd06">Hướng dẫn 06</option></select>
-                                <input type="number" id="inpPdfPage1" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
+                                <input type="number" id="inpPdfPage3" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
                             </div>
                             <div style="display:flex; gap:5px; margin-bottom:5px;">
                                 <select id="inpPdfDoc5" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd21">Hướng dẫn 21</option><option value="hd06">Hướng dẫn 06</option></select>
@@ -726,83 +632,16 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // --- CẤU HÌNH LINK WEB APP KHẢO SÁT MỚI CỦA ĐỒNG CHÍ ---
-        const SURVEY_APP_URL = "https://script.google.com/macros/s/AKfycby1oXVzH9EeR0v1j2goesabdRwKECaUWLJNuPaeOJNBbsF0p5kAsgc53c-ISqOg491z/exec";
-
-        // --- LOGIC HỆ THỐNG KHẢO SÁT & GÓP Ý ---
-        
-        // 1. Kiểm tra bộ nhớ trình duyệt xem người dùng đã từng khảo sát chưa
-        const hasSurveyed = localStorage.getItem("surveyCompleted");
-
-        // 2. Nếu chưa từng khảo sát, hẹn giờ 2 phút (120.000 ms) để hiện Popup
-        if (!hasSurveyed) {
-            setTimeout(() => {
-                document.getElementById('surveyModal').style.display = 'flex';
-            }, 12000); // 12000 = 2 phút. Đồng chí có thể sửa số này nếu muốn nhanh/chậm hơn
-        }
-
-        // Hàm đóng khảo sát và GHI NHỚ không bao giờ hiện lại nữa
-        function closeSurvey() {
-            document.getElementById('surveyModal').style.display = 'none';
-            localStorage.setItem("surveyCompleted", "true"); // Lưu vết vào trình duyệt
-        }
-
-        // Hiện bước nhập góp ý (khi bấm Cần bổ sung)
-        function showFeedbackPart() {
-            document.getElementById('surveyStep1').style.display = 'none';
-            document.getElementById('surveyStep2').style.display = 'block';
-        }
-
-        // Hiện bước cảm ơn
-        function showThanks() {
-            document.getElementById('surveyStep1').style.display = 'none';
-            document.getElementById('surveyStep2').style.display = 'none';
-            document.getElementById('surveyThanks').style.display = 'block';
-            localStorage.setItem("surveyCompleted", "true"); // Khảo sát xong, lưu vết không hiện lại
-        }
-
-        // Gửi khảo sát mức độ hài lòng (Rất hài lòng / Hài lòng)
-        function sendSurvey(level) {
-            fetch(SURVEY_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ type: 'survey', content: level })
-            });
-            showThanks(); // Bay thẳng sang Cảm ơn
-        }
-
-        // Gửi góp ý chi tiết (Khi chọn Cần bổ sung)
-        function sendFeedback() {
-            const text = document.getElementById('feedbackText').value.trim();
-            if (!text) {
-                alert("Mời đồng chí nhập nội dung cần bổ sung!");
-                return;
-            }
-
-            const btn = document.querySelector('#surveyStep2 .btn-submit');
-            btn.innerText = "ĐANG GỬI...";
-            btn.disabled = true;
-
-            fetch(SURVEY_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ type: 'feedback', content: text })
-            }).then(() => {
-                showThanks(); // Xong việc -> Hiện cảm ơn
-            }).catch(() => {
-                showThanks(); 
-            });
-        }
-	const PDF_VIEWER_URL = "web/viewer.html"; 
+        const PDF_VIEWER_URL = "web/viewer.html"; 
         const PDF_COLLECTION = {
             "hd02": { name: "Hướng dẫn 02", shortName: "HD 02", file: "huongdan.pdf" },
             "qd294": { name: "Quy định 294", shortName: "QĐ 294", file: "quydinh294.pdf" },
             "hd38": { name: "Hướng dẫn 38", shortName: "HD 38", file: "huongdan38.pdf" },
-	    "hd21": { name: "Hướng dẫn 21", shortName: "HD 21", file: "huongdan21.pdf" },
+	    "hd21": { name: "Hướng dẫn 38", shortName: "HD 21", file: "huongdan21.pdf" },
             "hd06": { name: "Hướng dẫn 06", shortName: "HD 06", file: "huongdan06.pdf" }
         };
 
-        let APP_DATA = []; let currentEditNodeId = null; let loggedInUser = null; let expandedAdminNodes = new Set(); let isFirstLoadAdmin = true; let lastSearchKeyword = ""; let hasUnsavedChanges = false; let isSystemChangingContent = false; 
+        let APP_DATA = []; let currentEditNodeId = null; let loggedInUser = null; let expandedAdminNodes = new Set(); let isFirstLoadAdmin = true; let expandedUserMenuNodes = new Set(); let lastSearchKeyword = ""; let hasUnsavedChanges = false; let isSystemChangingContent = false; 
 
         var toolbarOptions = [['bold', 'italic', 'underline'], [{'list': 'ordered'}, [{'list': 'bullet'}], ['link', 'clean']]];
         var quillSummary = new Quill('#inpSummary', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Nhập nội dung tóm tắt...' });
@@ -848,6 +687,7 @@
             else if(tabId === 'hoidap') headerTitle.innerText = "HỎI ĐÁP NGHIỆP VỤ";
             else if(tabId === 'bieumau') headerTitle.innerText = "BIỂU MẪU TẢI VỀ";
             
+            // Xóa sạch trạng thái tìm kiếm (tô vàng) khi nhảy sang menu khác
             if (lastSearchKeyword !== "") {
                 lastSearchKeyword = "";
                 document.getElementById('searchInput').value = "";
@@ -953,6 +793,7 @@
                 function initExpand(nodes) {
                     nodes.forEach(n => {
                         expandedAdminNodes.add(n.id);
+                        if (n.level < 1) expandedUserMenuNodes.add(n.id); 
                         if (n.children) initExpand(n.children);
                     });
                 }
@@ -1052,6 +893,7 @@
                     displaySummary = ` <span style="color: var(--text-muted); font-weight: normal; font-size: 0.95rem;">- ${summaryText}</span>`;
                 }
 
+                // highlight Title and Summary in dynamic lists if searched
                 let hTitle = highlightText(n.fileName || n.title, lastSearchKeyword);
                 let hSummary = displaySummary ? highlightText(displaySummary, lastSearchKeyword) : '';
 
@@ -1060,6 +902,7 @@
                 if (isItemMatch) {
                     let quickDownloadBtn = '';
                     if (type === 'form' && n.fileUrl) {
+                        // Thêm nút tải trực tiếp ở bên phải, chặn sự kiện click vào dòng
                         quickDownloadBtn = `<a href="${n.fileUrl}" target="_blank" class="inline-download" style="flex-shrink: 0; padding: 6px 12px; margin-left: 10px; border-radius: 4px; background: var(--bg-box);" onclick="event.stopPropagation()"><svg width="14" height="14" style="margin-right:4px;"><use href="#icon-download"></use></svg>Tải về</a>`;
                     }
 
@@ -1128,7 +971,7 @@
             function processNode(items, container) {
                 items.forEach(item => {
                     let div = document.createElement('div'); div.id = item.id; let innerContent = '';
-                    let downloadBtn = item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="inline-download" title="Tải về" onclick="event.stopPropagation()"><svg width="14" height="14"><use href="#icon-download"></use></svg> Tải về</a>` : ''; 
+                    let downloadBtn = item.fileUrl ? `<a href="${item.fileUrl}" target="_blank" class="inline-download" title="${item.fileName || 'Tải biểu mẫu'}" onclick="event.stopPropagation()"><svg width="14" height="14"><use href="#icon-download"></use></svg> Tải mẫu</a>` : ''; 
                     let nextContainer = container; 
                     
                     let displayTitle = highlightText(item.title || 'Chưa đặt tên', lastSearchKeyword);
@@ -1150,15 +993,16 @@
                         let levelClass = item.level === 1 ? 'level-1' : (item.level === 2 ? 'level-2' : (item.level === 3 ? 'level-3' : 'level-4'));
                         let titleHtml = '';
                         if (item.level === 1) titleHtml = `<div style="font-weight: bold; color: var(--text-muc); font-size: 1.15em; margin-bottom: 0; word-wrap:break-word; text-transform: uppercase;">${displayTitle} ${downloadBtn}</div>`;
-                        else if (item.level === 2) titleHtml = `<div style="font-weight: 700; color: #1b5e20; margin-bottom: 0; word-wrap:break-word;">${displayTitle} ${downloadBtn}</div>`; /* Xanh lá đậm */
-                        else if (item.level === 3) titleHtml = `<div style="font-weight: 700; color: #34495e; margin-bottom: 0; word-wrap:break-word;">${displayTitle} ${downloadBtn}</div>`; /* Xám đen */
-                        else titleHtml = `<div class="step-number" style="margin-bottom:0; word-wrap:break-word;">${displayTitle} ${downloadBtn}</div>`; /* Gọi CSS Cam Đất */
+                        else if (item.level === 2) titleHtml = `<div style="font-weight: 700; color: #2980b9; margin-bottom: 0; word-wrap:break-word;">${displayTitle} ${downloadBtn}</div>`;
+                        else if (item.level === 3) titleHtml = `<div style="font-weight: 700; color: #27ae60; margin-bottom: 0; word-wrap:break-word;">${displayTitle} ${downloadBtn}</div>`;
+                        else titleHtml = `<div class="step-number" style="margin-bottom:0; word-wrap:break-word;">${displayTitle} ${downloadBtn}</div>`;
 
                         div.className = `step-box ${levelClass}`; 
                         let tagHtml = item.tag ? `<span class="tag-label">${highlightText(item.tag, lastSearchKeyword)}</span>` : ''; 
                         let summaryHtml = item.summary ? `<div class="content-text">${displaySummary}</div>` : '';
                         let detailBtnHtml = ''; if (item.detail || pdfSourceBtn) detailBtnHtml = `<div class="step-actions-right">${dtBtn}${pdfSourceBtn}</div>`;
                         
+                        // Kiểm tra xem có cần hiển thị nút Mở rộng hay không
                         let hasChildren = (item.children && item.children.length > 0) || item.summary || item.detail || pdfSourceBtn; 
                         let iconHtml = hasChildren ? `<div class="step-icon"><svg width="18" height="18"><use href="#icon-chevron-down"></use></svg></div>` : '';
                         
@@ -1170,6 +1014,7 @@
             } processNode(APP_DATA, contentEl);
         }
 
+        function highlightSidebarMenu(id) { document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active-menu')); let target = document.querySelector(`.menu-link[data-id="${id}"]`); if(target) { target.classList.add('active-menu'); target.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }
         function updateBreadcrumb(targetId) { let pathIds = getParentIdPath(targetId, APP_DATA); if (!pathIds || pathIds.length === 0) return; let html = '<svg width="16" height="16" style="vertical-align:text-bottom; margin-right:4px;"><use href="#icon-folder"></use></svg> '; pathIds.forEach((pid, index) => { let node = findNode(pid, APP_DATA); if(node) { html += `<span onclick="jumpToResult('${pid}')">${node.title}</span>`; if(index < pathIds.length - 1) html += ' <span style="color:#999; text-decoration:none; cursor:default"> &gt; </span> '; } }); const bar = document.getElementById('breadcrumbBar'); bar.innerHTML = html; bar.style.display = 'block'; }
 
         function toggleStep(headerEl, event, id, title) {
@@ -1177,17 +1022,27 @@
             const stepBox = headerEl.parentElement; let parentInner = stepBox.parentElement;
             if (parentInner) { let siblings = parentInner.children; for(let i=0; i<siblings.length; i++) { if (siblings[i] !== stepBox && siblings[i].classList.contains('step-box')) siblings[i].classList.remove('active'); } }
             stepBox.classList.toggle('active');
-            if(stepBox.classList.contains('active')) { updateBreadcrumb(id); if(title) addRecentView(id, title); }
+            if(stepBox.classList.contains('active')) { updateBreadcrumb(id); highlightSidebarMenu(id); if(title) addRecentView(id, title); }
         }
 
         function expandAll() { document.querySelectorAll('.step-box').forEach(box => box.classList.add('active')); }
         function collapseAll() { document.querySelectorAll('.step-box').forEach(box => box.classList.remove('active')); document.getElementById('breadcrumbBar').style.display = 'none'; topFunction(); }
 
         function renderSidebarMenu() {
-            const menuEl = document.getElementById('menuList'); 
-            if (!menuEl) return;
-            menuEl.innerHTML = '';
+            const menuEl = document.getElementById('menuList'); menuEl.innerHTML = '';
+            function buildUserMenuHtml(nodes) {
+                let html = '<ul>';
+                nodes.forEach(item => {
+                    if (item.level > 3) return; let hasValidChildren = item.children && item.children.some(c => c.level <= 3); let isExpanded = expandedUserMenuNodes.has(item.id); 
+                    let iconSVG = item.level === 0 ? 'icon-folder' : (item.level === 1 ? 'icon-folder' : 'icon-file');
+                    let toggleBtn = hasValidChildren ? `<span class="menu-toggle" onclick="toggleUserMenuNode(event, '${item.id}')"><svg width="14" height="14"><use href="${isExpanded ? '#icon-chevron-down' : '#icon-chevron-right'}"></use></svg></span>` : `<span style="display:inline-block;width:20px;"></span>`;
+                    html += `<li><div class="menu-item-row">${toggleBtn}<span style="margin-right: 5px; opacity:0.7"><svg width="14" height="14"><use href="#${iconSVG}"></use></svg></span><a class="menu-link" data-id="${item.id}" onclick="toggleMenu(false); jumpToResult('${item.id}')">${item.title || 'Mục chưa có tên'}</a></div>`;
+                    if (hasValidChildren) { html += `<div style="display: ${isExpanded ? 'block' : 'none'};">${buildUserMenuHtml(item.children)}</div>`; } html += `</li>`;
+                }); html += '</ul>'; return html;
+            } menuEl.innerHTML = buildUserMenuHtml(APP_DATA);
         }
+
+        function toggleUserMenuNode(event, id) { event.stopPropagation(); if (expandedUserMenuNodes.has(id)) expandedUserMenuNodes.delete(id); else expandedUserMenuNodes.add(id); renderSidebarMenu(); }
 
         function openSearchModal() { 
             document.getElementById('modalSearch').style.display = 'flex'; 
@@ -1281,7 +1136,7 @@
                     if (el.classList.contains('step-box')) el.classList.add('active');
                     
                     let nodeToOpen = findNode(id, APP_DATA); 
-                    if(nodeToOpen) { updateBreadcrumb(id); addRecentView(nodeToOpen.id, nodeToOpen.title); }
+                    if(nodeToOpen) { let parentIdPath = getParentIdPath(id, APP_DATA); parentIdPath.forEach(pid => expandedUserMenuNodes.add(pid)); renderSidebarMenu(); updateBreadcrumb(id); highlightSidebarMenu(id); addRecentView(nodeToOpen.id, nodeToOpen.title); }
                     window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 100, behavior: "smooth" });
                     let oBg = el.style.backgroundColor; el.style.backgroundColor = "rgba(241, 196, 15, 0.2)"; setTimeout(() => el.style.backgroundColor = oBg || '', 2000); 
                 }
@@ -1291,14 +1146,8 @@
         function getParentIdPath(targetId, nodes, path = []) { for(let node of nodes) { if(node.id === targetId) return [...path, node.id]; if(node.children) { let foundPath = getParentIdPath(targetId, node.children, [...path, node.id]); if(foundPath) return foundPath; } } return null; }
         function findNode(id, nodes) { for(let node of nodes) { if(node.id === id) return node; if(node.children) { let f = findNode(id, node.children); if(f) return f; } } return null; }
 
-        function toggleMenu(f) { 
-            const sb = document.getElementById('sidebar'); 
-            const ov = document.querySelector('.overlay'); 
-            if (!sb || !ov) return;
-            if (typeof f !== 'undefined') { if(f) { sb.classList.add('active'); ov.classList.add('active'); } else { sb.classList.remove('active'); ov.classList.remove('active'); } } else { sb.classList.toggle('active'); ov.classList.toggle('active'); } 
-        }
-        
-        function showPopup(id) { let nodeData = findNode(id, APP_DATA); if(nodeData && nodeData.detail) { let safeDetail = processLegacyText(nodeData.detail); document.getElementById('noi-dung-chi-tiet').innerHTML = highlightText(safeDetail, lastSearchKeyword); document.getElementById('modalTrichDan').style.display = 'flex'; updateBreadcrumb(id); addRecentView(id, nodeData.title); } }
+        function toggleMenu(f) { const sb = document.getElementById('sidebar'); const ov = document.querySelector('.overlay'); if (typeof f !== 'undefined') { if(f) { sb.classList.add('active'); ov.classList.add('active'); } else { sb.classList.remove('active'); ov.classList.remove('active'); } } else { sb.classList.toggle('active'); ov.classList.toggle('active'); } }
+        function showPopup(id) { let nodeData = findNode(id, APP_DATA); if(nodeData && nodeData.detail) { let safeDetail = processLegacyText(nodeData.detail); document.getElementById('noi-dung-chi-tiet').innerHTML = highlightText(safeDetail, lastSearchKeyword); document.getElementById('modalTrichDan').style.display = 'flex'; updateBreadcrumb(id); addRecentView(id, nodeData.title); highlightSidebarMenu(id); } }
         function closePopup(id) { document.getElementById(id).style.display = 'none'; }
         function closeModalOnBgClick(e, id) { if(e.target.id === id) closePopup(id); }
         function topFunction() { window.scrollTo({top: 0, behavior: 'smooth'}); }
@@ -1403,12 +1252,13 @@
         function openLoginForm() { toggleMenu(false); document.getElementById('loginOverlay').style.display = 'flex'; }
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
         function closeAdminPanel() { if(!confirmUnsaved()) return; firebase.auth().signOut().then(() => { document.getElementById('adminPanel').style.display = 'none'; loggedInUser = null; }); }
-        
-        function toggleAccordion(headerEl) {
+
+function toggleAccordion(headerEl) {
             let parentGroup = headerEl.parentElement; 
             let isCurrentlyOpen = parentGroup.classList.contains('open');
             let container = parentGroup.parentElement; 
             
+            // Tìm và thu gọn tất cả các mục cùng cấp đang mở
             let siblings = container.children;
             for (let i = 0; i < siblings.length; i++) {
                 if (siblings[i].classList.contains('list-sub-group')) {
@@ -1416,277 +1266,11 @@
                 }
             }
             
+            // Xổ ra mục hiện tại (nếu trước đó nó đang đóng)
             if (!isCurrentlyOpen) {
                 parentGroup.classList.add('open');
             }
         }
-    // --- CHATBOT LOGIC ---
-        function toggleChat() {
-            let chatBox = document.getElementById('chatBox');
-            chatBox.style.display = (chatBox.style.display === 'flex') ? 'none' : 'flex';
-        }
-
-        async function sendMessage() {
-            let inputEl = document.getElementById('chatInput');
-            let message = inputEl.value.trim();
-            if(!message) return;
-
-            let chatBody = document.getElementById('chatBody');
-            let typingEl = document.getElementById('typingIndicator');
-
-            // Hiển thị tin nhắn người dùng
-            let userDiv = document.createElement('div');
-            userDiv.className = 'msg msg-user';
-            userDiv.innerText = message;
-            chatBody.appendChild(userDiv);
-            
-            inputEl.value = '';
-            chatBody.scrollTop = chatBody.scrollHeight;
-            typingEl.style.display = 'block';
-
-            // DÁN URL CỦA GOOGLE APPS SCRIPT Ở BƯỚC 2 VÀO ĐÂY
-            const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwmOiTZdM6_Faew-OOTMzNhE8rkWGhVgTkBIzYcSntnD2MCkBKn-nnDgXwk-_Vs8xR7/exec";
-
-            try {
-                let response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ message: message }),
-                    redirect: 'follow' // Thêm dòng này để trình duyệt đi theo luồng dữ liệu của Google
-                });
-                
-                let result = await response.json();
-                typingEl.style.display = 'none';
-
-                let botDiv = document.createElement('div');
-                botDiv.className = 'msg msg-bot';
-                
-                // Chuyển dấu sao Markdown thành thẻ in đậm HTML
-                let replyText = result.reply || result.error || "Xin lỗi, tôi không thể trả lời lúc này.";
-                replyText = replyText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-                replyText = replyText.replace(/\*(.*?)\*/g, '<i>$1</i>');
-                replyText = replyText.replace(/\n/g, '<br>');
-
-                botDiv.innerHTML = replyText;
-                chatBody.appendChild(botDiv);
-                chatBody.scrollTop = chatBody.scrollHeight;
-
-            } catch (error) {
-                typingEl.style.display = 'none';
-                let botDiv = document.createElement('div');
-                botDiv.className = 'msg msg-bot';
-                botDiv.innerText = "Tôi đang nghiên cứu câu hỏi của bạn, bạn có thể hỏi tiếp nội dung khác!";
-                chatBody.appendChild(botDiv);
-            }
-        }
-    // --- CHỨC NĂNG KÉO THẢ VÀ CLICK BONG BÓNG CHAT ---
-        const chatWidget = document.getElementById("chatWidget");
-        const chatBtn = document.getElementById("chatBtn");
-
-        let isDragging = false;
-        let hasDragged = false; // Biến để phân biệt là đang kéo hay đang click
-        let currentX = 0, currentY = 0, initialX = 0, initialY = 0, xOffset = 0, yOffset = 0;
-
-        // Bắt sự kiện cho Chuột (Desktop)
-        chatBtn.addEventListener("mousedown", dragStart);
-        document.addEventListener("mousemove", drag);
-        document.addEventListener("mouseup", dragEnd);
-
-        // Bắt sự kiện cho Cảm ứng (Mobile)
-        chatBtn.addEventListener("touchstart", dragStart, { passive: false });
-        document.addEventListener("touchmove", drag, { passive: false });
-        document.addEventListener("touchend", dragEnd);
-
-        function dragStart(e) {
-            initialX = e.type === "touchstart" ? e.touches[0].clientX - xOffset : e.clientX - xOffset;
-            initialY = e.type === "touchstart" ? e.touches[0].clientY - yOffset : e.clientY - yOffset;
-            
-            // Chỉ kích hoạt khi bấm/chạm đúng vào bong bóng chat
-            if (e.target === chatBtn || chatBtn.contains(e.target)) {
-                isDragging = true;
-                hasDragged = false; // Reset lại trạng thái
-            }
-        }
-
-        function drag(e) {
-            if (isDragging) {
-                let clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
-                let clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
-
-                // Tính toán xem người dùng đã rê chuột/tay đi bao xa
-                let dx = clientX - (initialX + xOffset);
-                let dy = clientY - (initialY + yOffset);
-                
-                // Nếu dịch chuyển lớn hơn 3 pixel, hệ thống hiểu là đang "Kéo"
-                if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
-                    hasDragged = true;
-                }
-
-                // Nếu đúng là đang kéo thì mới di chuyển Widget
-                if (hasDragged) {
-                    e.preventDefault(); // Ngăn trình duyệt cuộn trang
-                    currentX = clientX - initialX;
-                    currentY = clientY - initialY;
-                    xOffset = currentX;
-                    yOffset = currentY;
-
-                    // Di chuyển toàn bộ cụm Chat
-                    chatWidget.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
-                }
-            }
-        }
-
-        function dragEnd(e) {
-            if (isDragging) {
-                isDragging = false;
-                
-                // Nếu người dùng nhả chuột ra mà KHÔNG HỀ kéo đi (tức là Click bình thường)
-                if (!hasDragged) {
-                    toggleChat(); // Mở hoặc đóng cửa sổ chat
-                }
-            }
-        }
-    // --- TÍNH NĂNG: CHẠM RA NGOÀI ĐỂ ĐÓNG CỬA SỔ CHAT ---
-        document.addEventListener('click', function(event) {
-            let chatBox = document.getElementById('chatBox');
-            let chatWidget = document.getElementById('chatWidget'); // Khối chứa nút tròn
-            
-            // Nếu cửa sổ chat đang mở VÀ người dùng bấm ra ngoài cả cửa sổ chat lẫn nút tròn
-            if (chatBox.style.display === 'flex' && !chatBox.contains(event.target) && !chatWidget.contains(event.target)) {
-                chatBox.style.display = 'none'; // Tự động đóng
-            }
-        }, true); // Tham số true giúp bắt sự kiện nhạy và chuẩn xác hơn
-    </script>
-<div id="surveyModal" class="survey-modal">
-        <div class="survey-content" id="surveyStep1">
-            <h3 style="color: #cc0000; margin-top: 0; font-family: -apple-system, sans-serif;">Đánh giá mức độ hữu ích</h3>
-            <p style="font-family: -apple-system, sans-serif; font-size: 0.95rem;">Đồng chí đánh giá thế nào về nội dung của Sổ tay?</p>
-            <div class="survey-options">
-                <button onclick="sendSurvey('Rất hài lòng')">😊 Rất hài lòng</button>
-                <button onclick="sendSurvey('Hài lòng')">🙂 Hài lòng</button>
-                <button onclick="showFeedbackPart()" style="border-color: #f39c12; color: #d35400;">⚙️ Cần cập nhật, bổ sung</button>
-            </div>
-            <button onclick="closeSurvey()" style="margin-top: 15px; background: transparent; color: #999; border: none; font-size: 0.85rem; text-decoration: underline; cursor: pointer;">Đóng và không hiện lại</button>
-        </div>
-
-        <div class="survey-content" id="surveyStep2" style="display:none;">
-            <h3 style="color: #cc0000; margin-top: 0; font-family: -apple-system, sans-serif;">Nội dung đóng góp</h3>
-            <p style="font-size: 0.85rem; color: #666; font-family: -apple-system, sans-serif;">Mời đồng chí cho biết nội dung cần hoàn thiện hoặc bổ sung:</p>
-            <textarea id="feedbackText" placeholder="Ví dụ: Cần bổ sung quy định về..."></textarea>
-            <button class="btn-submit" onclick="sendFeedback()">GỬI Ý KIẾN</button>
-            <button class="btn-submit" onclick="closeSurvey()" style="background: #7f8c8d; margin-top: 10px;">BỎ QUA</button>
-        </div>
-
-        <div class="survey-content" id="surveyThanks" style="display:none;">
-            <div style="font-size: 40px;">🎉</div>
-            <h3 style="color: #2e7d32; font-family: -apple-system, sans-serif;">Trân trọng cảm ơn đồng chí!</h3>
-            <p style="font-family: -apple-system, sans-serif; font-size: 0.95rem;">Ý kiến của đồng chí đã được ghi nhận để giúp Sổ tay hoàn thiện hơn.</p>
-            <button class="btn-submit" onclick="closeSurvey()" style="margin-top: 15px;">ĐÓNG</button>
-        </div>
-    </div>
-
-    <script>
-        // --- 1. CẤU HÌNH LINK WEB APP (Đồng chí dán 2 link của mình vào đây) ---
-        const CHAT_APP_URL = "DÁN_LINK_WEB_APP_CHATBOT_AI_VÀO_ĐÂY"; 
-        const SURVEY_APP_URL = "DÁN_LINK_WEB_APP_KHẢO_SÁT_VÀO_ĐÂY";
-
-        // --- 2. QUẢN LÝ CHATBOT AI ---
-        function toggleChat() {
-            const chatBox = document.getElementById('chatBox');
-            chatBox.style.display = (chatBox.style.display === 'flex') ? 'none' : 'flex';
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            if (!message) return;
-
-            addMessage(message, 'user');
-            input.value = '';
-            
-            // Hiện hiệu ứng AI đang gõ
-            const typingIndicator = document.getElementById('typingIndicator') || document.getElementById('typing');
-            if(typingIndicator) typingIndicator.style.display = 'block'; 
-
-            try {
-                const response = await fetch(CHAT_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ type: 'chat', message: message })
-                });
-                const data = await response.json();
-                addMessage(data.reply || data.error, 'bot');
-            } catch (e) {
-                addMessage("Hệ thống AI đang quá tải, đồng chí vui lòng thử lại sau.", 'bot');
-            } finally {
-                if(typingIndicator) typingIndicator.style.display = 'none';
-            }
-        }
-
-        function addMessage(text, sender) {
-            const body = document.getElementById('chatBody');
-            const div = document.createElement('div');
-            div.className = `msg msg-${sender}`;
-            div.innerText = text;
-            body.appendChild(div);
-            body.scrollTop = body.scrollHeight;
-        }
-
-        // --- 3. QUẢN LÝ KHẢO SÁT & GÓP Ý ---
-        const hasSurveyed = localStorage.getItem("surveyCompleted");
-
-        if (!hasSurveyed) {
-            // LƯU Ý: Tôi đang để 5000 (5 giây) để đồng chí TEST. 
-            // Sau khi test bảng hiện ra thành công, đồng chí hãy đổi số 5000 này thành 120000 (2 phút) nhé!
-            setTimeout(() => {
-                document.getElementById('surveyModal').style.display = 'flex';
-            }, 5000); 
-        }
-
-        function closeSurvey() {
-            document.getElementById('surveyModal').style.display = 'none';
-            localStorage.setItem("surveyCompleted", "true"); 
-        }
-
-        function showFeedbackPart() {
-            document.getElementById('surveyStep1').style.display = 'none';
-            document.getElementById('surveyStep2').style.display = 'block';
-        }
-
-        function showThanks() {
-            document.getElementById('surveyStep1').style.display = 'none';
-            document.getElementById('surveyStep2').style.display = 'none';
-            document.getElementById('surveyThanks').style.display = 'block';
-            localStorage.setItem("surveyCompleted", "true"); 
-        }
-
-        function sendSurvey(level) {
-            fetch(SURVEY_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ type: 'survey', content: level })
-            });
-            showThanks(); 
-        }
-
-        function sendFeedback() {
-            const text = document.getElementById('feedbackText').value.trim();
-            if (!text) return alert("Mời đồng chí nhập nội dung cần bổ sung!");
-
-            const btn = document.querySelector('#surveyStep2 .btn-submit');
-            btn.innerText = "ĐANG GỬI...";
-            btn.disabled = true;
-
-            fetch(SURVEY_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ type: 'feedback', content: text })
-            }).then(() => {
-                showThanks(); 
-            }).catch(() => {
-                showThanks(); 
-            });
-        }
     </script>
 </body>
-
 </html>
