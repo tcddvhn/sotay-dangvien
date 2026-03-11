@@ -417,9 +417,11 @@
             <div class="recent-title" style="border:none; color:var(--text-main); font-size:1.1rem; margin-top:35px; gap:8px;">
                 <svg width="20" height="20" color="var(--primary-color)"><use href="#icon-chart"></use></svg> Thống kê truy cập
             </div>
-            <div id="homeDashboard" class="recent-box">
-                <div style="text-align:center; color:var(--text-muted); font-size:0.9rem;">Đang tải dữ liệu...</div>
-            </div>
+            <div id="homeDashboard" class="stats-box">
+    		<div style="text-align: center; padding: 20px; color: var(--text-muted);">
+        		<i class="fas fa-spinner fa-spin"></i> Đang cập nhật số liệu từ hệ thống...
+    		</div>
+	    </div>
         </div>
 
         <div id="tab-quydinh" class="tab-pane">
@@ -820,14 +822,63 @@ document.addEventListener("DOMContentLoaded", () => {
         recordVisit();
 
         function renderDashboard(data) {
-            let total = data.totalVisits || 0; let search = data.searchCount || 0; let daily = data.dailyVisits || {};
-            let todayDate = new Date(); let last7Days = []; let sum7Days = 0; let maxDaily = 0;
-            for (let i = 6; i >= 0; i--) { let d = new Date(todayDate.getTime()); d.setDate(d.getDate() - i); let local = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)); let dateStr = local.toISOString().split('T')[0]; let displayStr = local.getDate() + '/' + (local.getMonth()+1); let visits = daily[dateStr] || data[`dailyVisits.${dateStr}`] || 0; sum7Days += visits; if (visits > maxDaily) maxDaily = visits; last7Days.push({ date: displayStr, visits: visits }); }
-            let todayVisits = last7Days[6].visits; let chartHtml = '<div class="chart-container">';
-            last7Days.forEach(day => { let h = maxDaily > 0 ? (day.visits / maxDaily * 100) : 0; if(h < 5 && day.visits > 0) h = 5; chartHtml += `<div class="chart-bar" style="height:${h}%;"><span class="chart-tooltip">${day.date}: ${day.visits} lượt</span></div>`; });
-            chartHtml += `</div><div class="chart-labels"><span>${last7Days[0].date}</span><span>Hôm nay</span></div>`;
-            document.getElementById('homeDashboard').innerHTML = `<div class="stat-row"><span>👁 Tổng truy cập:</span> <b>${total}</b></div><div class="stat-row"><span>📅 Hôm nay:</span> <b>${todayVisits}</b></div><div class="stat-row"><span>📈 7 ngày qua:</span> <b>${sum7Days}</b></div><div class="stat-row"><span>🔍 Lượt tìm kiếm:</span> <b>${search}</b></div> ${chartHtml}`;
-        }
+    if (!data) return;
+
+    let total = data.totalVisits || 0;
+    let search = data.searchCount || 0;
+    let daily = data.dailyVisits || {};
+    
+    let todayDate = new Date();
+    let last7Days = [];
+    let sum7Days = 0;
+    let maxDaily = 0;
+
+    // Tính toán dữ liệu 7 ngày
+    for (let i = 6; i >= 0; i--) {
+        let d = new Date(todayDate.getTime());
+        d.setDate(d.getDate() - i);
+        let local = new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
+        let dateStr = local.toISOString().split('T')[0];
+        let displayStr = local.getDate() + '/' + (local.getMonth() + 1);
+        
+        let visits = daily[dateStr] || 0;
+        sum7Days += visits;
+        if (visits > maxDaily) maxDaily = visits;
+        last7Days.push({ date: displayStr, visits: visits });
+    }
+
+    let todayVisits = last7Days[6].visits;
+
+    // Vẽ biểu đồ
+    let chartHtml = '<div class="chart-container" style="display: flex; align-items: flex-end; height: 60px; gap: 5px; margin-top: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">';
+    last7Days.forEach(day => {
+        let h = maxDaily > 0 ? (day.visits / maxDaily * 100) : 0;
+        if (h < 5 && day.visits > 0) h = 5;
+        chartHtml += `<div class="chart-bar" style="height:${h}%; flex:1; background:var(--primary-color); border-radius:2px 0 0 2px; position:relative;">
+                        <span class="chart-tooltip">${day.date}: ${day.visits}</span>
+                      </div>`;
+    });
+    chartHtml += `</div><div class="chart-labels" style="display:flex; justify-content:space-between; font-size:10px; color:#7f8c8d; margin-top:5px;">
+                    <span>${last7Days[0].date}</span><span>Hôm nay</span>
+                  </div>`;
+
+    // Ghi đè toàn bộ vào homeDashboard (Xóa sạch chữ "Đang tải...")
+    document.getElementById('homeDashboard').innerHTML = `
+        <div class="stat-row" style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px dashed #eee;">
+            <span>👁 Tổng truy cập:</span> <b>${total.toLocaleString()}</b>
+        </div>
+        <div class="stat-row" style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px dashed #eee;">
+            <span>📅 Hôm nay:</span> <b>${todayVisits.toLocaleString()}</b>
+        </div>
+        <div class="stat-row" style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px dashed #eee;">
+            <span>📈 7 ngày qua:</span> <b>${sum7Days.toLocaleString()}</b>
+        </div>
+        <div class="stat-row" style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px dashed #eee;">
+            <span>🔍 Lượt tìm kiếm:</span> <b>${search.toLocaleString()}</b>
+        </div> 
+        ${chartHtml}
+    `;
+}
 
         db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
             if (doc.exists) { APP_DATA = doc.data().treeData || []; } else { APP_DATA = [{ id: 'r1', title: 'PHẦN 1', tag: '', summary: '', detail: '', level: 0, children: [] }]; }
