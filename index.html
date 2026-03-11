@@ -456,9 +456,11 @@
             <div class="recent-title" style="border:none; color:var(--text-main); font-size:1.1rem; margin-top:35px; gap:8px;">
                 <svg width="20" height="20" color="var(--primary-color)"><use href="#icon-chart"></use></svg> Thống kê truy cập
             </div>
-            <div id="homeDashboard" class="recent-box">
-                <div style="text-align:center; color:var(--text-muted); font-size:0.9rem;">Đang tải dữ liệu...</div>
-            </div>
+            <div id="homeDashboard" class="stats-box">
+    <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+        <i class="fas fa-spinner fa-spin"></i> Đang cập nhật số liệu từ hệ thống...
+    </div>
+</div>
             
             <div class="recent-box" onclick="openLoginForm()" style="cursor: pointer; text-align: center; color: var(--text-muted); font-weight: bold; margin-top: 15px; transition: 0.3s;" onmouseover="this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-color)';" onmouseout="this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-color)';">
                 ⚙️ QUẢN TRỊ NỘI DUNG
@@ -1145,7 +1147,7 @@
                 if (JSON.parse(localStorage.getItem('sotay_search_history') || '[]').length > 0) histDiv.style.display = 'block';
                 return; 
             } 
-            
+            recordSearch(query);
             faqDiv.style.display = 'none'; 
             histDiv.style.display = 'none'; 
             lastSearchKeyword = kwRaw; 
@@ -1462,6 +1464,63 @@
                 chatBox.style.display = 'none'; // Tự động đóng
             }
         }, true); // Tham số true giúp bắt sự kiện nhạy và chuẩn xác hơn
+	// =====================================================================
+// HỆ THỐNG THỐNG KÊ TỰ ĐỘNG - PHIÊN BẢN GỘP (GHI & ĐỌC)
+// =====================================================================
+const STATS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwi-3O5tJQeXy8We87nOdg3f0lYf2-DUI71G9jNyx-Z_fVUy6lWIQ4nXvvi9FFB0v0w/exec"; 
+
+function recordAndLoadStats(actionType, detail = "") {
+    if (!STATS_WEB_APP_URL) return;
+    let url = STATS_WEB_APP_URL;
+    if (actionType === 'visit') {
+        url += sessionStorage.getItem('has_recorded_visit') ? "?action=none" : "?action=visit";
+    } else if (actionType === 'search') {
+        url += "?action=search&detail=" + encodeURIComponent(detail);
+    }
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (actionType === 'visit') sessionStorage.setItem('has_recorded_visit', 'true');
+            renderDashboard(data);
+        })
+        .catch(err => {
+            console.log("Lỗi thống kê: ", err);
+            if(document.getElementById('homeDashboard')) {
+                document.getElementById('homeDashboard').innerHTML = "<p style='text-align:center;font-size:0.8rem;'>Tạm thời không tải được thống kê.</p>";
+            }
+        });
+}
+
+function recordSearch(keyword) { recordAndLoadStats('search', keyword); }
+
+function renderDashboard(data) {
+    if (!data || !document.getElementById('homeDashboard')) return;
+    let total = data.totalVisits || 0, search = data.searchCount || 0, daily = data.dailyVisits || {};
+    let todayDate = new Date(), last7Days = [], sum7Days = 0, maxDaily = 0;
+    for (let i = 6; i >= 0; i--) {
+        let d = new Date(todayDate.getTime()); d.setDate(d.getDate() - i);
+        let local = new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
+        let dateStr = local.toISOString().split('T')[0];
+        let displayStr = local.getDate() + '/' + (local.getMonth() + 1);
+        let visits = daily[dateStr] || 0;
+        sum7Days += visits; if (visits > maxDaily) maxDaily = visits;
+        last7Days.push({ date: displayStr, visits: visits });
+    }
+    let chartHtml = '<div class="chart-container" style="display:flex;align-items:flex-end;height:60px;gap:5px;margin-top:15px;border-bottom:1px solid #ddd;padding-bottom:5px;">';
+    last7Days.forEach(day => {
+        let h = maxDaily > 0 ? (day.visits / maxDaily * 100) : 0; if (h < 5 && day.visits > 0) h = 5;
+        chartHtml += `<div class="chart-bar" style="height:${h}%;flex:1;background:var(--primary-color);border-radius:2px 2px 0 0;position:relative;"><span class="chart-tooltip">${day.date}: ${day.visits}</span></div>`;
+    });
+    chartHtml += `</div><div class="chart-labels" style="display:flex;justify-content:space-between;font-size:10px;color:#7f8c8d;margin-top:5px;"><span>${last7Days[0].date}</span><span>Hôm nay</span></div>`;
+    document.getElementById('homeDashboard').innerHTML = `
+        <div class="stat-row" style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #eee;"><span>👁 Tổng truy cập:</span> <b>${total.toLocaleString()}</b></div>
+        <div class="stat-row" style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #eee;"><span>📅 Hôm nay:</span> <b>${last7Days[6].visits.toLocaleString()}</b></div>
+        <div class="stat-row" style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #eee;"><span>📈 7 ngày qua:</span> <b>${sum7Days.toLocaleString()}</b></div>
+        <div class="stat-row" style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #eee;"><span>🔍 Lượt tìm kiếm:</span> <b>${search.toLocaleString()}</b></div> ${chartHtml}`;
+}
+
+document.addEventListener("DOMContentLoaded", () => { recordAndLoadStats('visit'); });
+
     </script>
 </body>
 </html>
