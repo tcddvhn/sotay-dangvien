@@ -653,29 +653,33 @@ function fetchAndRenderStats() {
         .catch(err => console.log("Lỗi tải thống kê: ", err));
 }
 
-// 2. Hàm Ghi nhận lượt truy cập (Chỉ tính 1 lần mỗi phiên duyệt web)
+// 2. Hàm Ghi nhận lượt truy cập (Truyền thẳng lên URL)
 function recordVisit() {
     if (!sessionStorage.getItem('has_recorded_visit')) {
-        fetch(STATS_WEB_APP_URL, {
+        // Nối thêm ?action=visit vào đuôi đường link
+        fetch(STATS_WEB_APP_URL + "?action=visit", {
             method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({ action: 'visit' })
-        });
-        sessionStorage.setItem('has_recorded_visit', 'true');
+            mode: 'no-cors'
+        }).then(() => {
+            sessionStorage.setItem('has_recorded_visit', 'true');
+            setTimeout(fetchAndRenderStats, 1500); 
+        }).catch(err => console.log(err));
     }
 }
 
-// 3. Hàm Ghi nhận lượt tìm kiếm
+// 3. Hàm Ghi nhận lượt tìm kiếm (Truyền thẳng lên URL)
 function recordSearch(keyword) {
     if (!keyword) return;
-    fetch(STATS_WEB_APP_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify({ action: 'search', detail: keyword })
-    });
     
-    // Tải lại bảng thống kê để số liệu cập nhật ngay lập tức
-    setTimeout(fetchAndRenderStats, 1500); // Chờ 1.5s để server ghi xong rồi tải lại
+    // Nối thêm action và từ khóa vào đuôi đường link
+    let url = STATS_WEB_APP_URL + "?action=search&detail=" + encodeURIComponent(keyword);
+    
+    fetch(url, {
+        method: 'POST',
+        mode: 'no-cors'
+    }).then(() => {
+        setTimeout(fetchAndRenderStats, 1500);
+    }).catch(err => console.log(err));
 }
 
 // Tự động chạy khi Sổ tay được mở
