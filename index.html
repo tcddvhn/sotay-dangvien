@@ -1432,8 +1432,11 @@ function performSearch() {
             let inputEl = document.getElementById('chatInput');
             let message = inputEl.value.trim();
             if(!message) return;
-			recordChatbotUsage(message);
-			addMessage(message, 'user');
+			// --- CHÈN DÒNG NÀY VÀO ĐÂY ---
+    		recordChatbotUsage(message); 
+    // ----------------------------
+
+    		addMessage(message, 'user');
             let chatBody = document.getElementById('chatBody');
             let typingEl = document.getElementById('typingIndicator');
 
@@ -1718,5 +1721,6 @@ function submitFeedback() {
 </body>
 
 </html>
+
 
 
