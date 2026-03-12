@@ -1432,7 +1432,8 @@ function performSearch() {
             let inputEl = document.getElementById('chatInput');
             let message = inputEl.value.trim();
             if(!message) return;
-
+			recordChatbotUsage(message);
+			addMessage(message, 'user');
             let chatBody = document.getElementById('chatBody');
             let typingEl = document.getElementById('typingIndicator');
 
@@ -1586,7 +1587,22 @@ function recordAndLoadStats(actionType, detail = "") {
 }
 
 function recordSearch(keyword) { recordAndLoadStats('search', keyword); }
-
+// Hàm ghi nhận lượt hỏi Chatbot
+function recordChatbotUsage(question) {
+    if (!STATS_WEB_APP_URL) return;
+    
+    // Gửi câu hỏi lên Sheets (action=chatbot)
+    let url = STATS_WEB_APP_URL + "?action=chatbot&detail=" + encodeURIComponent(question);
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            // Cập nhật lại Dashboard để số liệu nhảy ngay lập tức
+            if (typeof renderDashboard === "function") renderDashboard(data);
+        })
+        .catch(err => console.log("Lỗi ghi nhận chatbot:", err));
+}
+		
 function renderDashboard(data) {
     if (!data || !document.getElementById('homeDashboard')) return;
     let total = data.totalVisits || 0, search = data.searchCount || 0, daily = data.dailyVisits || {};
@@ -1702,4 +1718,5 @@ function submitFeedback() {
 </body>
 
 </html>
+
 
