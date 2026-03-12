@@ -106,7 +106,88 @@
         @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         
         .step-body-inner { padding: 0; }
-        /* Giảm padding nội dung và triệt tiêu khoảng trống thừa của thẻ p (QuillJS) */
+ 
+/* Container chung cho 2 nút */
+.home-action-group {
+    padding: 0 10px;
+}
+
+/* Định dạng chung cho nút phẳng */
+.action-btn-flat {
+    flex: 1;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 5px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Nút Góp ý: Xanh dương nhã nhặn */
+.feedback-btn {
+    background: #3498db;
+}
+
+/* Nút Quản trị: Xanh đậm chuyển nhạt (Gradient) */
+.admin-btn {
+    background: linear-gradient(135deg, #1e2b3c 0%, #2c3e50 100%);
+}
+
+/* Hiệu ứng khi di chuột hoặc bấm */
+.action-btn-flat:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.action-btn-flat:active {
+    transform: scale(0.96);
+}
+
+/* Chỉnh kích cỡ Icon */
+.action-btn-flat i {
+    font-size: 1.4rem;
+}
+
+/* Hiệu ứng xoay nhẹ cho bánh răng khi di chuột vào nút Quản trị */
+.admin-btn:hover i {
+    transform: rotate(45deg);
+    transition: transform 0.3s ease;
+}
+
+/* Định vị khung chứa để nút x căn lề theo khung này */
+.survey-card {
+    position: relative; 
+    padding-top: 35px; /* Tạo khoảng trống phía trên cho nút x */
+}
+
+/* Kiểu dáng nút x thoát khảo sát */
+.close-survey-x {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #7f8c8d;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.close-survey-x:hover {
+    color: #cc0000; /* Đổi sang màu đỏ khi di chuột vào */
+}
+
+	/* ------Giảm padding nội dung và triệt tiêu khoảng trống thừa của thẻ p (QuillJS)----- */
         .content-text { padding: 10px 10px 10px 15px; border-top: 1px solid var(--border-light); text-align: justify; font-size: 1.15rem; word-wrap: break-word; overflow-wrap: break-word; overflow: hidden;}
         .content-text p { margin-top: 0; margin-bottom: 6px; }
         .content-text p:last-child { margin-bottom: 0; }
@@ -485,9 +566,17 @@
     </div>
 </div>
             
-            <div class="recent-box" onclick="openLoginForm()" style="cursor: pointer; text-align: center; color: var(--text-muted); font-weight: bold; margin-top: 15px; transition: 0.3s;" onmouseover="this.style.color='var(--primary-color)'; this.style.borderColor='var(--primary-color)';" onmouseout="this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-color)';">
-                ⚙️ QUẢN TRỊ NỘI DUNG
-            </div>
+            <div class="home-action-group" style="display: flex; gap: 12px; margin-top: 20px;">
+    <button class="action-btn-flat feedback-btn" onclick="openSurvey()">
+        <i class="fas fa-comment-dots"></i>
+        <span>ĐÓNG GÓP Ý KIẾN</span>
+    </button>
+    
+    <button class="action-btn-flat admin-btn" onclick="openLoginForm()">
+        <i class="fas fa-cog"></i>
+        <span>QUẢN TRỊ NỘI DUNG</span>
+    </button>
+</div>
         </div>
 
         <div id="tab-quydinh" class="tab-pane">
@@ -750,6 +839,18 @@ function sendQuickRating(level) {
 function showFeedbackInput() {
     document.getElementById('surveyStep1').style.display = 'none';
     document.getElementById('surveyStep2').style.display = 'block';
+}
+
+//------- NÚT KHẢO SÁT -----
+function openSurvey() {
+    const overlay = document.getElementById('autoSurveyOverlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        // Reset lại các bước về bước 1 nếu người dùng đã từng mở
+        document.getElementById('surveyStep1').style.display = 'block';
+        document.getElementById('surveyStep2').style.display = 'none';
+        document.getElementById('surveyThanks').style.display = 'none';
+    }
 }
 
 // 4. Gửi nội dung góp ý văn bản
@@ -1694,6 +1795,7 @@ function submitFeedback() {
     </script>
 <div id="autoSurveyOverlay" class="survey-overlay" style="display: none;">
     <div class="survey-card">
+	<button class="close-survey-x" onclick="closeSurveyAuto()">×</button>
         <div id="surveyStep1">
             <h4>Đánh giá trải nghiệm</h4>
             <p>Đồng chí thấy Sổ tay này hữu ích không?</p>
@@ -1717,7 +1819,6 @@ function submitFeedback() {
     </div>
 </div>
 </body>
-
 </html>
 
 
