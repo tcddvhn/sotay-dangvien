@@ -1396,27 +1396,28 @@ function performSearch(event) {
     // Ghi chú: Đã xóa đoạn thongKeRef.set(...) gây lỗi Firebase cũ ở đây
 }
 
-        // GẮN SỰ KIỆN TÌM KIẾM CHO CẢ MÁY TÍNH VÀ ĐIỆN THOẠI
+        // ==========================================
+// GẮN SỰ KIỆN TÌM KIẾM CHO CẢ PC VÀ MOBILE
+// ==========================================
 const debouncedPerformSearch = debounceOpt(performSearch, 350);
 
-// Quét toàn bộ các ô tìm kiếm trên giao diện
+// Quét toàn bộ các ô tìm kiếm trên giao diện (cả ẩn và hiện)
 let allSearchBoxes = document.querySelectorAll('#searchInput, .search-input, input[type="search"]');
 
 allSearchBoxes.forEach(box => {
-    // 1. Tự động tìm khi đang gõ
+    // 1. Tự động tìm khi đang gõ chữ
     box.addEventListener('input', debouncedPerformSearch);
     
-    // 2. Xử lý triệt để nút Enter / nút Tìm kiếm trên bàn phím ảo điện thoại
+    // 2. Xử lý nút Enter/Tìm kiếm trên bàn phím ảo của điện thoại
     box.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
-            e.preventDefault(); // Chặn hành động tải lại trang web
-            performSearch(e);   // Ép hệ thống tìm kiếm ngay lập tức
-            this.blur();        // Tự động thu gọn bàn phím ảo xuống để nhìn kết quả
+            e.preventDefault(); // Chặn việc trình duyệt tải lại trang
+            performSearch(e);   // Bắt buộc gọi hàm tìm kiếm ngay
+            this.blur();        // Tự động thu gọn bàn phím ảo xuống để xem kết quả
         }
     });
 });
 
-// Gắn sự kiện cho bộ lọc Tag (nếu có)
 let tagFilter = document.getElementById('searchTagFilter');
 if (tagFilter) {
     tagFilter.addEventListener('change', performSearch);
