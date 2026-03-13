@@ -1851,7 +1851,34 @@ function closeSurveyAuto() {
         console.log("Lỗi: Không tìm thấy khung khảo sát để đóng");
     }
 }
+// ==============================================================
+// BỔ SUNG: XỬ LÝ BÀN PHÍM ẢO CHO GIAO DIỆN ĐIỆN THOẠI
+// ==============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Bắt phím Enter cho ô tìm kiếm ngoài Trang chủ
+    let homeInput = document.getElementById('homeSearchInput');
+    if (homeInput) {
+        homeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Chặn tải lại trang
+                if (typeof quickHomeSearch === 'function') quickHomeSearch(); 
+                this.blur();        // Tự động thu gọn bàn phím ảo xuống để lộ kết quả
+            }
+        });
+    }
 
+    // 2. Bắt phím Enter cho ô tìm kiếm nhỏ trong cửa sổ (Modal)
+    let modalInput = document.getElementById('searchInput');
+    if (modalInput) {
+        modalInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (typeof performSearch === 'function') performSearch();
+                this.blur(); // Tự động thu gọn bàn phím ảo
+            }
+        });
+    }
+});
     </script>
 <div id="autoSurveyOverlay" class="survey-overlay" style="display: none;">
     <div class="survey-card" style="position: relative; background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
