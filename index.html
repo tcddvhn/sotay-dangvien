@@ -1277,24 +1277,41 @@ function removeAccents(str) {
               .replace(/đ/g, 'd')
               .replace(/Đ/g, 'D');
 }
-function performSearch() {
-    let kwRaw = document.getElementById('searchInput').value.trim(); 
-    // Bây giờ lệnh dưới đây sẽ không còn báo lỗi nữa vì đã có hàm ở Bước 1
+// Thêm biến event vào trong ngoặc để bắt sự kiện gõ phím
+function performSearch(event) {
+    let kwRaw = "";
+
+    // QUÉT TẤT CẢ các ô tìm kiếm có trên trang (để trị bệnh trùng ID)
+    let searchInputs = document.querySelectorAll('#searchInput, .search-input, input[type="search"]');
+    searchInputs.forEach(input => {
+        if (input.value.trim() !== '') {
+            kwRaw = input.value.trim();
+        }
+    });
+
+    // ƯU TIÊN SỐ 1: Lấy trực tiếp từ ô đang được gõ (Cực kỳ nhạy trên Mobile)
+    if (event && event.target && event.target.value !== undefined) {
+        kwRaw = event.target.value.trim();
+    }
+
     let kwNoAccent = removeAccents(kwRaw); 
     
-    let filterTag = document.getElementById('searchTagFilter').value.toLowerCase();
+    let filterTagEl = document.getElementById('searchTagFilter');
+    let filterTag = filterTagEl ? filterTagEl.value.toLowerCase() : '';
+    
     let resContainer = document.getElementById('searchResults'); 
     let faqDiv = document.getElementById('faqSuggestions');
     let histDiv = document.getElementById('searchHistoryArea');
 
+    // Điều kiện dừng nếu gõ chưa đủ chữ
     if (kwNoAccent.length < 2 && filterTag === '') { 
-        resContainer.innerHTML = '<div class="no-result">Vui lòng gõ ít nhất 2 ký tự hoặc chọn bộ lọc.</div>'; 
-        faqDiv.style.display = 'block'; 
-        if (JSON.parse(localStorage.getItem('sotay_search_history') || '[]').length > 0) histDiv.style.display = 'block';
+        if (resContainer) resContainer.innerHTML = '<div class="no-result">Vui lòng gõ ít nhất 2 ký tự hoặc chọn bộ lọc.</div>'; 
+        if (faqDiv) faqDiv.style.display = 'block'; 
+        if (histDiv && JSON.parse(localStorage.getItem('sotay_search_history') || '[]').length > 0) histDiv.style.display = 'block';
         return; 
     }
 
-    // GỌI LỆNH GHI NHẬN TÌM KIẾM VÀO GOOGLE SHEETS
+ 
     // GỌI LỆNH GHI NHẬN TÌM KIẾM VÀO GOOGLE SHEETS
     if (typeof recordSearch === "function") {
         recordSearch(kwRaw);
@@ -1379,7 +1396,31 @@ function performSearch() {
     // Ghi chú: Đã xóa đoạn thongKeRef.set(...) gây lỗi Firebase cũ ở đây
 }
 
-        const debouncedPerformSearch = debounceOpt(performSearch, 350);
+        // GẮN SỰ KIỆN TÌM KIẾM CHO CẢ MÁY TÍNH VÀ ĐIỆN THOẠI
+const debouncedPerformSearch = debounceOpt(performSearch, 350);
+
+// Quét toàn bộ các ô tìm kiếm trên giao diện
+let allSearchBoxes = document.querySelectorAll('#searchInput, .search-input, input[type="search"]');
+
+allSearchBoxes.forEach(box => {
+    // 1. Tự động tìm khi đang gõ
+    box.addEventListener('input', debouncedPerformSearch);
+    
+    // 2. Xử lý triệt để nút Enter / nút Tìm kiếm trên bàn phím ảo điện thoại
+    box.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Chặn hành động tải lại trang web
+            performSearch(e);   // Ép hệ thống tìm kiếm ngay lập tức
+            this.blur();        // Tự động thu gọn bàn phím ảo xuống để nhìn kết quả
+        }
+    });
+});
+
+// Gắn sự kiện cho bộ lọc Tag (nếu có)
+let tagFilter = document.getElementById('searchTagFilter');
+if (tagFilter) {
+    tagFilter.addEventListener('change', performSearch);
+}
         document.getElementById('searchInput').addEventListener('input', debouncedPerformSearch);
         document.getElementById('searchTagFilter').addEventListener('change', performSearch);
         
