@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#cc0000">
 
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         /* FLAT UI DESIGN VARIABLES */
         :root { 
@@ -161,30 +161,6 @@
 .admin-btn:hover i {
     transform: rotate(45deg);
     transition: transform 0.3s ease;
-}
-
-/* Định vị khung chứa để nút x căn lề theo khung này */
-.survey-card {
-    position: relative; 
-    padding-top: 35px; /* Tạo khoảng trống phía trên cho nút x */
-}
-
-/* Kiểu dáng nút x thoát khảo sát */
-.close-survey-x {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    background: none;
-    border: none;
-    font-size: 28px;
-    color: #7f8c8d;
-    cursor: pointer;
-    line-height: 1;
-    transition: color 0.2s;
-}
-
-.close-survey-x:hover {
-    color: #cc0000; /* Đổi sang màu đỏ khi di chuột vào */
 }
 
 	/* ------Giảm padding nội dung và triệt tiêu khoảng trống thừa của thẻ p (QuillJS)----- */
@@ -787,11 +763,11 @@
                             </div>
 			    <div style="display:flex; gap:5px; margin-bottom:5px;">
                                 <select id="inpPdfDoc4" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd21">Hướng dẫn 21</option><option value="hd06">Hướng dẫn 06</option></select>
-                                <input type="number" id="inpPdfPage4" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
+                                <input type="number" id="inpPdfPage1" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
                             </div>
                             <div style="display:flex; gap:5px; margin-bottom:5px;">
                                 <select id="inpPdfDoc5" class="form-control" style="margin-bottom:0; flex:2; padding: 8px; font-size:1rem;"><option value="">-- Chọn văn bản --</option><option value="hd02">Hướng dẫn 02</option><option value="qd294">Quy định 294</option><option value="hd38">Hướng dẫn 38</option><option value="hd21">Hướng dẫn 21</option><option value="hd06">Hướng dẫn 06</option></select>
-                                <input type="number" id="inpPdfPage5" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
+                                <input type="number" id="inpPdfPage4" class="form-control" style="margin-bottom:0; flex:1; padding: 8px; font-size:1rem;" placeholder="Trang">
                             </div>
                         </div>
                     </div>
@@ -1005,8 +981,23 @@ function showThanks() {
 
         const thongKeRef = db.collection("sotay").doc("thongke");
         function getLocalTodayString() { return new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
-        
-                
+        function fetchAndRenderDashboard() { 
+            thongKeRef.get().then((doc) => { 
+                if (doc.exists) renderDashboard(doc.data()); 
+                else renderDashboard({ totalVisits: 0, searchCount: 0, dailyVisits: {} }); 
+            }).catch(err => {
+                console.log("Firebase Dashboard error:", err);
+                renderDashboard({ totalVisits: 1, searchCount: 1, dailyVisits: {} }); 
+            }); 
+        }
+        setInterval(fetchAndRenderDashboard, 3600000);
+        function recordVisit() { 
+            if (!sessionStorage.getItem('visited_sotay')) { 
+                let today = getLocalTodayString(); 
+                thongKeRef.set({ totalVisits: firebase.firestore.FieldValue.increment(1), dailyVisits: { [today]: firebase.firestore.FieldValue.increment(1) } }, { merge: true }).then(fetchAndRenderDashboard).catch(fetchAndRenderDashboard); 
+                sessionStorage.setItem('visited_sotay', 'true'); 
+            } else { fetchAndRenderDashboard(); } 
+        } 
         recordVisit();
 
         function renderDashboard(data) {
@@ -1418,7 +1409,7 @@ function performSearch() {
         function saveCurrentNodeToServer() {
             if (!currentEditNodeId) return; const btn = document.getElementById('btnSaveSingle'); btn.innerText = "⏳ Đang lưu..."; btn.disabled = true;
             let sumVal = quillSummary.root.innerHTML; if(sumVal === '<p><br></p>') sumVal = ''; let detVal = quillDetail.root.innerHTML; if(detVal === '<p><br></p>') detVal = '';
-            let pdfRefs = []; for(let i=1; i<=5; i++) { let docVal = document.getElementById('inpPdfDoc'+i).value; let pageVal = document.getElementById('inpPdfPage'+i).value; if(docVal && pageVal) pdfRefs.push({ doc: docVal, page: pageVal }); }
+            let pdfRefs = []; for(let i=1; i<=4; i++) { let docVal = document.getElementById('inpPdfDoc'+i).value; let pageVal = document.getElementById('inpPdfPage'+i).value; if(docVal && pageVal) pdfRefs.push({ doc: docVal, page: pageVal }); }
             let updatedData = { 
                 tag: document.getElementById('inpTag').value, 
                 title: document.getElementById('inpTitle').value, 
@@ -1776,19 +1767,10 @@ function submitFeedback() {
             btnSubmit.innerText = "Gửi góp ý";
         });
 }
-// Hàm đóng bảng khảo sát thủ công khi bấm nút X
-function closeSurveyAuto() {
-    let overlay = document.getElementById('autoSurveyOverlay');
-    if (overlay) {
-        overlay.style.display = 'none';
-    } else {
-        console.log("Lỗi: Không tìm thấy khung khảo sát để đóng");
-    }
-}
+
     </script>
 <div id="autoSurveyOverlay" class="survey-overlay" style="display: none;">
     <div class="survey-card">
-	<button class="close-survey-x" onclick="closeSurveyAuto()">×</button>
         <div id="surveyStep1">
             <h4>Đánh giá trải nghiệm</h4>
             <p>Đồng chí thấy Sổ tay này hữu ích không?</p>
