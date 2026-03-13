@@ -793,13 +793,13 @@
         // URL WEB APP KHẢO SÁT
 	const SURVEY_API_URL = "https://script.google.com/macros/s/AKfycby1oXVzH9EeR0v1j2goesabdRwKECaUWLJNuPaeOJNBbsF0p5kAsgc53c-ISqOg491z/exec";
 
-// 1. Tự động hiện sau 2 phút (120.000 ms)
+// 1. Tự động hiện sau 5 phút (300.000 ms)
 setTimeout(() => {
     // Chuyển thành localStorage để nhớ vĩnh viễn trên thiết bị này
     if (!localStorage.getItem('survey_done')) { 
         document.getElementById('autoSurveyOverlay').style.display = 'flex';
     }
-}, 120000);
+}, 300000);
 
 // 2. Gửi nhanh Rất hài lòng / Hài lòng
 function sendQuickRating(level) {
@@ -1790,6 +1790,7 @@ function closeSurveyAuto() {
 </div>
 </body>
 </html>
+
 
 
 
