@@ -793,13 +793,13 @@
         // URL WEB APP KHẢO SÁT
 	const SURVEY_API_URL = "https://script.google.com/macros/s/AKfycby1oXVzH9EeR0v1j2goesabdRwKECaUWLJNuPaeOJNBbsF0p5kAsgc53c-ISqOg491z/exec";
 
-// 1. Tự động hiện sau 5 phút (300.000 ms)
+// 1. Tự động hiện sau 2 phút (120.000 ms)
 setTimeout(() => {
     // Chuyển thành localStorage để nhớ vĩnh viễn trên thiết bị này
     if (!localStorage.getItem('survey_done')) { 
         document.getElementById('autoSurveyOverlay').style.display = 'flex';
     }
-}, 300000);
+}, 120000);
 
 // 2. Gửi nhanh Rất hài lòng / Hài lòng
 function sendQuickRating(level) {
@@ -1295,39 +1295,89 @@ function performSearch() {
     }
 
     // GỌI LỆNH GHI NHẬN TÌM KIẾM VÀO GOOGLE SHEETS
-    // Lưu ý: Dùng kwRaw để trong Sheet hiện từ khóa có dấu cho dễ đọc
+    // GỌI LỆNH GHI NHẬN TÌM KIẾM VÀO GOOGLE SHEETS
     if (typeof recordSearch === "function") {
         recordSearch(kwRaw);
     }
 
-    // Tiếp tục các logic tìm kiếm và hiển thị kết quả của đồng chí...
-    faqDiv.style.display = 'none';
-    histDiv.style.display = 'none';
+    // Ẩn các phần không liên quan
+    if (typeof faqDiv !== 'undefined' && faqDiv) faqDiv.style.display = 'none';
+    if (typeof histDiv !== 'undefined' && histDiv) histDiv.style.display = 'none';
 
-            lastSearchKeyword = kwRaw; 
-            let results = [];
+    lastSearchKeyword = kwRaw; 
+    let results = [];
+    
+    if (typeof saveSearchHistory === "function") saveSearchHistory(kwRaw);
+
+    // NÂNG CẤP 1: HÀM TẠO ĐOẠN TRÍCH DẪN (SNIPPET)
+    function getSnippet(text, kw) {
+        if (!text) return "";
+        let plainText = text.replace(/<[^>]*>/g, ' '); 
+        let plainTextLower = removeAccents(plainText.toLowerCase());
+        let index = plainTextLower.indexOf(kw);
+        if (index === -1) return "";
+
+        let start = Math.max(0, index - 40);
+        let end = Math.min(plainText.length, index + kw.length + 60);
+        let snippet = plainText.substring(start, end);
+        if (start > 0) snippet = "..." + snippet;
+        if (end < plainText.length) snippet = snippet + "...";
+        return snippet;
+    }
+
+    // NÂNG CẤP 2: TÌM SÂU VÀO N.DETAIL VÀ N.SUMMARY
+    function traverse(nodes, parentPath) {
+        for(let n of nodes) {
+            let curPath = parentPath ? (parentPath + " > " + n.title) : (n.title || ''); 
+            let tagText = n.tag ? n.tag.toLowerCase() : '';
             
-            saveSearchHistory(kwRaw);
-
-            function traverse(nodes, parentPath) {
-                for(let n of nodes) {
-                    let curPath = parentPath ? (parentPath + " > " + n.title) : (n.title || ''); let tagText = n.tag ? n.tag.toLowerCase() : '';
-                    let isTagMatch = filterTag === '' || tagText.includes(filterTag); let isKwMatch = kwNoAccent === '' || removeAccents((n.title||'')+" "+(n.tag||'')+" "+(n.summary||'')+" "+(n.detail||'')).includes(kwNoAccent);
-                    if (isTagMatch && isKwMatch) { results.push({ id: n.id, path: parentPath || 'Mục chính', title: highlightText(n.title, kwRaw), snippet: n.tag ? `[${n.tag}] Nhấn xem chi tiết...` : "Nhấn để xem kết quả khớp..." }); }
-                    if (n.children) traverse(n.children, curPath);
+            let isTagMatch = filterTag === '' || tagText.includes(filterTag); 
+            let fullText = (n.title||'') + " " + (n.tag||'') + " " + (n.summary||'') + " " + (n.detail||'');
+            let isKwMatch = kwNoAccent === '' || removeAccents(fullText.toLowerCase()).includes(kwNoAccent);
+            
+            if (isTagMatch && isKwMatch) { 
+                let snippetHtml = "";
+                
+                if (kwNoAccent !== '' && n.detail && removeAccents(n.detail.toLowerCase()).includes(kwNoAccent)) {
+                    let snippetText = getSnippet(n.detail, kwNoAccent);
+                    snippetHtml = `<div style="font-size: 0.85rem; color: #555; background: #f1f3f5; padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid var(--primary-color);"><b>Trích nội dung:</b> <i>${snippetText}</i></div>`;
+                } else if (kwNoAccent !== '' && n.summary && removeAccents(n.summary.toLowerCase()).includes(kwNoAccent)) {
+                    let snippetText = getSnippet(n.summary, kwNoAccent);
+                    snippetHtml = `<div style="font-size: 0.85rem; color: #555; background: #f1f3f5; padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid #27ae60;"><b>Tóm tắt:</b> <i>${snippetText}</i></div>`;
+                } else {
+                    snippetHtml = n.tag ? `[${n.tag}] Nhấn xem chi tiết...` : `Nhấn để xem kết quả khớp...`;
                 }
-            } traverse(APP_DATA, "");
-            
-            if (results.length === 0) resContainer.innerHTML = '<div class="no-result">❌ Không tìm thấy.</div>';
-            else { 
-                let html = `<div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px;">Tìm thấy ${results.length} kết quả</div>`; 
-                results.forEach(r => html += `<div class="result-item" onclick="jumpToResult('${r.id}')"><div class="result-path"><svg width="14" height="14" style="flex-shrink:0; margin-top:2px;"></svg><use href="#icon-folder"></use></svg> <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.path}</span></div><div class="result-title">${r.title}</div><div class="result-snippet">${r.snippet}</div></div>`); 
-                resContainer.innerHTML = html; 
+
+                results.push({ 
+                    id: n.id, 
+                    path: parentPath || 'Mục chính', 
+                    title: typeof highlightText === 'function' ? highlightText(n.title, kwRaw) : n.title, 
+                    snippet: snippetHtml 
+                }); 
             }
-            renderUserInterface();
-            
-            thongKeRef.set({ searchCount: firebase.firestore.FieldValue.increment(1) }, { merge: true }).catch(e=>console.log(e));
+            if (n.children) traverse(n.children, curPath);
         }
+    } 
+    traverse(APP_DATA, "");
+    
+    // NÂNG CẤP 3: HIỂN THỊ KẾT QUẢ GIAO DIỆN MỚI
+    if (results.length === 0) {
+        resContainer.innerHTML = `<div class="no-result">❌ Không tìm thấy.</div>`;
+    } else { 
+        let html = `<div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px;">Tìm thấy ${results.length} kết quả</div>`; 
+        results.forEach(r => {
+            html += `<div class="result-item" onclick="jumpToResult('${r.id}')" style="padding:15px; border-bottom:1px solid #eee; cursor:pointer; transition: background 0.2s;">
+                        <div class="result-path" style="font-size:0.75rem; color:#888; margin-bottom:4px;">${r.path}</div>
+                        <div class="result-title" style="font-weight:bold; color:var(--text-main); margin-bottom:6px;">${r.title}</div>
+                        <div class="result-snippet">${r.snippet}</div>
+                     </div>`;
+        }); 
+        resContainer.innerHTML = html; 
+    }
+    
+    if (typeof renderUserInterface === "function") renderUserInterface();
+    // Ghi chú: Đã xóa đoạn thongKeRef.set(...) gây lỗi Firebase cũ ở đây
+}
 
         const debouncedPerformSearch = debounceOpt(performSearch, 350);
         document.getElementById('searchInput').addEventListener('input', debouncedPerformSearch);
@@ -1790,7 +1840,6 @@ function closeSurveyAuto() {
 </div>
 </body>
 </html>
-
 
 
 
