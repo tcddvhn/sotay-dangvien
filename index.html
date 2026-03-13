@@ -1294,7 +1294,7 @@ function performSearch(event) {
         kwRaw = event.target.value.trim();
     }
 
-    let kwNoAccent = removeAccents(kwRaw); 
+    let kwNoAccent = removeAccents(kwRaw.toLowerCase());
     
     let filterTagEl = document.getElementById('searchTagFilter');
     let filterTag = filterTagEl ? filterTagEl.value.toLowerCase() : '';
