@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Quản trị nội dung - Sổ tay nghiệp vụ TCĐ, ĐV</title>
+  <meta name="description" content="Trang quản trị nội dung cho Sổ tay nghiệp vụ TCĐ, ĐV.">
+  <link rel="stylesheet" href="./assets/admin.css">
+</head>
+<body>
+  <main class="admin-shell">
+    <section class="login-view" id="loginView" aria-labelledby="loginHeading">
+      <div class="login-card">
+        <div class="brand-mark">Quản trị nội dung</div>
+        <h1 id="loginHeading">Đăng nhập quản trị</h1>
+        <p class="login-note">Luồng đăng nhập này dùng cùng Firebase Auth với hệ thống cũ. Tài khoản dạng <strong>admin</strong> sẽ được quy đổi thành <strong>admin@sotay.com</strong>.</p>
+        <form id="loginForm" class="login-form">
+          <label for="username">Tài khoản</label>
+          <input id="username" name="username" type="text" autocomplete="username" placeholder="Ví dụ: admin" required>
+
+          <label for="password">Mật khẩu</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu quản trị" required>
+
+          <button class="btn btn-primary" type="submit" id="loginButton">Vào trang quản trị</button>
+        </form>
+        <div class="login-status" id="loginStatus" aria-live="polite"></div>
+        <a class="back-link" href="./index.html">Quay lại giao diện người dùng</a>
+      </div>
+    </section>
+
+    <section class="admin-view" id="adminView" hidden>
+      <header class="admin-header">
+        <div>
+          <div class="brand-mark">Quản trị nội dung</div>
+          <h1>Bảng điều khiển dữ liệu live</h1>
+          <p id="adminWelcome">Đang đồng bộ dữ liệu từ Firestore.</p>
+        </div>
+        <div class="admin-header__actions">
+          <a class="btn btn-muted" href="./index.html">Mở giao diện người dùng</a>
+          <button class="btn btn-muted" type="button" id="logoutButton">Đăng xuất</button>
+        </div>
+      </header>
+
+      <div class="admin-layout">
+        <aside class="panel tree-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Cây nội dung</h2>
+              <p>Tìm, chọn và thao tác trực tiếp trên dữ liệu thật.</p>
+            </div>
+          </div>
+
+          <label class="sr-only" for="treeSearch">Tìm trong cây nội dung</label>
+          <input id="treeSearch" class="field" type="search" placeholder="Tìm theo tiêu đề hoặc tag...">
+
+          <div class="tree-actions">
+            <button class="btn btn-primary" type="button" id="addRootButton">Thêm phần gốc</button>
+            <button class="btn btn-muted" type="button" id="addChildButton">Thêm mục con</button>
+            <button class="btn btn-danger" type="button" id="deleteButton">Xóa mục đang chọn</button>
+          </div>
+
+          <div id="treeStatus" class="panel-status" aria-live="polite"></div>
+          <div id="treeRoot" class="tree-root"></div>
+        </aside>
+
+        <section class="panel editor-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Biên tập nội dung</h2>
+              <p>Chỉnh trực tiếp trường dữ liệu legacy. `summary` và `detail` cho phép HTML cơ bản như hệ thống cũ.</p>
+            </div>
+            <div class="panel-head__actions">
+              <button class="btn btn-muted" type="button" id="moveUpButton">Đẩy lên</button>
+              <button class="btn btn-muted" type="button" id="moveDownButton">Đẩy xuống</button>
+              <button class="btn btn-primary" type="button" id="saveButton">Lưu thay đổi</button>
+            </div>
+          </div>
+
+          <div id="editorPlaceholder" class="empty-state">Chọn một mục trong cây bên trái để bắt đầu biên tập.</div>
+
+          <form id="editorForm" class="editor-form" hidden>
+            <div class="editor-grid">
+              <label>
+                <span>Tiêu đề</span>
+                <input id="inpTitle" class="field" type="text" required>
+              </label>
+
+              <label>
+                <span>Tag</span>
+                <input id="inpTag" class="field" type="text" placeholder="Ví dụ: Hỏi đáp, Biểu mẫu, Quy định">
+              </label>
+
+              <label>
+                <span>Tên file hiển thị</span>
+                <input id="inpFileName" class="field" type="text" placeholder="Tên biểu mẫu hiển thị cho người dùng">
+              </label>
+
+              <label>
+                <span>Link tải file</span>
+                <input id="inpFileUrl" class="field" type="url" placeholder="https://...">
+              </label>
+            </div>
+
+            <label class="toggle-field">
+              <input id="inpForceAccordion" type="checkbox">
+              <span>Buộc hiển thị dạng accordion ở danh sách public</span>
+            </label>
+
+            <label>
+              <span>Tóm tắt (`summary`)</span>
+              <textarea id="inpSummary" class="field field--textarea" rows="6" placeholder="Có thể nhập HTML nếu cần giữ định dạng cũ."></textarea>
+            </label>
+
+            <label>
+              <span>Nội dung chi tiết (`detail`)</span>
+              <textarea id="inpDetail" class="field field--textarea" rows="12" placeholder="Có thể nhập HTML nếu cần giữ định dạng cũ."></textarea>
+            </label>
+
+            <div class="panel-head panel-head--compact">
+              <div>
+                <h3>Căn cứ PDF</h3>
+                <p>Tối đa 5 dòng theo chuẩn dữ liệu cũ.</p>
+              </div>
+            </div>
+
+            <div class="pdf-grid" id="pdfGrid">
+              <label>
+                <span>Tài liệu 1</span>
+                <select id="inpPdfDoc1" class="field"></select>
+              </label>
+              <label>
+                <span>Trang 1</span>
+                <input id="inpPdfPage1" class="field" type="number" min="1">
+              </label>
+              <label>
+                <span>Tài liệu 2</span>
+                <select id="inpPdfDoc2" class="field"></select>
+              </label>
+              <label>
+                <span>Trang 2</span>
+                <input id="inpPdfPage2" class="field" type="number" min="1">
+              </label>
+              <label>
+                <span>Tài liệu 3</span>
+                <select id="inpPdfDoc3" class="field"></select>
+              </label>
+              <label>
+                <span>Trang 3</span>
+                <input id="inpPdfPage3" class="field" type="number" min="1">
+              </label>
+              <label>
+                <span>Tài liệu 4</span>
+                <select id="inpPdfDoc4" class="field"></select>
+              </label>
+              <label>
+                <span>Trang 4</span>
+                <input id="inpPdfPage4" class="field" type="number" min="1">
+              </label>
+              <label>
+                <span>Tài liệu 5</span>
+                <select id="inpPdfDoc5" class="field"></select>
+              </label>
+              <label>
+                <span>Trang 5</span>
+                <input id="inpPdfPage5" class="field" type="number" min="1">
+              </label>
+            </div>
+
+            <div id="editorStatus" class="panel-status" aria-live="polite"></div>
+          </form>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="./assets/data.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="./assets/admin.js"></script>
+</body>
+</html>
