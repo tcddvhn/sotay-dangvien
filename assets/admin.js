@@ -464,8 +464,11 @@
     setStatus(dom.loginStatus, "Đang xác thực tài khoản quản trị...", "");
 
     window.firebase.auth().signInWithEmailAndPassword(username, password)
-      .then(() => {
+      .then((userCredential) => {
         setStatus(dom.loginStatus, "Đăng nhập thành công.", "success");
+        if (userCredential && userCredential.user) {
+          showAdminView(userCredential.user);
+        }
       })
       .catch(() => {
         dom.password.value = "";
