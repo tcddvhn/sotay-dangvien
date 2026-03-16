@@ -22,7 +22,7 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260316">
 </head>
 <body>
 
@@ -55,7 +55,7 @@
             <button class="toggle-btn" onclick="openSearchModal()" title="Tìm kiếm" aria-label="Tìm kiếm nội dung" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;"><svg width="22" height="22"><use href="#icon-search"></use></svg></button>
             <button class="toggle-btn" onclick="toggleDarkMode()" title="Chế độ Tối/Sáng" aria-label="Chuyển chế độ tối sáng" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;"><svg width="22" height="22"><use href="#icon-moon"></use></svg></button>
             <button class="toggle-btn" onclick="openLoginForm()" title="Quản trị nội dung" aria-label="Quản trị nội dung" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;"><i class="fas fa-gear"></i></button>
-            <button class="toggle-btn" onclick="openNoticeModal()" title="Thông báo" aria-label="Thông báo" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none; position:relative;">
+            <button class="toggle-btn" onclick="openNoticeModal()" ontouchstart="openNoticeModal()" title="Thông báo" aria-label="Thông báo" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none; position:relative;">
                 <i class="fas fa-bell"></i>
                 <span id="noticeBadge" class="notice-badge" style="display:none;">1</span>
             </button>
@@ -297,7 +297,7 @@
         <div class="admin-topbar">
             <div class="admin-topbar-title">SỔ TAY NGHIỆP VỤ TCĐ, ĐV</div>
             <div class="admin-topbar-actions">
-                <button class="admin-topbar-btn" onclick="openNoticeModal()" title="Thông báo">
+                <button class="admin-topbar-btn" onclick="openNoticeModal()" ontouchstart="openNoticeModal()" title="Thông báo">
                     <i class="fas fa-bell"></i>
                     <span id="noticeBadgeAdmin" class="notice-badge" style="display:none;">1</span>
                 </button>
@@ -412,7 +412,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js" defer></script>
 
-    <script src="app.js" defer></script>
+    <script src="app.js?v=20260316" defer></script>
 <div id="autoSurveyOverlay" class="survey-overlay" style="display: none;">
     <div class="survey-card" style="position: relative; background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
         
