@@ -778,6 +778,18 @@ function performSearch(event) {
     }
 
     let kwNoAccent = removeAccents(kwRaw.toLowerCase());
+    const stopwords = new Set([
+        'thu', 'tuc', 'quy', 'trinh', 'huong', 'dan', 'cach', 've', 'cho',
+        'la', 'va', 'theo', 'noi', 'dung', 'quy', 'dinh', 'thong', 'tu',
+        'nghi', 'dinh', 'huong', 'dan', 'thuong', 'gap', 'cap', 'nhat'
+    ]);
+    function tokenizeNoAccent(text) {
+        if (!text) return [];
+        return text.split(/[^a-z0-9]+/i).filter(Boolean);
+    }
+    function filterTokens(tokens) {
+        return tokens.filter(t => !stopwords.has(t));
+    }
     
     let filterTagEl = document.getElementById('searchTagFilter');
     let filterTag = filterTagEl ? filterTagEl.value.toLowerCase() : '';
@@ -833,16 +845,56 @@ function performSearch(event) {
             
             let isTagMatch = filterTag === '' || tagText.includes(filterTag); 
             let fullText = (n.title||'') + " " + (n.tag||'') + " " + (n.summary||'') + " " + (n.detail||'');
-            let isKwMatch = kwNoAccent === '' || removeAccents(fullText.toLowerCase()).includes(kwNoAccent);
+            let titleNoAccent = removeAccents((n.title || '').toLowerCase());
+            let summaryNoAccent = removeAccents((n.summary || '').toLowerCase());
+            let detailNoAccent = removeAccents((n.detail || '').toLowerCase());
+            let fullTextNoAccent = removeAccents(fullText.toLowerCase());
+            let score = 0;
+            let snippetKey = kwNoAccent;
+
+            if (kwNoAccent !== '') {
+                if (titleNoAccent.includes(kwNoAccent)) score += 120;
+                else if (summaryNoAccent.includes(kwNoAccent)) score += 90;
+                else if (detailNoAccent.includes(kwNoAccent)) score += 60;
+                else if (fullTextNoAccent.includes(kwNoAccent)) score += 50;
+            }
+
+            let tokens = filterTokens(tokenizeNoAccent(kwNoAccent));
+            if (tokens.length === 0 && kwNoAccent !== '') {
+                tokens = tokenizeNoAccent(kwNoAccent);
+            }
+            if (tokens.length > 0) {
+                let matchedTokens = 0;
+                tokens.forEach(t => {
+                    if (titleNoAccent.includes(t)) {
+                        matchedTokens += 1;
+                        score += 30;
+                    } else if (summaryNoAccent.includes(t)) {
+                        matchedTokens += 1;
+                        score += 20;
+                    } else if (detailNoAccent.includes(t)) {
+                        matchedTokens += 1;
+                        score += 10;
+                    } else if (fullTextNoAccent.includes(t)) {
+                        matchedTokens += 1;
+                        score += 5;
+                    }
+                });
+                if (matchedTokens > 0 && (snippetKey === '' || !fullTextNoAccent.includes(snippetKey))) {
+                    snippetKey = tokens.find(t => fullTextNoAccent.includes(t)) || snippetKey;
+                }
+            }
+
+            let isKwMatch = kwNoAccent === '' || score > 0;
             
             if (isTagMatch && isKwMatch) { 
                 let snippetHtml = "";
                 
-                if (kwNoAccent !== '' && n.detail && removeAccents(n.detail.toLowerCase()).includes(kwNoAccent)) {
-                    let snippetText = getSnippet(n.detail, kwNoAccent);
+                if (snippetKey !== '' && n.detail && removeAccents(n.detail.toLowerCase()).includes(snippetKey)) {
+                    let snippetText = getSnippet(n.detail, snippetKey);
                     snippetHtml = `<div style="font-size: 0.85rem; color: #555; background: #f1f3f5; padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid var(--primary-color);"><b>Trích nội dung:</b> <i>${snippetText}</i></div>`;
-                } else if (kwNoAccent !== '' && n.summary && removeAccents(n.summary.toLowerCase()).includes(kwNoAccent)) {
-                    let snippetText = getSnippet(n.summary, kwNoAccent);
+                } else if (snippetKey !== '' && n.summary && removeAccents(n.summary.toLowerCase()).includes(snippetKey)) {
+                    let snippetText = getSnippet(n.summary, snippetKey);
                     snippetHtml = `<div style="font-size: 0.85rem; color: #555; background: #f1f3f5; padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid #27ae60;"><b>Tóm tắt:</b> <i>${snippetText}</i></div>`;
                 } else {
                     snippetHtml = n.tag ? `[${n.tag}] Nhấn xem chi tiết...` : `Nhấn để xem kết quả khớp...`;
@@ -852,13 +904,15 @@ function performSearch(event) {
                     id: n.id, 
                     path: parentPath || 'Mục chính', 
                     title: typeof highlightText === 'function' ? highlightText(n.title, kwRaw) : n.title, 
-                    snippet: snippetHtml 
+                    snippet: snippetHtml,
+                    score: score
                 }); 
             }
             if (n.children) traverse(n.children, curPath);
         }
     } 
     traverse(APP_DATA, "");
+    results.sort((a, b) => b.score - a.score);
     
     // NÂNG CẤP 3: HIỂN THỊ KẾT QUẢ GIAO DIỆN MỚI
     if (results.length === 0) {
