@@ -8,7 +8,8 @@
             SURVEY_WEB_APP_URL: "https://script.google.com/macros/s/AKfycby1oXVzH9EeR0v1j2goesabdRwKECaUWLJNuPaeOJNBbsF0p5kAsgc53c-ISqOg491z/exec",
             PDF_VIEWER_URL: "web/viewer.html",
             API_KEY: "SOTAY-API-KEY-2026-03-16-5F8C2A9D7E3B4A1C",
-            RATE_LIMIT_MS: 1200
+            RATE_LIMIT_MS: 1200,
+            FCM_VAPID_KEY: "T-t1yEsxAdEil_DcRonTeeTO474Lg30qYdTnysOjyEQ"
         };
         // URL WEB APP KHẢO SÁT
 	const SURVEY_API_URL = CONFIG.SURVEY_API_URL;
@@ -478,7 +479,41 @@ function showThanks() {
                     if(item.children && item.children.length > 0) processNode(item.children, nextContainer);
                 });
             } processNode(APP_DATA, contentEl);
+            renderToc();
         }
+
+        function buildTocItems(items, out) {
+            items.forEach(item => {
+                out.push({ id: item.id, title: item.title || 'Chưa đặt tên', level: item.level || 0 });
+                if (item.children && item.children.length > 0) buildTocItems(item.children, out);
+            });
+        }
+
+        function renderToc() {
+            const tocEl = document.getElementById('tocList');
+            if (!tocEl) return;
+            const list = [];
+            if (APP_DATA && APP_DATA.length > 0) buildTocItems(APP_DATA, list);
+            if (list.length === 0) {
+                tocEl.innerHTML = "<div class='no-result'>Chưa có mục lục</div>";
+                return;
+            }
+            let html = "";
+            list.forEach(item => {
+                const safeTitle = item.title.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                html += `<div class="toc-item level-${item.level}" onclick="jumpToResult('${item.id}'); closeTocModal();">${safeTitle}</div>`;
+            });
+            tocEl.innerHTML = html;
+        }
+
+        function openTocModal() {
+            const modal = document.getElementById('modalToc');
+            if (!modal) return;
+            renderToc();
+            modal.style.display = 'flex';
+        }
+
+        function closeTocModal() { document.getElementById('modalToc').style.display = 'none'; }
 
         function updateBreadcrumb(targetId) { let pathIds = getParentIdPath(targetId, APP_DATA); if (!pathIds || pathIds.length === 0) return; let html = '<svg width="16" height="16" style="vertical-align:text-bottom; margin-right:4px;"><use href="#icon-folder"></use></svg> '; pathIds.forEach((pid, index) => { let node = findNode(pid, APP_DATA); if(node) { html += `<span onclick="jumpToResult('${pid}')">${node.title}</span>`; if(index < pathIds.length - 1) html += ' <span style="color:#999; text-decoration:none; cursor:default"> &gt; </span> '; } }); const bar = document.getElementById('breadcrumbBar'); bar.innerHTML = html; bar.style.display = 'block'; }
 
@@ -519,6 +554,7 @@ function showThanks() {
         function closeSearchModal() { document.getElementById('modalSearch').style.display = 'none'; }
 
         let latestNotice = null;
+        let fcmToken = null;
 
         function openNoticeModal() {
             const modal = document.getElementById('modalNotice');
@@ -557,6 +593,8 @@ function showThanks() {
                     dateInput.value = d.toISOString().slice(0,10);
                 }
             }
+
+            updatePushStatus();
         }
 
         function updateNoticeBadge() {
@@ -627,6 +665,7 @@ function showThanks() {
                 .then(res => res.json())
                 .then(() => {
                     fetchLatestNotice();
+                    if (isPublic === "TRUE") triggerNoticePush(title.trim(), content.trim());
                     closeNoticeModal();
                 })
                 .catch(() => alert("Không gửi được thông báo. Vui lòng thử lại."));
@@ -639,6 +678,62 @@ function showThanks() {
             if (title) title.value = "";
             if (content) content.value = "";
             if (pub) pub.checked = false;
+        }
+
+        function updatePushStatus() {
+            const statusEl = document.getElementById('pushStatus');
+            if (!statusEl) return;
+            if (!CONFIG.FCM_VAPID_KEY) {
+                statusEl.textContent = "Chưa cấu hình thông báo đẩy";
+                return;
+            }
+            if (fcmToken) {
+                statusEl.textContent = "Đã bật thông báo đẩy";
+            } else {
+                statusEl.textContent = "Chưa bật thông báo đẩy";
+            }
+        }
+
+        function enablePushNotifications() {
+            if (!CONFIG.FCM_VAPID_KEY) {
+                alert("Chưa cấu hình VAPID Key cho thông báo đẩy.");
+                return;
+            }
+            if (!('serviceWorker' in navigator)) {
+                alert("Trình duyệt không hỗ trợ thông báo đẩy.");
+                return;
+            }
+            if (!firebase?.messaging) {
+                alert("Chưa tải Firebase Messaging.");
+                return;
+            }
+            requestFcmToken();
+        }
+
+        function requestFcmToken() {
+            navigator.serviceWorker.register('firebase-messaging-sw.js')
+                .then(reg => {
+                    const messaging = firebase.messaging();
+                    if (messaging.usePublicVapidKey) messaging.usePublicVapidKey(CONFIG.FCM_VAPID_KEY);
+                    return messaging.getToken({ serviceWorkerRegistration: reg });
+                })
+                .then(token => {
+                    if (!token) throw new Error("Không lấy được token.");
+                    fcmToken = token;
+                    updatePushStatus();
+                    const url = buildApiUrl(STATS_WEB_APP_URL, { action: 'notice_token_set', token: token });
+                    return fetch(url);
+                })
+                .catch(() => alert("Không bật được thông báo đẩy. Vui lòng thử lại."));
+        }
+
+        function triggerNoticePush(title, content) {
+            const url = buildApiUrl(STATS_WEB_APP_URL, {
+                action: 'notice_push',
+                title: title,
+                content: content
+            });
+            fetch(url).catch(() => {});
         }
         
         function quickAsk(keyword) { 
