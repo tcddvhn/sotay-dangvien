@@ -517,6 +517,129 @@ function showThanks() {
         }
 
         function closeSearchModal() { document.getElementById('modalSearch').style.display = 'none'; }
+
+        let latestNotice = null;
+
+        function openNoticeModal() {
+            const modal = document.getElementById('modalNotice');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            fetchLatestNotice();
+            renderNoticeModal();
+            markNoticeSeen();
+        }
+
+        function closeNoticeModal() { document.getElementById('modalNotice').style.display = 'none'; }
+
+        function renderNoticeModal() {
+            const titleEl = document.getElementById('noticeViewTitle');
+            const dateEl = document.getElementById('noticeViewDate');
+            const contentEl = document.getElementById('noticeViewContent');
+            if (!titleEl || !dateEl || !contentEl) return;
+
+            if (latestNotice && latestNotice.title) {
+                titleEl.textContent = latestNotice.title;
+                dateEl.textContent = latestNotice.published_at || "";
+                contentEl.textContent = latestNotice.content || "";
+            } else {
+                titleEl.textContent = "Chưa có thông báo";
+                dateEl.textContent = "";
+                contentEl.textContent = "Hệ thống chưa có thông báo mới.";
+            }
+
+            const adminPanel = document.getElementById('noticeAdminPanel');
+            if (adminPanel) adminPanel.style.display = loggedInUser ? 'block' : 'none';
+
+            if (loggedInUser) {
+                const dateInput = document.getElementById('noticeDateInput');
+                if (dateInput && !dateInput.value) {
+                    const d = new Date();
+                    dateInput.value = d.toISOString().slice(0,10);
+                }
+            }
+        }
+
+        function updateNoticeBadge() {
+            const badge = document.getElementById('noticeBadge');
+            const badgeAdmin = document.getElementById('noticeBadgeAdmin');
+            if (!badge) return;
+            if (!latestNotice || !latestNotice.id) {
+                badge.style.display = 'none';
+                if (badgeAdmin) badgeAdmin.style.display = 'none';
+                return;
+            }
+            const seenKey = `notice_seen_${latestNotice.id}`;
+            const seen = localStorage.getItem(seenKey);
+            if (seen) {
+                badge.style.display = 'none';
+                if (badgeAdmin) badgeAdmin.style.display = 'none';
+            } else {
+                badge.style.display = 'inline-block';
+                badge.textContent = "1";
+                if (badgeAdmin) {
+                    badgeAdmin.style.display = 'inline-block';
+                    badgeAdmin.textContent = "1";
+                }
+            }
+        }
+
+        function markNoticeSeen() {
+            if (!latestNotice || !latestNotice.id) return;
+            const seenKey = `notice_seen_${latestNotice.id}`;
+            localStorage.setItem(seenKey, '1');
+            updateNoticeBadge();
+        }
+
+        function fetchLatestNotice() {
+            if (!STATS_WEB_APP_URL) return;
+            const url = buildApiUrl(STATS_WEB_APP_URL, { action: 'notice_get' });
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.title) {
+                        latestNotice = data;
+                    } else {
+                        latestNotice = null;
+                    }
+                    renderNoticeModal();
+                    updateNoticeBadge();
+                })
+                .catch(() => {});
+        }
+
+        function submitNotice() {
+            if (!loggedInUser) return alert("Vui lòng đăng nhập quản trị để gửi thông báo.");
+            const title = (document.getElementById('noticeTitleInput') || {}).value || "";
+            const content = (document.getElementById('noticeContentInput') || {}).value || "";
+            const isPublic = document.getElementById('noticePublicInput')?.checked ? "TRUE" : "FALSE";
+            const dateVal = (document.getElementById('noticeDateInput') || {}).value || "";
+            if (!title.trim() || !content.trim()) return alert("Vui lòng nhập đầy đủ tiêu đề và nội dung.");
+
+            const url = buildApiUrl(STATS_WEB_APP_URL, {
+                action: 'notice_set',
+                title: title.trim(),
+                content: content.trim(),
+                is_public: isPublic,
+                published_at: dateVal
+            });
+
+            fetch(url)
+                .then(res => res.json())
+                .then(() => {
+                    fetchLatestNotice();
+                    closeNoticeModal();
+                })
+                .catch(() => alert("Không gửi được thông báo. Vui lòng thử lại."));
+        }
+
+        function clearNoticeForm() {
+            const title = document.getElementById('noticeTitleInput');
+            const content = document.getElementById('noticeContentInput');
+            const pub = document.getElementById('noticePublicInput');
+            if (title) title.value = "";
+            if (content) content.value = "";
+            if (pub) pub.checked = false;
+        }
         
         function quickAsk(keyword) { 
             document.getElementById('searchInput').value = keyword; 
@@ -1138,7 +1261,7 @@ function renderDashboard(data) {
 }
 
 // Khởi chạy ghi nhận truy cập khi tải trang
-document.addEventListener("DOMContentLoaded", () => { recordAndLoadStats('visit'); });
+document.addEventListener("DOMContentLoaded", () => { recordAndLoadStats('visit'); fetchLatestNotice(); });
     // =====================================================================
 // HỆ THỐNG KHẢO SÁT & GÓP Ý (PHƯƠNG THỨC GET CHỐNG LỖI)
 // =====================================================================

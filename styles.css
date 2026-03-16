@@ -132,6 +132,150 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
+.action-btn-compact {
+    max-width: 220px;
+    padding: 12px 6px;
+    font-size: 0.7rem;
+    gap: 6px;
+}
+
+.announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    margin: 0 0 15px 0;
+    border: 1px solid var(--border-color);
+    background: var(--bg-phan);
+    color: var(--text-main);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 6px;
+    font-family: -apple-system, sans-serif;
+}
+
+.announcement-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.announcement-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px 6px;
+}
+
+.announcement-close:hover {
+    color: var(--primary-color);
+}
+
+.notice-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.notice-badge {
+    position: absolute;
+    top: -4px;
+    right: -2px;
+    background: #f39c12;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 2px 5px;
+    line-height: 1;
+    border: 1px solid rgba(255,255,255,0.9);
+}
+
+.notice-view-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.notice-view-date {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+}
+
+.notice-view-content {
+    line-height: 1.6;
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.notice-admin {
+    margin-top: 18px;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 12px;
+}
+
+.notice-admin-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.notice-admin-row {
+    margin-bottom: 10px;
+}
+
+.notice-admin-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.notice-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.notice-date-input {
+    max-width: 200px;
+}
+
+.admin-banner {
+    background: var(--bg-phan);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 6px;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 15px;
+    font-family: -apple-system, sans-serif;
+}
+
+.admin-banner-title {
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-banner-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 /* Nút Góp ý: Xanh dương nhã nhặn */
 .feedback-btn {
     background: #3498db;
@@ -259,7 +403,7 @@
         #backToTop:hover { transform: translateY(-5px); background: var(--primary-dark); }
         body.pdf-open #backToTop { right: calc(var(--pdf-panel-width) + 20px + env(safe-area-inset-right)); }
 
-        .modal-user { display: none; position: fixed; z-index: 4000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); padding: 15px; align-items: center; justify-content: center; backdrop-filter: blur(3px);}
+        .modal-user { display: none; position: fixed; z-index: 9000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); padding: 15px; align-items: center; justify-content: center; backdrop-filter: blur(3px);}
         .modal-user-content { background-color: var(--bg-box); color: var(--text-main); width: 100%; max-width: 800px; border-radius: 8px; display: flex; flex-direction: column; max-height: 85vh; animation: slideUp 0.3s; overflow:hidden;}
         .modal-user-header { background-color: var(--bg-box); color: var(--text-main); padding: 15px 20px; border-bottom: 1px solid var(--border-color); font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-family: -apple-system, sans-serif; font-size: 1.1rem; flex-shrink:0;}
         .modal-user-body { font-family: 'Times New Roman', Times, serif; padding: 20px; line-height: 1.6; overflow-y: auto; text-align: justify; font-size: 1.15rem; flex:1;}
@@ -345,8 +489,8 @@
         .login-error { color: #e74c3c; font-size: 0.9rem; text-align: center; margin-top: -10px; margin-bottom: 15px; display: none; }
         .btn-login { width: 100%; background: var(--primary-color); color: white; border: none; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 4px;}
 
-        #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; overflow-y: auto; font-family: -apple-system, sans-serif; color:#333;}
-        .admin-layout { display: flex; height: 100%; flex-direction: column; }
+#adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; overflow-y: auto; font-family: -apple-system, sans-serif; color:#333;}
+.admin-layout { display: flex; height: 100%; flex-direction: column; }
         @media (min-width: 768px) { .admin-layout { flex-direction: row; } }
         /* Tối ưu thanh cuộn bên phần Sidebar của Quản trị */
         .admin-sidebar { width: 350px; min-width: 200px; max-width: 60vw; height: 100vh; border-right: 1px solid #ddd; border-bottom: none; resize: horizontal; overflow: hidden; display: flex; flex-direction: column; background: #f8f9fa; padding: 10px; box-sizing: border-box;}
@@ -365,7 +509,46 @@
         .btn-order { font-size: 0.9rem; padding: 2px 5px; background: #eee; border: none; cursor: pointer; color: #666; display: none; border-radius: 2px;}
         .btn-order:hover { background: #ddd; color: var(--primary-color); }
         .tree-item:hover .btn-order { display: inline-block; }
-        .admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 100vh; position: relative;}
+.admin-main { flex: 1; padding: 20px; overflow-y: auto; background: #fff; height: 100vh; position: relative;}
+
+.admin-topbar {
+    height: 60px;
+    background-color: var(--primary-color);
+    background-image: linear-gradient(rgba(204, 0, 0, 0.85), rgba(204, 0, 0, 0.85)), url('https://i.postimg.cc/zf6J3RQ8/img_5_hinh_nen_powerpoint_trong_dong.jpg');
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 5100;
+}
+
+.admin-topbar-title {
+    font-size: 1rem;
+    text-transform: uppercase;
+    font-family: -apple-system, sans-serif;
+}
+
+.admin-topbar-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.admin-topbar-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    position: relative;
+}
         .form-control { font-family: 'Times New Roman', Times, serif; font-size: 1.15rem; width: 100%; padding: 12px; border: 1px solid #ccc; margin-bottom: 15px; outline: none; color:#333; border-radius: 4px; box-sizing:border-box;}
         .form-control:focus { border-color: #007bff; }
         .btn { padding: 12px 20px; border: none; font-weight: bold; color: white; cursor: pointer; margin-bottom: 10px; font-family: -apple-system, sans-serif; border-radius: 4px;}

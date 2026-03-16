@@ -54,6 +54,11 @@
         <div class="header-actions">
             <button class="toggle-btn" onclick="openSearchModal()" title="Tìm kiếm" aria-label="Tìm kiếm nội dung" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;"><svg width="22" height="22"><use href="#icon-search"></use></svg></button>
             <button class="toggle-btn" onclick="toggleDarkMode()" title="Chế độ Tối/Sáng" aria-label="Chuyển chế độ tối sáng" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;"><svg width="22" height="22"><use href="#icon-moon"></use></svg></button>
+            <button class="toggle-btn" onclick="openLoginForm()" title="Quản trị nội dung" aria-label="Quản trị nội dung" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none;"><i class="fas fa-gear"></i></button>
+            <button class="toggle-btn" onclick="openNoticeModal()" title="Thông báo" aria-label="Thông báo" style="background:transparent; border:none; color:white; font-size:1.2rem; box-shadow:none; position:relative;">
+                <i class="fas fa-bell"></i>
+                <span id="noticeBadge" class="notice-badge" style="display:none;">1</span>
+            </button>
         </div>
     </div>
 
@@ -77,6 +82,10 @@
     </nav>
 
     <main class="main-content">
+        <div id="announcementBar" class="announcement-bar" style="display:none;">
+            <div id="announcementText" class="announcement-text"></div>
+            <button class="announcement-close" onclick="clearAnnouncement()" aria-label="Đóng thông báo">✕</button>
+        </div>
         
         <div id="tab-home" class="tab-pane active">
             <div class="hero-search">
@@ -106,15 +115,10 @@
     </div>
 </div>
             
-            <div class="home-action-group" style="display: flex; gap: 12px; margin-top: 20px;">
-    <button class="action-btn-flat feedback-btn" onclick="openSurvey()">
+            <div class="home-action-group" style="display: flex; gap: 12px; margin-top: 20px; justify-content:flex-start;">
+    <button class="action-btn-flat feedback-btn action-btn-compact" onclick="openSurvey()">
         <i class="fas fa-comment-dots"></i>
         <span>ĐÓNG GÓP Ý KIẾN</span>
-    </button>
-    
-    <button class="action-btn-flat admin-btn" onclick="openLoginForm()">
-        <i class="fas fa-cog"></i>
-        <span>QUẢN TRỊ NỘI DUNG</span>
     </button>
 </div>
         </div>
@@ -234,6 +238,42 @@
         </div>
     </div>
 
+    <div id="modalNotice" class="modal-user" onclick="closeModalOnBgClick(event, 'modalNotice')">
+        <div class="modal-user-content">
+            <div class="modal-user-header">
+                <span style="display:flex; align-items:center; gap:8px;"><i class="fas fa-bell"></i> Thông báo hệ thống</span>
+                <span onclick="closeNoticeModal()" class="btn-close-modal" title="Đóng" aria-label="Đóng cửa sổ">✕</span>
+            </div>
+            <div class="modal-user-body">
+                <div class="notice-view">
+                    <div id="noticeViewTitle" class="notice-view-title">Chưa có thông báo</div>
+                    <div id="noticeViewDate" class="notice-view-date"></div>
+                    <div id="noticeViewContent" class="notice-view-content">Hệ thống chưa có thông báo mới.</div>
+                </div>
+
+                <div id="noticeAdminPanel" class="notice-admin" style="display:none;">
+                    <div class="notice-admin-title">Quản trị thông báo</div>
+                    <div class="notice-admin-row">
+                        <input type="text" id="noticeTitleInput" class="form-control" placeholder="Tiêu đề thông báo">
+                    </div>
+                    <div class="notice-admin-row">
+                        <textarea id="noticeContentInput" class="form-control" style="min-height:120px; font-family: -apple-system, sans-serif;" placeholder="Nội dung thông báo..."></textarea>
+                    </div>
+                    <div class="notice-admin-row notice-admin-inline">
+                        <label class="notice-checkbox">
+                            <input type="checkbox" id="noticePublicInput"> Công khai
+                        </label>
+                        <input type="date" id="noticeDateInput" class="form-control notice-date-input">
+                    </div>
+                    <div class="notice-actions">
+                        <button class="btn-mini btn-mini-detail" onclick="submitNotice()">Lưu</button>
+                        <button class="btn-mini btn-mini-pdf" onclick="clearNoticeForm()">Xóa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="loginOverlay">
         <div class="trong-dong-bg"></div>
         <div class="login-card">
@@ -254,6 +294,15 @@
     </div>
 
     <div id="adminPanel">
+        <div class="admin-topbar">
+            <div class="admin-topbar-title">SỔ TAY NGHIỆP VỤ TCĐ, ĐV</div>
+            <div class="admin-topbar-actions">
+                <button class="admin-topbar-btn" onclick="openNoticeModal()" title="Thông báo">
+                    <i class="fas fa-bell"></i>
+                    <span id="noticeBadgeAdmin" class="notice-badge" style="display:none;">1</span>
+                </button>
+            </div>
+        </div>
         <div class="admin-layout">
             <div class="admin-sidebar">
                 <div style="font-weight:bold; margin-bottom:5px; color: var(--primary-color);">CÂY THƯ MỤC CHUNG</div>
@@ -269,6 +318,17 @@
                         <div id="adminWelcome" style="color:#27ae60; font-weight:bold; font-size:0.9rem;"></div>
                     </div>
                     <button class="btn btn-close" onclick="closeAdminPanel()">Thoát Quản trị</button>
+                </div>
+                <div class="admin-banner">
+                    <div class="admin-banner-title">
+                        <i class="fas fa-bullhorn"></i>
+                        Thông báo hệ thống
+                    </div>
+                    <div class="admin-banner-actions">
+                        <button class="btn-mini btn-mini-detail" onclick="openNoticeModal()">
+                            <i class="fas fa-bell"></i> Quản trị thông báo
+                        </button>
+                    </div>
                 </div>
                 <div id="editorArea" style="display:none; padding-bottom: 80px;">
                     <div style="text-align: right; margin-bottom: 10px;">
