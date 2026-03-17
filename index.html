@@ -166,6 +166,12 @@
         <div id="tab-tailieu" class="tab-pane">
             <h1>Danh mục Tài liệu</h1>
             <p style="color:var(--text-muted); font-size:0.95rem;">Tổng hợp các văn bản, hướng dẫn và tài liệu tham khảo để tra cứu nhanh.</p>
+            <div class="doc-filter-bar">
+                <label for="docTagFilter">Lọc theo loại:</label>
+                <select id="docTagFilter" onchange="renderDocList()">
+                    <option value="">Tất cả</option>
+                </select>
+            </div>
             <div id="docListContainer"></div>
         </div>
 
@@ -274,6 +280,18 @@
             </div>
             <div class="modal-user-body">
                 <div id="tocList" class="toc-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalDocViewer" class="modal-user" onclick="closeModalOnBgClick(event, 'modalDocViewer')">
+        <div class="modal-user-content doc-viewer-content">
+            <div class="modal-user-header">
+                <span style="display:flex; align-items:center; gap:8px;"><svg width="20" height="20"><use href="#icon-file"></use></svg> Xem tài liệu</span>
+                <span onclick="closeDocViewer()" class="btn-close-modal" title="Đóng" aria-label="Đóng cửa sổ">✕</span>
+            </div>
+            <div class="modal-user-body doc-viewer-body">
+                <iframe id="docViewerFrame" title="Tài liệu PDF" src=""></iframe>
             </div>
         </div>
     </div>

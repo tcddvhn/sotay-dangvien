@@ -423,6 +423,37 @@ function showThanks() {
             return u.includes(".pdf") || u.includes("google.com/file") || u.includes("drive.google.com");
         }
 
+        function parseTagList(tagRaw) {
+            if (!tagRaw) return [];
+            return tagRaw.split(/[;,|]/).map(t => t.trim().toLowerCase()).filter(Boolean);
+        }
+
+        function renderDocFilterOptions() {
+            const select = document.getElementById('docTagFilter');
+            if (!select) return;
+            const current = select.value || "";
+            const tags = new Set();
+
+            function walk(nodes, parentDoc = false) {
+                nodes.forEach(n => {
+                    const tagRaw = (n.tag || '').toLowerCase();
+                    const isDocNode = isDocTag(tagRaw) || parentDoc;
+                    if (isDocNode) {
+                        parseTagList(tagRaw).forEach(t => {
+                            if (t && !isDocTag(t)) tags.add(t);
+                        });
+                    }
+                    if (n.children && n.children.length > 0) walk(n.children, isDocNode);
+                });
+            }
+
+            walk(APP_DATA || []);
+            const options = ['<option value="">Tất cả</option>']
+                .concat(Array.from(tags).sort().map(t => `<option value="${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</option>`));
+            select.innerHTML = options.join('');
+            if (current) select.value = current;
+        }
+
         function hasTagOrFile(node, type, parentDoc = false) {
             let tagRaw = (node.tag || '').toLowerCase();
             let isDocNode = isDocTag(tagRaw) || parentDoc;
@@ -447,7 +478,7 @@ function showThanks() {
             return false;
         }
 
-        function buildListHtmlDynamic(nodes, type, currentLevel = 0, parentDoc = false) {
+        function buildListHtmlDynamic(nodes, type, currentLevel = 0, parentDoc = false, docFilter = "") {
             let html = '';
             nodes.forEach(n => {
                 if (!hasTagOrFile(n, type, parentDoc)) return;
@@ -457,7 +488,14 @@ function showThanks() {
                 let isItemMatch = false;
                 if (type === 'faq' && tagRaw.includes('hỏi đáp')) isItemMatch = true;
                 if (type === 'form' && (tagRaw.includes('biểu mẫu') || n.fileUrl)) isItemMatch = true;
-                if (type === 'doc' && isDocNode) isItemMatch = true;
+                if (type === 'doc' && isDocNode) {
+                    if (docFilter) {
+                        const tags = parseTagList(tagRaw);
+                        isItemMatch = tags.includes(docFilter);
+                    } else {
+                        isItemMatch = true;
+                    }
+                }
 
                 let summaryText = n.summary ? n.summary.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim() : '';
                 
@@ -469,7 +507,7 @@ function showThanks() {
                 let hTitle = highlightText(n.fileName || n.title, lastSearchKeyword);
                 let hSummary = displaySummary ? highlightText(displaySummary, lastSearchKeyword) : '';
 
-                let childrenHtml = n.children ? buildListHtmlDynamic(n.children, type, currentLevel + 1, isDocNode) : '';
+                let childrenHtml = n.children ? buildListHtmlDynamic(n.children, type, currentLevel + 1, isDocNode, docFilter) : '';
 
                 if (isItemMatch) {
                     let quickDownloadBtn = '';
@@ -478,8 +516,12 @@ function showThanks() {
                     }
                     let quickViewBtn = '';
                     if (type === 'doc' && n.fileUrl) {
-                        const pdfLabel = isPdfUrl(n.fileUrl) ? 'PDF' : 'Xem';
-                        quickViewBtn = `<a href="${n.fileUrl}" target="_blank" class="inline-download" style="flex-shrink: 0; padding: 6px 10px; margin-left: 8px; border-radius: 4px; background: var(--bg-hover);" onclick="event.stopPropagation()"><svg width="14" height="14" style="margin-right:4px;"><use href="#icon-external"></use></svg>${pdfLabel}</a>`;
+                        const safeUrl = n.fileUrl.replace(/'/g, "\\'");
+                        if (isPdfUrl(n.fileUrl)) {
+                            quickViewBtn = `<button class="inline-download" style="flex-shrink: 0; padding: 6px 10px; margin-left: 8px; border-radius: 4px; background: var(--bg-hover);" onclick="event.stopPropagation(); openDocViewer('${safeUrl}')"><svg width="14" height="14" style="margin-right:4px;"><use href="#icon-external"></use></svg>PDF</button>`;
+                        } else {
+                            quickViewBtn = `<a href="${n.fileUrl}" target="_blank" class="inline-download" style="flex-shrink: 0; padding: 6px 10px; margin-left: 8px; border-radius: 4px; background: var(--bg-hover);" onclick="event.stopPropagation()"><svg width="14" height="14" style="margin-right:4px;"><use href="#icon-external"></use></svg>Xem</a>`;
+                        }
                     }
 
                     let iconRef = (type === 'faq') ? '#icon-faq' : '#icon-file';
@@ -529,12 +571,20 @@ function showThanks() {
         function renderFAQAndForms() {
             let faqHtml = buildListHtmlDynamic(APP_DATA, 'faq');
             let formHtml = buildListHtmlDynamic(APP_DATA, 'form');
-            let docHtml = buildListHtmlDynamic(APP_DATA, 'doc');
             
             document.getElementById('faqListContainer').innerHTML = faqHtml || '<div class="no-result">Chưa có dữ liệu hỏi đáp.</div>';
             document.getElementById('formListContainer').innerHTML = formHtml || '<div class="no-result">Chưa có biểu mẫu nào.</div>';
+            renderDocFilterOptions();
+            renderDocList();
+        }
+
+        function renderDocList() {
             const docEl = document.getElementById('docListContainer');
-            if (docEl) docEl.innerHTML = docHtml || '<div class="no-result">Chưa có tài liệu nào.</div>';
+            if (!docEl) return;
+            const filterEl = document.getElementById('docTagFilter');
+            const docFilter = (filterEl && filterEl.value) ? filterEl.value.toLowerCase() : "";
+            let docHtml = buildListHtmlDynamic(APP_DATA, 'doc', 0, false, docFilter);
+            docEl.innerHTML = docHtml || '<div class="no-result">Chưa có tài liệu nào.</div>';
         }
 
         function highlightText(text, keyword) {
@@ -653,6 +703,21 @@ function showThanks() {
         }
 
         function closeTocModal() { document.getElementById('modalToc').style.display = 'none'; }
+
+        function openDocViewer(url) {
+            const modal = document.getElementById('modalDocViewer');
+            const frame = document.getElementById('docViewerFrame');
+            if (!modal || !frame || !url) return;
+            frame.src = url;
+            modal.style.display = 'flex';
+        }
+
+        function closeDocViewer() {
+            const modal = document.getElementById('modalDocViewer');
+            const frame = document.getElementById('docViewerFrame');
+            if (modal) modal.style.display = 'none';
+            if (frame) frame.src = "";
+        }
 
         function updateBreadcrumb(targetId) { let pathIds = getParentIdPath(targetId, APP_DATA); if (!pathIds || pathIds.length === 0) return; let html = '<svg width="16" height="16" style="vertical-align:text-bottom; margin-right:4px;"><use href="#icon-folder"></use></svg> '; pathIds.forEach((pid, index) => { let node = findNode(pid, APP_DATA); if(node) { html += `<span onclick="jumpToResult('${pid}')">${node.title}</span>`; if(index < pathIds.length - 1) html += ' <span style="color:#999; text-decoration:none; cursor:default"> &gt; </span> '; } }); const bar = document.getElementById('breadcrumbBar'); bar.innerHTML = html; bar.style.display = 'block'; }
 
