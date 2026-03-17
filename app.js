@@ -166,7 +166,7 @@ function showThanks() {
             
             document.getElementById('tab-' + tabId).classList.add('active');
             document.getElementById('nav-' + tabId).classList.add('active');
-            try { localStorage.setItem('sotay_last_tab', tabId); } catch(e) {}
+            // Không tự lưu tab để tránh tự nhảy khi mở trang
             
             const headerTitle = document.getElementById('mainHeaderTitle');
             if(tabId === 'home') headerTitle.innerText = "TRANG CHỦ";
@@ -1655,12 +1655,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderFavorites();
     renderContinueReading();
     setReadMode(localStorage.getItem('sotay_read_mode') === '1');
-    try {
-        const savedTab = localStorage.getItem('sotay_last_tab');
-        if (savedTab && document.getElementById('tab-' + savedTab)) {
-            switchTab(savedTab);
-        }
-    } catch(e) {}
+    // Giữ mặc định ở Trang chủ khi mở trang
 });
     // =====================================================================
 // HỆ THỐNG KHẢO SÁT & GÓP Ý (PHƯƠNG THỨC GET CHỐNG LỖI)
