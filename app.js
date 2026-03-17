@@ -678,6 +678,18 @@ function showThanks() {
                 .replace(/>/g, "&gt;");
         }
 
+        function formatNoticeDate(raw) {
+            if (!raw) return "";
+            const d = new Date(raw);
+            if (isNaN(d.getTime())) return "";
+            const dd = String(d.getDate()).padStart(2, "0");
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const yyyy = d.getFullYear();
+            const hh = String(d.getHours()).padStart(2, "0");
+            const min = String(d.getMinutes()).padStart(2, "0");
+            return `${dd}/${mm}/${yyyy} - ${hh}:${min}`;
+        }
+
         function renderNoticeModal() {
             const listEl = document.getElementById('noticeList');
             if (!listEl) return;
@@ -685,11 +697,11 @@ function showThanks() {
             if (noticeList && noticeList.length > 0) {
                 const items = noticeList.slice(0, 5).map(n => {
                     const t = escapeNoticeHtml(n.title || "Thông báo");
-                    const d = escapeNoticeHtml(n.published_at || "");
+                    const d = escapeNoticeHtml(formatNoticeDate(n.published_at || n.created_at || ""));
                     const c = escapeNoticeHtml(n.content || "");
                     return `<div class="notice-item">
                                 <div class="notice-item-title">${t}</div>
-                                <div class="notice-item-date">${d}</div>
+                                ${d ? `<div class="notice-item-date">${d}</div>` : ""}
                                 <div class="notice-item-content">${c}</div>
                             </div>`;
                 }).join('');
