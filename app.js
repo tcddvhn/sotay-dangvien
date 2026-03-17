@@ -166,12 +166,14 @@ function showThanks() {
             
             document.getElementById('tab-' + tabId).classList.add('active');
             document.getElementById('nav-' + tabId).classList.add('active');
+            try { localStorage.setItem('sotay_last_tab', tabId); } catch(e) {}
             
             const headerTitle = document.getElementById('mainHeaderTitle');
             if(tabId === 'home') headerTitle.innerText = "TRANG CHỦ";
             else if(tabId === 'quydinh') headerTitle.innerText = "SỔ TAY QUY ĐỊNH";
             else if(tabId === 'hoidap') headerTitle.innerText = "HỎI ĐÁP NGHIỆP VỤ";
             else if(tabId === 'bieumau') headerTitle.innerText = "BIỂU MẪU TẢI VỀ";
+            else if(tabId === 'tailieu') headerTitle.innerText = "TÀI LIỆU HƯỚNG DẪN";
             
             if (lastSearchKeyword !== "") {
                 lastSearchKeyword = "";
@@ -303,6 +305,14 @@ function showThanks() {
             container.innerHTML = hist.map(k => `<div class="faq-chip" onclick="quickAsk('${k}')">🕒 ${k}</div>`).join('');
         }
 
+        function clearSearchHistory() {
+            localStorage.removeItem('sotay_search_history');
+            let area = document.getElementById('searchHistoryArea');
+            let container = document.getElementById('recentSearchChips');
+            if (container) container.innerHTML = '';
+            if (area) area.style.display = 'none';
+        }
+
         const firebaseConfig = { apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs", authDomain: "sotay-dangvien.firebaseapp.com", projectId: "sotay-dangvien", storageBucket: "sotay-dangvien.firebasestorage.app", messagingSenderId: "699788813951", appId: "1:699788813951:web:14eb81183799f83e0f814a" };
         let db = null;
         try {
@@ -403,13 +413,25 @@ function showThanks() {
             addRecentView(id, nodeData.title);
         }
 
-        function hasTagOrFile(node, type) {
+        function isDocTag(tagRaw) {
+            return tagRaw.includes('tài liệu') || tagRaw.includes('tai lieu');
+        }
+
+        function isPdfUrl(url) {
+            if (!url) return false;
+            const u = url.toLowerCase();
+            return u.includes(".pdf") || u.includes("google.com/file") || u.includes("drive.google.com");
+        }
+
+        function hasTagOrFile(node, type, parentDoc = false) {
             let tagRaw = (node.tag || '').toLowerCase();
+            let isDocNode = isDocTag(tagRaw) || parentDoc;
             if (type === 'faq' && tagRaw.includes('hỏi đáp')) return true;
             if (type === 'form' && (tagRaw.includes('biểu mẫu') || node.fileUrl)) return true;
+            if (type === 'doc' && isDocNode && node.fileUrl) return true;
             if (node.children) {
                 for (let c of node.children) {
-                    if (hasTagOrFile(c, type)) return true;
+                    if (hasTagOrFile(c, type, isDocNode)) return true;
                 }
             }
             return false;
@@ -425,40 +447,49 @@ function showThanks() {
             return false;
         }
 
-        function buildListHtmlDynamic(nodes, type, currentLevel = 0) {
+        function buildListHtmlDynamic(nodes, type, currentLevel = 0, parentDoc = false) {
             let html = '';
             nodes.forEach(n => {
-                if (!hasTagOrFile(n, type)) return;
+                if (!hasTagOrFile(n, type, parentDoc)) return;
 
                 let tagRaw = (n.tag || '').toLowerCase();
+                let isDocNode = isDocTag(tagRaw) || parentDoc;
                 let isItemMatch = false;
                 if (type === 'faq' && tagRaw.includes('hỏi đáp')) isItemMatch = true;
                 if (type === 'form' && (tagRaw.includes('biểu mẫu') || n.fileUrl)) isItemMatch = true;
+                if (type === 'doc' && isDocNode) isItemMatch = true;
 
                 let summaryText = n.summary ? n.summary.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim() : '';
                 
                 let displaySummary = '';
-                if (type === 'form' && summaryText) {
+                if ((type === 'form' || type === 'doc') && summaryText) {
                     displaySummary = ` <span style="color: var(--text-muted); font-weight: normal; font-size: 0.95rem;">- ${summaryText}</span>`;
                 }
 
                 let hTitle = highlightText(n.fileName || n.title, lastSearchKeyword);
                 let hSummary = displaySummary ? highlightText(displaySummary, lastSearchKeyword) : '';
 
-                let childrenHtml = n.children ? buildListHtmlDynamic(n.children, type, currentLevel + 1) : '';
+                let childrenHtml = n.children ? buildListHtmlDynamic(n.children, type, currentLevel + 1, isDocNode) : '';
 
                 if (isItemMatch) {
                     let quickDownloadBtn = '';
-                    if (type === 'form' && n.fileUrl) {
+                    if ((type === 'form' || type === 'doc') && n.fileUrl) {
                         quickDownloadBtn = `<a href="${n.fileUrl}" target="_blank" class="inline-download" style="flex-shrink: 0; padding: 6px 12px; margin-left: 10px; border-radius: 4px; background: var(--bg-box);" onclick="event.stopPropagation()"><svg width="14" height="14" style="margin-right:4px;"><use href="#icon-download"></use></svg>Tải về</a>`;
                     }
+                    let quickViewBtn = '';
+                    if (type === 'doc' && n.fileUrl) {
+                        const pdfLabel = isPdfUrl(n.fileUrl) ? 'PDF' : 'Xem';
+                        quickViewBtn = `<a href="${n.fileUrl}" target="_blank" class="inline-download" style="flex-shrink: 0; padding: 6px 10px; margin-left: 8px; border-radius: 4px; background: var(--bg-hover);" onclick="event.stopPropagation()"><svg width="14" height="14" style="margin-right:4px;"><use href="#icon-external"></use></svg>${pdfLabel}</a>`;
+                    }
 
+                    let iconRef = (type === 'faq') ? '#icon-faq' : '#icon-file';
+                    let iconColor = (type === 'faq') ? '#f39c12' : (type === 'form' ? '#2980b9' : '#2c3e50');
                     html += `<div class="list-view-item" onclick="viewStandaloneItem('${n.id}')" style="margin-bottom: 10px; display: flex; align-items: flex-start; justify-content: space-between;">
                                 <div class="list-title" style="margin-bottom: 0; line-height: 1.5; flex: 1; padding-right: 10px;">
-                                    <svg width="18" height="18" style="flex-shrink:0; margin-top:2px; color:${type==='faq'?'#f39c12':'#2980b9'};"><use href="${type==='faq'?'#icon-faq':'#icon-file'}"></use></svg> 
+                                    <svg width="18" height="18" style="flex-shrink:0; margin-top:2px; color:${iconColor};"><use href="${iconRef}"></use></svg> 
                                     <span>${hTitle}${hSummary}</span>
                                 </div>
-                                ${quickDownloadBtn}
+                                ${quickViewBtn}${quickDownloadBtn}
                             </div>`;
                 }
 
@@ -498,9 +529,12 @@ function showThanks() {
         function renderFAQAndForms() {
             let faqHtml = buildListHtmlDynamic(APP_DATA, 'faq');
             let formHtml = buildListHtmlDynamic(APP_DATA, 'form');
+            let docHtml = buildListHtmlDynamic(APP_DATA, 'doc');
             
             document.getElementById('faqListContainer').innerHTML = faqHtml || '<div class="no-result">Chưa có dữ liệu hỏi đáp.</div>';
             document.getElementById('formListContainer').innerHTML = formHtml || '<div class="no-result">Chưa có biểu mẫu nào.</div>';
+            const docEl = document.getElementById('docListContainer');
+            if (docEl) docEl.innerHTML = docHtml || '<div class="no-result">Chưa có tài liệu nào.</div>';
         }
 
         function highlightText(text, keyword) {
@@ -649,6 +683,7 @@ function showThanks() {
             let filterSelect = document.getElementById('searchTagFilter');
             if(activeTab === 'tab-hoidap') filterSelect.value = 'hỏi đáp';
             else if(activeTab === 'tab-bieumau') filterSelect.value = 'biểu mẫu';
+            else if(activeTab === 'tab-tailieu') filterSelect.value = 'tài liệu';
             else if(activeTab === 'tab-quydinh') filterSelect.value = 'quy định';
             else filterSelect.value = '';
 
@@ -1549,7 +1584,19 @@ function renderDashboard(data) {
 }
 
 // Khởi chạy ghi nhận truy cập khi tải trang
-document.addEventListener("DOMContentLoaded", () => { recordAndLoadStats('visit'); fetchLatestNotice(); renderFavorites(); renderContinueReading(); setReadMode(localStorage.getItem('sotay_read_mode') === '1'); });
+document.addEventListener("DOMContentLoaded", () => {
+    recordAndLoadStats('visit');
+    fetchLatestNotice();
+    renderFavorites();
+    renderContinueReading();
+    setReadMode(localStorage.getItem('sotay_read_mode') === '1');
+    try {
+        const savedTab = localStorage.getItem('sotay_last_tab');
+        if (savedTab && document.getElementById('tab-' + savedTab)) {
+            switchTab(savedTab);
+        }
+    } catch(e) {}
+});
     // =====================================================================
 // HỆ THỐNG KHẢO SÁT & GÓP Ý (PHƯƠNG THỨC GET CHỐNG LỖI)
 // =====================================================================

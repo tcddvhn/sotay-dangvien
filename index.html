@@ -80,6 +80,10 @@
             <svg class="nav-icon" width="24" height="24"><use href="#icon-form"></use></svg>
             <span>Biểu mẫu</span>
         </div>
+        <div class="nav-item" onclick="switchTab('tailieu')" id="nav-tailieu">
+            <svg class="nav-icon" width="24" height="24"><use href="#icon-file"></use></svg>
+            <span>Tài liệu</span>
+        </div>
     </nav>
 
     <main class="main-content">
@@ -159,6 +163,11 @@
             <p style="color:var(--text-muted); font-size:0.95rem;">Toàn bộ biểu mẫu đính kèm được phân loại tự động để tải xuống nhanh chóng.</p>
             <div id="formListContainer"></div>
         </div>
+        <div id="tab-tailieu" class="tab-pane">
+            <h1>Danh mục Tài liệu</h1>
+            <p style="color:var(--text-muted); font-size:0.95rem;">Tổng hợp các văn bản, hướng dẫn và tài liệu tham khảo để tra cứu nhanh.</p>
+            <div id="docListContainer"></div>
+        </div>
 
     </main>
 
@@ -219,6 +228,7 @@
                         <option value="quy trình">Quy trình</option>
                         <option value="biểu mẫu">Biểu mẫu</option>
                         <option value="quy định">Quy định</option>
+                        <option value="tài liệu">Tài liệu</option>
                     </select>
                     <div class="search-input-core">
                         <input type="text" id="searchInput" placeholder="Nhập từ khóa cần tìm..." autocomplete="off">
@@ -227,7 +237,10 @@
                 </div>
                 
                 <div class="search-history-area" id="searchHistoryArea">
-                    <div class="search-history-title"><svg width="16" height="16"><use href="#icon-clock"></use></svg> 5 tìm kiếm gần đây:</div>
+                    <div class="search-history-title">
+                        <span class="search-history-label"><svg width="16" height="16"><use href="#icon-clock"></use></svg> 5 tìm kiếm gần đây:</span>
+                        <button class="btn-clear-history" onclick="clearSearchHistory()">Xóa</button>
+                    </div>
                     <div class="faq-chips" id="recentSearchChips"></div>
                 </div>
 
@@ -373,8 +386,9 @@
                                 <option value="">-- Chọn một loại --</option>
                                 <option value="Quy định">Quy định</option>
                                 <option value="Quy trình">Quy trình</option>
-                                <option value="Biểu mẫu">Biểu mẫu</option>
-                                <option value="Hỏi đáp">Hỏi đáp</option>
+                            <option value="Biểu mẫu">Biểu mẫu</option>
+                            <option value="Hỏi đáp">Hỏi đáp</option>
+                            <option value="Tài liệu">Tài liệu</option>
                             </select>
                         </div>
                         <div style="flex: 2; min-width: 250px;">
