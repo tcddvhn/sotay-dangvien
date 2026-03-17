@@ -658,6 +658,7 @@ function showThanks() {
 
         function closeSearchModal() { document.getElementById('modalSearch').style.display = 'none'; }
 
+        let noticeList = [];
         let latestNotice = null;
         let fcmToken = null;
 
@@ -665,27 +666,36 @@ function showThanks() {
             const modal = document.getElementById('modalNotice');
             if (!modal) return;
             modal.style.display = 'flex';
-            fetchLatestNotice();
-            renderNoticeModal();
-            markNoticeSeen();
+            fetchLatestNotice(true);
         }
 
         function closeNoticeModal() { document.getElementById('modalNotice').style.display = 'none'; }
 
-        function renderNoticeModal() {
-            const titleEl = document.getElementById('noticeViewTitle');
-            const dateEl = document.getElementById('noticeViewDate');
-            const contentEl = document.getElementById('noticeViewContent');
-            if (!titleEl || !dateEl || !contentEl) return;
+        function escapeNoticeHtml(text) {
+            return (text || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
 
-            if (latestNotice && latestNotice.title) {
-                titleEl.textContent = latestNotice.title;
-                dateEl.textContent = latestNotice.published_at || "";
-                contentEl.textContent = latestNotice.content || "";
+        function renderNoticeModal() {
+            const listEl = document.getElementById('noticeList');
+            if (!listEl) return;
+
+            if (noticeList && noticeList.length > 0) {
+                const items = noticeList.slice(0, 5).map(n => {
+                    const t = escapeNoticeHtml(n.title || "Thông báo");
+                    const d = escapeNoticeHtml(n.published_at || "");
+                    const c = escapeNoticeHtml(n.content || "");
+                    return `<div class="notice-item">
+                                <div class="notice-item-title">${t}</div>
+                                <div class="notice-item-date">${d}</div>
+                                <div class="notice-item-content">${c}</div>
+                            </div>`;
+                }).join('');
+                listEl.innerHTML = items;
             } else {
-                titleEl.textContent = "Chưa có thông báo";
-                dateEl.textContent = "";
-                contentEl.textContent = "Hệ thống chưa có thông báo mới.";
+                listEl.innerHTML = '<div class="notice-empty">Hệ thống chưa có thông báo mới.</div>';
             }
 
             const adminPanel = document.getElementById('noticeAdminPanel');
@@ -706,46 +716,55 @@ function showThanks() {
             const badge = document.getElementById('noticeBadge');
             const badgeAdmin = document.getElementById('noticeBadgeAdmin');
             if (!badge) return;
-            if (!latestNotice || !latestNotice.id) {
+            if (!noticeList || noticeList.length === 0) {
                 badge.style.display = 'none';
                 if (badgeAdmin) badgeAdmin.style.display = 'none';
                 return;
             }
-            const seenKey = `notice_seen_${latestNotice.id}`;
-            const seen = localStorage.getItem(seenKey);
-            if (seen) {
+            let unseenCount = 0;
+            noticeList.forEach(n => {
+                if (!n || !n.id) return;
+                const seenKey = `notice_seen_${n.id}`;
+                if (!localStorage.getItem(seenKey)) unseenCount++;
+            });
+            if (unseenCount === 0) {
                 badge.style.display = 'none';
                 if (badgeAdmin) badgeAdmin.style.display = 'none';
             } else {
                 badge.style.display = 'inline-block';
-                badge.textContent = "1";
+                badge.textContent = unseenCount > 9 ? "9+" : String(unseenCount);
                 if (badgeAdmin) {
                     badgeAdmin.style.display = 'inline-block';
-                    badgeAdmin.textContent = "1";
+                    badgeAdmin.textContent = unseenCount > 9 ? "9+" : String(unseenCount);
                 }
             }
         }
 
         function markNoticeSeen() {
-            if (!latestNotice || !latestNotice.id) return;
-            const seenKey = `notice_seen_${latestNotice.id}`;
-            localStorage.setItem(seenKey, '1');
+            if (!noticeList || noticeList.length === 0) return;
+            noticeList.forEach(n => {
+                if (!n || !n.id) return;
+                const seenKey = `notice_seen_${n.id}`;
+                localStorage.setItem(seenKey, '1');
+            });
             updateNoticeBadge();
         }
 
-        function fetchLatestNotice() {
+        function fetchLatestNotice(markAfter = false) {
             if (!STATS_WEB_APP_URL) return;
             const url = buildApiUrl(STATS_WEB_APP_URL, { action: 'notice_get' });
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
-                    if (data && data.title) {
-                        latestNotice = data;
-                    } else {
-                        latestNotice = null;
-                    }
+                    let items = [];
+                    if (Array.isArray(data)) items = data;
+                    else if (data && Array.isArray(data.items)) items = data.items;
+                    else if (data && data.title) items = [data];
+                    noticeList = items.slice(0, 5);
+                    latestNotice = noticeList[0] || null;
                     renderNoticeModal();
                     updateNoticeBadge();
+                    if (markAfter) markNoticeSeen();
                 })
                 .catch(() => {});
         }
