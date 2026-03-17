@@ -206,6 +206,72 @@ function showThanks() {
             renderRecentViews();
         }
 
+        function setLastRead(id, title) {
+            if (!id || !title) return;
+            localStorage.setItem('sotay_last_read', JSON.stringify({ id, title, ts: Date.now() }));
+            renderContinueReading();
+        }
+
+        function renderContinueReading() {
+            const box = document.getElementById('continueReading');
+            const titleEl = document.getElementById('continueTitle');
+            if (!box || !titleEl) return;
+            const last = JSON.parse(localStorage.getItem('sotay_last_read') || 'null');
+            if (!last || !last.id) { box.style.display = 'none'; return; }
+            titleEl.textContent = last.title;
+            box.style.display = 'flex';
+        }
+
+        function continueLastRead() {
+            const last = JSON.parse(localStorage.getItem('sotay_last_read') || 'null');
+            if (!last || !last.id) return;
+            jumpToResult(last.id);
+        }
+
+        function setReadMode(enabled) {
+            if (enabled) document.body.classList.add('read-mode');
+            else document.body.classList.remove('read-mode');
+            localStorage.setItem('sotay_read_mode', enabled ? '1' : '0');
+            const btn = document.getElementById('readModeToggle');
+            if (btn) btn.textContent = enabled ? 'Thoát đọc' : 'Đọc tập trung';
+        }
+
+        function toggleReadMode() {
+            const enabled = document.body.classList.contains('read-mode');
+            setReadMode(!enabled);
+        }
+
+        function getFavorites() {
+            return JSON.parse(localStorage.getItem('sotay_favorites') || '[]');
+        }
+
+        function isFavorite(id) {
+            return getFavorites().some(f => f.id === id);
+        }
+
+        function toggleFavorite(id, title) {
+            if (!id || !title) return;
+            let favs = getFavorites();
+            if (favs.some(f => f.id === id)) {
+                favs = favs.filter(f => f.id !== id);
+            } else {
+                favs.unshift({ id, title });
+            }
+            localStorage.setItem('sotay_favorites', JSON.stringify(favs.slice(0, 20)));
+            renderFavorites();
+            renderUserInterface();
+        }
+
+        function renderFavorites() {
+            const box = document.getElementById('favoriteBox');
+            const list = document.getElementById('favoriteList');
+            if (!box || !list) return;
+            const favs = getFavorites();
+            if (favs.length === 0) { box.style.display = 'none'; return; }
+            box.style.display = 'block';
+            list.innerHTML = favs.map(f => `<div class="favorite-item" onclick="jumpToResult('${f.id}')"><svg width="16" height="16" color="var(--yellow-party)"><use href="#icon-book-open"></use></svg> <span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${f.title}</span></div>`).join('');
+        }
+
         function renderRecentViews() {
             let recents = JSON.parse(localStorage.getItem('sotay_recents') || '[]');
             let container = document.getElementById('recentViewsHomeList');
@@ -238,27 +304,25 @@ function showThanks() {
         }
 
         const firebaseConfig = { apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs", authDomain: "sotay-dangvien.firebaseapp.com", projectId: "sotay-dangvien", storageBucket: "sotay-dangvien.firebasestorage.app", messagingSenderId: "699788813951", appId: "1:699788813951:web:14eb81183799f83e0f814a" };
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); } const db = firebase.firestore();
-
-        const thongKeRef = db.collection("sotay").doc("thongke");
-        function getLocalTodayString() { return new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
- 
-        function renderDashboard(data) {
-            let total = data.totalVisits || 0; let search = data.searchCount || 0; let daily = data.dailyVisits || {};
-            let todayDate = new Date(); let last7Days = []; let sum7Days = 0; let maxDaily = 0;
-            for (let i = 6; i >= 0; i--) { let d = new Date(todayDate.getTime()); d.setDate(d.getDate() - i); let local = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)); let dateStr = local.toISOString().split('T')[0]; let displayStr = local.getDate() + '/' + (local.getMonth()+1); let visits = daily[dateStr] || data[`dailyVisits.${dateStr}`] || 0; sum7Days += visits; if (visits > maxDaily) maxDaily = visits; last7Days.push({ date: displayStr, visits: visits }); }
-            let todayVisits = last7Days[6].visits; let chartHtml = '<div class="chart-container">';
-            last7Days.forEach(day => { let h = maxDaily > 0 ? (day.visits / maxDaily * 100) : 0; if(h < 5 && day.visits > 0) h = 5; chartHtml += `<div class="chart-bar" style="height:${h}%;"><span class="chart-tooltip">${day.date}: ${day.visits} lượt</span></div>`; });
-            chartHtml += `</div>
-        <div class="chart-labels" style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 600; color: #444; margin-top: 10px;">
-            <span>${dailyArray[0] ? dailyArray[0].date.split('-').reverse().slice(0,2).join('/') : ''}</span>
-            <span style="color: var(--primary-color);">Hôm nay</span>
-        </div>`;
-            document.getElementById('homeDashboard').innerHTML = `<div class="stat-row"><span>👁 Tổng truy cập:</span> <b>${total}</b></div><div class="stat-row"><span>📅 Hôm nay:</span> <b>${todayVisits}</b></div><div class="stat-row"><span>📈 7 ngày qua:</span> <b>${sum7Days}</b></div><div class="stat-row"><span>🔍 Lượt tìm kiếm:</span> <b>${search}</b></div> ${chartHtml}`;
+        let db = null;
+        try {
+            if (window.firebase && firebase.apps) {
+                if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+                db = firebase.firestore();
+            } else {
+                console.error("Firebase chưa được tải.");
+            }
+        } catch (e) {
+            console.error("Lỗi khởi tạo Firebase:", e);
         }
 
-        db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
+        const thongKeRef = db ? db.collection("sotay").doc("thongke") : null;
+        function getLocalTodayString() { return new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
+ 
+
+        if (db) db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
             if (doc.exists) { APP_DATA = doc.data().treeData || []; } else { APP_DATA = [{ id: 'r1', title: 'PHẦN 1', tag: '', summary: '', detail: '', level: 0, children: [] }]; }
+            try { localStorage.setItem('sotay_cached_tree', JSON.stringify(APP_DATA)); } catch(e) {}
             
             if (isFirstLoadAdmin && APP_DATA.length > 0) { 
                 function initExpand(nodes) {
@@ -271,9 +335,16 @@ function showThanks() {
                 isFirstLoadAdmin = false; 
             }
             
-            renderHomeCategories(); renderFAQAndForms(); renderUserInterface(); renderRecentViews();
+            renderHomeCategories(); renderFAQAndForms(); renderUserInterface(); renderRecentViews(); renderFavorites(); renderContinueReading();
             if (document.getElementById('adminPanel').style.display === 'block') { renderAdminTree(); }
         });
+        else {
+            try {
+                const cached = JSON.parse(localStorage.getItem('sotay_cached_tree') || '[]');
+                if (cached && cached.length) APP_DATA = cached;
+            } catch(e) {}
+            renderHomeCategories(); renderFAQAndForms(); renderUserInterface(); renderRecentViews(); renderFavorites(); renderContinueReading();
+        }
 
         function renderHomeCategories() {
             let html = '';
@@ -293,6 +364,8 @@ function showThanks() {
             let displayTitle = highlightText(nodeData.title || 'Chưa đặt tên', lastSearchKeyword);
             let safeSummary = processLegacyText(nodeData.summary);
             let safeDetail = processLegacyText(nodeData.detail);
+            let updatedAt = nodeData.updatedAt || nodeData.lastUpdated || nodeData.updated_at || "";
+            let updatedLabel = updatedAt ? `Cập nhật lần cuối: ${formatDateShort(updatedAt)}` : "";
             
             let downloadBtn = nodeData.fileUrl ? `<div style="margin-top: 20px;"><a href="${nodeData.fileUrl}" target="_blank" class="inline-download" style="padding: 10px 15px; font-size: 1rem; border-radius: 4px;"><svg width="18" height="18"><use href="#icon-download"></use></svg> Tải về</a></div>` : '';
             
@@ -310,11 +383,17 @@ function showThanks() {
 
             let html = `<div style="font-family: -apple-system, sans-serif; margin-bottom: 15px;">`;
             if(nodeData.tag) html += `<span class="tag-label" style="display:inline-block; margin-bottom:8px; background:var(--bg-hover); padding:4px 8px; border-radius:4px; border:1px solid var(--border-color);">${highlightText(nodeData.tag, lastSearchKeyword)}</span>`;
-            html += `<h2 style="color: var(--primary-color); margin-top: 0; font-size: 1.35rem; line-height: 1.4;">${displayTitle}</h2></div>`;
+            html += `<h2 style="color: var(--primary-color); margin-top: 0; font-size: 1.35rem; line-height: 1.4;">${displayTitle}</h2>`;
+            if (updatedLabel) html += `<div style="font-size:0.9rem; color:var(--text-muted); margin-top:4px;">${updatedLabel}</div>`;
+            html += `</div>`;
             
             if (safeSummary) html += `<div style="font-weight: bold; margin-bottom: 15px; color: var(--text-main); font-size: 1.15rem; background: var(--bg-hover); padding: 15px; border-left: 4px solid var(--yellow-party); border-radius: 4px;">${safeSummary}</div>`;
-            if (safeDetail) html += `<div style="text-align: justify; font-size: 1.15rem; line-height: 1.6; word-wrap:break-word; overflow:hidden;">${safeDetail}</div>`;
-            else if (!safeSummary) html += `<div style="color: var(--text-muted); font-style: italic;">Chưa cập nhật nội dung chi tiết...</div>`;
+            if (safeDetail) {
+                html += `<div style="text-align: justify; font-size: 1.15rem; line-height: 1.6; word-wrap:break-word; overflow:hidden;">${safeDetail}</div>`;
+            } else if (!safeSummary) {
+                html += `<div style="color: var(--text-muted); font-style: italic;">Chưa cập nhật nội dung chi tiết...</div>`;
+            }
+            html += `<div style="margin-top: 12px;"><div class="btn-mini btn-mini-fav" onclick="toggleFavorite('${nodeData.id}','${(nodeData.title || '').replace(/'/g, "\\'")}')">${isFavorite(nodeData.id) ? '★ Đã ghim' : '☆ Ghim'}</div></div>`;
             
             html += downloadBtn + pdfContainer;
 
@@ -431,6 +510,25 @@ function showThanks() {
             return text.replace(regex, '<mark class="search-highlight">$1</mark>');
         }
 
+        function formatDateShort(ts) {
+            try {
+                const d = new Date(ts);
+                if (isNaN(d.getTime())) return "";
+                const dd = String(d.getDate()).padStart(2, '0');
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const yy = d.getFullYear();
+                return `${dd}/${mm}/${yy}`;
+            } catch { return ""; }
+        }
+
+        function isNewItem(updatedAt) {
+            if (!updatedAt) return false;
+            const t = new Date(updatedAt).getTime();
+            if (isNaN(t)) return false;
+            const NEW_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
+            return (Date.now() - t) <= NEW_WINDOW_MS;
+        }
+
         function renderUserInterface() {
             renderSidebarMenu(); 
             const contentEl = document.getElementById('dynamicContent'); contentEl.innerHTML = ''; 
@@ -443,6 +541,9 @@ function showThanks() {
                     let nextContainer = container; 
                     
                     let displayTitle = highlightText(item.title || 'Chưa đặt tên', lastSearchKeyword);
+                    let updatedAt = item.updatedAt || item.lastUpdated || item.updated_at || "";
+                    let updatedLabel = updatedAt ? `Cập nhật: ${formatDateShort(updatedAt)}` : "";
+                    let newBadge = isNewItem(updatedAt) ? `<span class="badge-new">Mới</span>` : "";
                     let safeSummary = processLegacyText(item.summary); let displaySummary = highlightText(safeSummary, lastSearchKeyword);
 
                     let refs = item.pdfRefs || []; if (item.pdfPage && refs.length === 0) refs.push({doc: 'hd02', page: item.pdfPage}); 
@@ -453,27 +554,31 @@ function showThanks() {
 
                     if(item.level === 0) {
                         let hTag = 'h2'; let hClass = 'phan-header';
-                        innerContent += `<${hTag} class="${hClass}">${displayTitle} ${downloadBtn}</${hTag}>`;
+                        innerContent += `<${hTag} class="${hClass}">${displayTitle} ${newBadge} ${downloadBtn}</${hTag}>`;
                         if (item.summary) innerContent += `<div class="content-text" style="border:none; padding-left:0;">${displaySummary}</div>`;
+                        if (updatedLabel) innerContent += `<div style="font-size:0.85rem; color:var(--text-muted); padding-left:2px; margin-top:4px;">${updatedLabel}</div>`;
                         if (item.detail || pdfSourceBtn) innerContent += `<div class="step-actions-right">${dtBtn}${pdfSourceBtn}</div>`;
                         div.innerHTML = innerContent; container.appendChild(div);
                     } else {
                         let levelClass = item.level === 1 ? 'level-1' : (item.level === 2 ? 'level-2' : (item.level === 3 ? 'level-3' : 'level-4'));
                         let titleHtml = '';
-                        if (item.level === 1) titleHtml = `<div style="font-weight: bold; color: var(--text-muc); font-size: 1.15em; margin-bottom: 0; word-wrap:break-word; text-transform: uppercase;">${displayTitle} ${downloadBtn}</div>`;
-                        else if (item.level === 2) titleHtml = `<div style="font-weight: 700; color: #1b5e20; margin-bottom: 0; word-wrap:break-word;">${displayTitle} ${downloadBtn}</div>`; /* Xanh lá đậm */
-                        else if (item.level === 3) titleHtml = `<div style="font-weight: 700; color: #34495e; margin-bottom: 0; word-wrap:break-word;">${displayTitle} ${downloadBtn}</div>`; /* Xám đen */
-                        else titleHtml = `<div class="step-number" style="margin-bottom:0; word-wrap:break-word;">${displayTitle} ${downloadBtn}</div>`; /* Gọi CSS Cam Đất */
+                        if (item.level === 1) titleHtml = `<div style="font-weight: bold; color: var(--text-muc); font-size: 1.15em; margin-bottom: 0; word-wrap:break-word; text-transform: uppercase;">${displayTitle} ${newBadge} ${downloadBtn}</div>`;
+                        else if (item.level === 2) titleHtml = `<div style="font-weight: 700; color: #1b5e20; margin-bottom: 0; word-wrap:break-word;">${displayTitle} ${newBadge} ${downloadBtn}</div>`;
+                        else if (item.level === 3) titleHtml = `<div style="font-weight: 700; color: #34495e; margin-bottom: 0; word-wrap:break-word;">${displayTitle} ${newBadge} ${downloadBtn}</div>`;
+                        else titleHtml = `<div class="step-number" style="margin-bottom:0; word-wrap:break-word;">${displayTitle} ${newBadge} ${downloadBtn}</div>`;
 
                         div.className = `step-box ${levelClass}`; 
                         let tagHtml = item.tag ? `<span class="tag-label">${highlightText(item.tag, lastSearchKeyword)}</span>` : ''; 
                         let summaryHtml = item.summary ? `<div class="content-text">${displaySummary}</div>` : '';
+                        let updatedHtml = updatedLabel ? `<div style="font-size:0.85rem; color:var(--text-muted); padding: 0 15px 10px 15px;">${updatedLabel}</div>` : '';
                         let detailBtnHtml = ''; if (item.detail || pdfSourceBtn) detailBtnHtml = `<div class="step-actions-right">${dtBtn}${pdfSourceBtn}</div>`;
+                        let favBtn = `<div class="btn-mini btn-mini-fav" onclick="toggleFavorite('${item.id}','${(item.title || '').replace(/'/g, "\\'")}')">${isFavorite(item.id) ? '★ Đã ghim' : '☆ Ghim'}</div>`;
+                        let actionRow = detailBtnHtml ? detailBtnHtml.replace('</div>', `${favBtn}</div>`) : `<div class="step-actions-right">${favBtn}</div>`;
                         
                         let hasChildren = (item.children && item.children.length > 0) || item.summary || item.detail || pdfSourceBtn; 
                         let iconHtml = hasChildren ? `<div class="step-icon"><svg width="18" height="18"><use href="#icon-chevron-down"></use></svg></div>` : '';
                         
-                        div.innerHTML = `<div class="step-header" onclick="toggleStep(this, event, '${item.id}', '${item.title ? item.title.replace(/'/g, "\\'") : ''}')"><div class="step-title-wrapper">${tagHtml}${titleHtml}</div>${iconHtml}</div><div class="step-body-wrapper"><div class="step-body"><div class="step-body-inner" id="inner-${item.id}">${summaryHtml}${detailBtnHtml}</div></div></div>`;
+                        div.innerHTML = `<div class="step-header" onclick="toggleStep(this, event, '${item.id}', '${item.title ? item.title.replace(/'/g, "\\'") : ''}')"><div class="step-title-wrapper">${tagHtml}${titleHtml}</div>${iconHtml}</div><div class="step-body-wrapper"><div class="step-body"><div class="step-body-inner" id="inner-${item.id}">${summaryHtml}${updatedHtml}${actionRow}</div></div></div>`;
                         container.appendChild(div); nextContainer = div.querySelector(`#inner-${item.id}`);
                     }
                     if(item.children && item.children.length > 0) processNode(item.children, nextContainer);
@@ -522,7 +627,7 @@ function showThanks() {
             const stepBox = headerEl.parentElement; let parentInner = stepBox.parentElement;
             if (parentInner) { let siblings = parentInner.children; for(let i=0; i<siblings.length; i++) { if (siblings[i] !== stepBox && siblings[i].classList.contains('step-box')) siblings[i].classList.remove('active'); } }
             stepBox.classList.toggle('active');
-            if(stepBox.classList.contains('active')) { updateBreadcrumb(id); if(title) addRecentView(id, title); }
+            if(stepBox.classList.contains('active')) { updateBreadcrumb(id); if(title) { addRecentView(id, title); setLastRead(id, title); } }
         }
 
         function expandAll() { document.querySelectorAll('.step-box').forEach(box => box.classList.add('active')); }
@@ -959,8 +1064,6 @@ let tagFilter = document.getElementById('searchTagFilter');
 if (tagFilter) {
     tagFilter.addEventListener('change', performSearch);
 }
-        document.getElementById('searchInput').addEventListener('input', debouncedPerformSearch);
-        document.getElementById('searchTagFilter').addEventListener('change', performSearch);
         
         function jumpToResult(id) {
             closeSearchModal(); switchTab('quydinh');
@@ -972,7 +1075,7 @@ if (tagFilter) {
                     if (el.classList.contains('step-box')) el.classList.add('active');
                     
                     let nodeToOpen = findNode(id, APP_DATA); 
-                    if(nodeToOpen) { updateBreadcrumb(id); addRecentView(nodeToOpen.id, nodeToOpen.title); }
+                    if(nodeToOpen) { updateBreadcrumb(id); addRecentView(nodeToOpen.id, nodeToOpen.title); setLastRead(nodeToOpen.id, nodeToOpen.title); }
                     window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 100, behavior: "smooth" });
                     let oBg = el.style.backgroundColor; el.style.backgroundColor = "rgba(241, 196, 15, 0.2)"; setTimeout(() => el.style.backgroundColor = oBg || '', 2000); 
                 }
@@ -995,7 +1098,10 @@ if (tagFilter) {
         function topFunction() { window.scrollTo({top: 0, behavior: 'smooth'}); }
 
         let draggedNodeId = null;
-        function saveTreeToFirebase(newTree) { db.collection("sotay").doc("dulieu").update({ treeData: newTree }).catch(err => alert("Lỗi khi lưu cấu trúc: " + err)); }
+        function saveTreeToFirebase(newTree) { 
+            if (!db) { alert("Không kết nối được Firebase. Vui lòng kiểm tra mạng hoặc tải lại trang."); return; }
+            db.collection("sotay").doc("dulieu").update({ treeData: newTree }).catch(err => alert("Lỗi khi lưu cấu trúc: " + err)); 
+        }
         function confirmUnsaved() { if (hasUnsavedChanges) return confirm("⚠️ Bạn có thay đổi chưa lưu! Xác nhận rời đi và HUỶ BỎ những thay đổi vừa nhập?"); return true; }
 
         function moveNodeUp(e, id) { e.stopPropagation(); if(!confirmUnsaved()) return; let serverTree = JSON.parse(JSON.stringify(APP_DATA)); function process(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === id) { if(i > 0) { let temp = nodes[i]; nodes[i] = nodes[i-1]; nodes[i-1] = temp; return true; } return true; } if(nodes[i].children && process(nodes[i].children)) return true; } return false; } if(process(serverTree)) saveTreeToFirebase(serverTree); }
@@ -1030,8 +1136,10 @@ if (tagFilter) {
                 fileUrl: document.getElementById('inpFileUrl').value, 
                 fileName: document.getElementById('inpFileName').value, 
                 pdfRefs: pdfRefs,
-                forceAccordion: document.getElementById('inpForceAccordion').checked
+                forceAccordion: document.getElementById('inpForceAccordion').checked,
+                updatedAt: new Date().toISOString()
             };
+            if (!db) { alert("Không kết nối được Firebase. Vui lòng kiểm tra mạng hoặc tải lại trang."); btn.innerText = "LƯU MỤC NÀY"; btn.disabled = false; return; }
             const docRef = db.collection("sotay").doc("dulieu");
             db.runTransaction((transaction) => {
                 return transaction.get(docRef).then((doc) => {
@@ -1410,7 +1518,7 @@ function renderDashboard(data) {
 }
 
 // Khởi chạy ghi nhận truy cập khi tải trang
-document.addEventListener("DOMContentLoaded", () => { recordAndLoadStats('visit'); fetchLatestNotice(); });
+document.addEventListener("DOMContentLoaded", () => { recordAndLoadStats('visit'); fetchLatestNotice(); renderFavorites(); renderContinueReading(); setReadMode(localStorage.getItem('sotay_read_mode') === '1'); });
     // =====================================================================
 // HỆ THỐNG KHẢO SÁT & GÓP Ý (PHƯƠNG THỨC GET CHỐNG LỖI)
 // =====================================================================

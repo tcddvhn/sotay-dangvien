@@ -96,6 +96,17 @@
                     <button onclick="quickHomeSearch()">TÌM</button>
                 </div>
             </div>
+
+            <div id="continueReading" class="continue-banner" style="display:none;">
+                <div class="continue-text">Tiếp tục đọc mục:</div>
+                <div id="continueTitle" class="continue-title"></div>
+                <button class="btn-mini btn-mini-detail" onclick="continueLastRead()">Mở lại</button>
+            </div>
+            
+            <div id="favoriteBox" class="recent-box" style="display:none;">
+                <div class="recent-title"><svg width="18" height="18"><use href="#icon-book-open"></use></svg> Mục yêu thích</div>
+                <div id="favoriteList"></div>
+            </div>
             
             <div id="recentViewsHome" class="recent-box" style="display:none;">
                 <div class="recent-title"><svg width="18" height="18"><use href="#icon-clock"></use></svg> Vừa xem gần đây</div>
@@ -131,6 +142,7 @@
                     <button class="toggle-btn" onclick="expandAll()"><svg width="16" height="16"><use href="#icon-folder"></use></svg> Mở rộng tất cả</button>
                     <button class="toggle-btn" onclick="collapseAll()"><svg width="16" height="16"><use href="#icon-file"></use></svg> Thu gọn</button>
                     <button class="toggle-btn toc-btn" onclick="openTocModal()"><svg width="16" height="16"><use href="#icon-list"></use></svg> Mục lục</button>
+                    <button class="toggle-btn" onclick="toggleReadMode()"><svg width="16" height="16"><use href="#icon-book-open"></use></svg> Đọc tập trung</button>
                 </div>
             </div>
             <div id="dynamicContent"></div>
@@ -191,6 +203,7 @@
     <button id="backToTop" onclick="topFunction()" aria-label="Lên đầu trang">
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
     </button>
+    <button id="readModeToggle" onclick="toggleReadMode()" aria-label="Thoát chế độ đọc">Đọc tập trung</button>
 
     <div id="modalSearch" class="modal-user" onclick="closeModalOnBgClick(event, 'modalSearch')">
         <div class="modal-user-content">
@@ -431,7 +444,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js" defer></script>
 
-    <script src="app.js?v=20260316b" defer></script>
+    <script src="app.js?v=20260317" defer></script>
 <div id="autoSurveyOverlay" class="survey-overlay" style="display: none;">
     <div class="survey-card" style="position: relative; background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
         
