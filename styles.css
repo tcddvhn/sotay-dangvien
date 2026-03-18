@@ -731,6 +731,19 @@ body.read-mode .top-controls { display: none; }
             border: 1px solid var(--border-color); 
             animation: popUpChat 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
         }
+
+        /* PC: cho phép kéo to/nhỏ cửa sổ chat */
+        @media (min-width: 992px) {
+            #chatBox {
+                width: 420px;
+                height: min(600px, 80vh);
+                resize: both;
+                min-width: 320px;
+                min-height: 380px;
+                max-width: 80vw;
+                max-height: 85vh;
+            }
+        }
         
         /* Hiệu ứng mở cửa sổ mượt mà */
         @keyframes popUpChat { 
