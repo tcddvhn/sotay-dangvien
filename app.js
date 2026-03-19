@@ -1602,7 +1602,7 @@ function renderDashboard(data) {
         if (d.visits > maxDaily) maxDaily = d.visits;
     });
 
-    let chartHtml = '<div class="chart-container" style="display:flex;align-items:flex-end;height:60px;gap:5px;margin-top:15px;border-bottom:1px solid #ddd;padding-bottom:5px;">';
+    let chartHtml = '<div class="dashboard-chart"><div class="chart-bars">';
     dailyData.forEach(day => {
         // Tính toán chiều cao cột biểu đồ
         let h = maxDaily > 0 ? (day.visits / maxDaily * 100) : 0; 
@@ -1613,38 +1613,45 @@ function renderDashboard(data) {
         let shortDate = dParts[2] + '/' + dParts[1];
 
         chartHtml += `
-            <div class="chart-bar" style="height:${h}%;flex:1;background:var(--primary-color);border-radius:2px 2px 0 0;position:relative;">
+            <div class="chart-bar" style="height:${h}%;">
                 <span class="chart-tooltip">${shortDate}: ${day.visits}</span>
             </div>`;
     });
-    chartHtml += '</div>';
+    chartHtml += `</div>
+        <div class="chart-labels">
+            <span>${dailyData.length > 0 ? dailyData[0].date.split('-').reverse().slice(0,2).join('/') : ''}</span>
+            <span>Hôm nay</span>
+        </div>
+    </div>`;
     
     // Vẽ giao diện Dashboard
     dash.innerHTML = `
-        <div class="stat-row" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eee;">
-            <span><i class="fas fa-users"></i> Tổng lượt truy cập:</span> 
-            <b style="color:var(--primary-color); font-size: 1.1rem;">${totalAllTime.toLocaleString()}</b>
-        </div>
-        <div class="stat-row" style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed #eee;">
-            <span><i class="fas fa-calendar-day"></i> Hôm nay:</span> 
-            <b>${todayVisits.toLocaleString()}</b>
-        </div>
-        <div class="stat-row" style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed #eee;">
-            <span><i class="fas fa-chart-line"></i> 7 ngày gần nhất:</span> 
-            <b>${sum7Days.toLocaleString()}</b>
-        </div>
-        <div class="stat-row" style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed #eee;">
-            <span><i class="fas fa-search"></i> Lượt tìm kiếm:</span> 
-            <b>${searchTotal.toLocaleString()}</b>
-        </div>
-        <div class="stat-row" style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed #eee;">
-            <span><i class="fas fa-robot"></i> Trợ lý AI hỗ trợ:</span> 
-            <b>${chatbotTotal.toLocaleString()}</b>
-        </div>
-        ${chartHtml}
-        <div class="chart-labels" style="display:flex;justify-content:space-between;font-size:10px;color:#7f8c8d;margin-top:5px;">
-            <span>${dailyData.length > 0 ? dailyData[0].date.split('-').reverse().slice(0,2).join('/') : ''}</span>
-            <span>Hôm nay</span>
+        <div class="dashboard-panel">
+            <div class="dashboard-eyebrow">TÌNH HÌNH SỬ DỤNG HỆ THỐNG</div>
+            <div class="dashboard-title">Thống kê truy cập</div>
+            <div class="dashboard-cards">
+                <div class="dashboard-card">
+                    <div class="card-label">Tổng lượt truy cập</div>
+                    <div class="card-value">${totalAllTime.toLocaleString()}</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-label">Hôm nay</div>
+                    <div class="card-value">${todayVisits.toLocaleString()}</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-label">7 ngày gần nhất</div>
+                    <div class="card-value">${sum7Days.toLocaleString()}</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-label">Lượt tìm kiếm</div>
+                    <div class="card-value">${searchTotal.toLocaleString()}</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-label">Trợ lý AI hỗ trợ</div>
+                    <div class="card-value">${chatbotTotal.toLocaleString()}</div>
+                </div>
+            </div>
+            ${chartHtml}
         </div>`;
 }
 

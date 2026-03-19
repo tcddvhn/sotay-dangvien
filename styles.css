@@ -3,6 +3,16 @@
             --primary-color: #cc0000; 
             --primary-dark: #a30000; 
             --yellow-party: #f39c12; 
+            --ux-primary: #b30f14;
+            --ux-primary-dark: #871116;
+            --ux-accent: #d99f2b;
+            --ux-surface: #ffffff;
+            --ux-surface-alt: #f6f3ee;
+            --ux-surface-soft: #fbf8f3;
+            --ux-line: #ddd4c7;
+            --ux-line-strong: #cbbca8;
+            --ux-shadow: 0 16px 36px rgba(38, 31, 18, 0.08);
+            --ux-shadow-strong: 0 20px 48px rgba(38, 31, 18, 0.14);
             --bg-sidebar: #1e2b3c; 
             --header-height: 70px;
             --nav-bottom-height: 65px;
@@ -33,6 +43,13 @@
             --bg-phan: #3a1c1c;
             --text-phan: #ff7675;
             --text-muc: #ff9f43;
+            --ux-surface: #1c1c1c;
+            --ux-surface-alt: #141414;
+            --ux-surface-soft: #202020;
+            --ux-line: #2e2e2e;
+            --ux-line-strong: #3a3a3a;
+            --ux-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+            --ux-shadow-strong: 0 24px 52px rgba(0, 0, 0, 0.4);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; max-width: 100%; }
@@ -389,7 +406,10 @@
 
 /* Nút Góp ý: Xanh dương nhã nhặn */
 .feedback-btn {
-    background: #3498db;
+    background: var(--ux-primary);
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: var(--ux-shadow);
 }
 
 /* Nút Quản trị: Xanh đậm chuyển nhạt (Gradient) */
@@ -466,11 +486,155 @@
         .nav-item.active { color: var(--primary-color); }
         .nav-item:hover { background: var(--bg-hover); color: var(--primary-color);}
 
-        .hero-search { background: var(--primary-color); padding: 20px 15px; border-radius: 0; margin: -15px -15px 25px -15px; text-align: center; color: white; }
-        .hero-search h2 { margin-top: 0; margin-bottom: 20px; font-family: -apple-system, sans-serif; font-size: 1.3rem;}
-        .hero-search-box { display: flex; background: white; padding: 4px; border-radius: 4px; flex-wrap: nowrap; align-items:center;}
-        .hero-search-box input { flex: 1; border: none; padding: 12px 10px; font-size: 1.05rem; outline: none; font-family: -apple-system, sans-serif; color:#333; min-width:0;}
-        .hero-search-box button { background: var(--primary-color); color: white; border: none; padding: 0 20px; font-weight: bold; cursor: pointer; transition: 0.2s; border-radius: 2px; height: 42px; flex-shrink: 0;}
+        .hero-search { 
+            background: linear-gradient(180deg, #b30f14 0%, #7e0c12 100%);
+            padding: 22px 20px;
+            border-radius: 16px;
+            margin: 0 0 25px 0;
+            text-align: left;
+            color: white;
+            box-shadow: var(--ux-shadow-strong);
+        }
+        .hero-search h2 { margin-top: 0; margin-bottom: 8px; font-family: 'Times New Roman', Times, serif; font-size: 1.5rem; font-weight: 800;}
+        .hero-search p { margin: 0 0 14px 0; color: rgba(255,255,255,0.88); font-size: 0.98rem; }
+        .hero-search-box { display: flex; background: white; padding: 6px; border-radius: 12px; flex-wrap: nowrap; align-items:center; gap: 8px;}
+        .hero-search-box input { flex: 1; border: none; padding: 12px 10px; font-size: 1.05rem; outline: none; font-family: 'Times New Roman', Times, serif; color:#333; min-width:0;}
+        .hero-search-box button { background: var(--ux-accent); color: #3f2a10; border: none; padding: 0 22px; font-weight: 700; cursor: pointer; transition: 0.2s; border-radius: 10px; height: 44px; flex-shrink: 0;}
+        .hero-search-box button:hover { filter: brightness(0.95); }
+        .hero-search .faq-chips { margin-top: 14px; }
+        .hero-search .faq-chip { border-color: rgba(255,255,255,0.35); color: #fff; border-radius: 999px; }
+        .hero-search .faq-chip:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.6); color: #fff; }
+
+        /* Dashboard thống kê */
+        #homeDashboard .dashboard-panel {
+            background: var(--ux-surface);
+            border: 1px solid var(--ux-line-strong);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: var(--ux-shadow);
+            font-family: 'Times New Roman', Times, serif;
+        }
+        #homeDashboard .dashboard-eyebrow {
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            color: var(--ux-accent);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        #homeDashboard .dashboard-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+        #homeDashboard .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        #homeDashboard .dashboard-card {
+            background: var(--ux-surface-soft);
+            border: 1px solid var(--ux-line);
+            border-radius: 14px;
+            padding: 12px 14px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+        #homeDashboard .card-label { font-size: 0.85rem; color: var(--text-muted); }
+        #homeDashboard .card-value { font-size: 1.25rem; font-weight: 800; color: var(--ux-primary); margin-top: 4px; }
+        #homeDashboard .dashboard-chart {
+            background: var(--ux-surface-soft);
+            border: 1px solid var(--ux-line);
+            border-radius: 14px;
+            padding: 12px 12px 8px;
+        }
+        #homeDashboard .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            height: 90px;
+            padding: 6px 4px 2px;
+        }
+        #homeDashboard .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, #d99f2b 0%, #b30f14 100%);
+            border-radius: 6px 6px 0 0;
+            min-height: 6px;
+            position: relative;
+        }
+        #homeDashboard .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Modal tìm kiếm */
+        #modalSearch .modal-user-content {
+            background: var(--ux-surface);
+            border: 1px solid var(--ux-line-strong);
+            border-radius: 16px;
+            box-shadow: var(--ux-shadow-strong);
+        }
+        #modalSearch .modal-user-header {
+            background: var(--ux-surface);
+            border-bottom: 1px solid var(--ux-line);
+            font-weight: 800;
+        }
+        #modalSearch .modal-user-body {
+            font-family: 'Times New Roman', Times, serif;
+            background: var(--ux-surface-alt);
+        }
+        #modalSearch .search-input-wrapper select {
+            border-radius: 10px;
+            border-color: var(--ux-line);
+            background: var(--ux-surface-soft);
+            color: var(--text-main);
+        }
+        #modalSearch .search-input-core {
+            border: 1px solid var(--ux-line-strong);
+            border-radius: 12px;
+            background: #fff;
+        }
+        #modalSearch .search-input-core button {
+            background: var(--ux-accent);
+            color: #3f2a10;
+            font-weight: 700;
+        }
+
+        /* Modal thông báo */
+        #modalNotice .modal-user-content {
+            background: var(--ux-surface);
+            border: 1px solid var(--ux-line-strong);
+            border-radius: 16px;
+            box-shadow: var(--ux-shadow-strong);
+        }
+        #modalNotice .modal-user-header {
+            background: var(--ux-surface);
+            border-bottom: 1px solid var(--ux-line);
+            font-weight: 800;
+        }
+        #modalNotice .modal-user-body {
+            font-family: 'Times New Roman', Times, serif;
+            background: var(--ux-surface-alt);
+        }
+        #modalNotice .btn-close-modal {
+            background: var(--ux-surface-alt);
+            border: 1px solid var(--ux-line);
+            border-radius: 10px;
+            color: var(--text-main);
+        }
+        #modalNotice .notice-list { gap: 10px; }
+        #modalNotice .notice-item {
+            background: var(--ux-surface-soft);
+            border: 1px solid var(--ux-line);
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+        #modalNotice .notice-item-title { font-weight: 700; }
+        #modalNotice .notice-item-date { color: var(--text-muted); }
+        #modalNotice .notice-push { border-top: 1px dashed var(--ux-line); padding-top: 10px; }
         
         .recent-box { background: var(--bg-box); padding: 20px 15px; margin-bottom: 20px; border: 1px solid var(--border-color); font-family: -apple-system, sans-serif; border-radius: 4px;}
         .recent-title { font-size: 1.05rem; font-weight: bold; color: var(--text-main); text-transform: uppercase; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; margin-bottom: 15px; display: flex; align-items:center; gap:8px;}
@@ -710,6 +874,7 @@ body.read-mode .top-controls { display: none; }
 /* --- GIAO DIỆN CHATBOT --- */
         #chatWidget { position: fixed; bottom: calc(var(--nav-bottom-height) + 20px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; }
         #chatBtn { background: var(--primary-color); color: white; border: none; width: 55px; height: 55px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        #chatBtn img { display: block; }
         #chatBtn:hover { transform: scale(1.05); background: var(--primary-dark); }
         /* Cửa sổ chat - Luôn căn giữa màn hình */
         #chatBox { 
