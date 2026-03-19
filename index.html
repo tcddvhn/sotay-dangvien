@@ -44,6 +44,15 @@
         <symbol id="icon-book-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></symbol>
         <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></symbol>
         <symbol id="icon-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="4" cy="6" r="1"></circle><circle cx="4" cy="12" r="1"></circle><circle cx="4" cy="18" r="1"></circle></symbol>
+        <symbol id="icon-robot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="8" width="14" height="10" rx="2"></rect>
+            <path d="M9 8V6"></path>
+            <path d="M15 8V6"></path>
+            <circle cx="9" cy="12" r="1"></circle>
+            <circle cx="15" cy="12" r="1"></circle>
+            <path d="M8 18v1"></path>
+            <path d="M16 18v1"></path>
+        </symbol>
     </svg>
 
     <div id="readingProgress"></div>
@@ -98,6 +107,12 @@
                 <div class="hero-search-box">
                     <input type="text" id="homeSearchInput" placeholder="Nhập từ khóa (mất thẻ đảng...)" onkeypress="if(event.key==='Enter') quickHomeSearch()">
                     <button onclick="quickHomeSearch()">TÌM</button>
+                </div>
+                <div class="hero-search-actions">
+                    <button class="btn-ai-search" onclick="homeAiSearch()" title="AI sẽ tìm thông tin ngoài phạm vi tài liệu của sổ tay nếu không có kết quả.">
+                        <svg width="16" height="16"><use href="#icon-robot"></use></svg>
+                        Hỏi AI
+                    </button>
                 </div>
             </div>
 
@@ -240,6 +255,10 @@
                         <input type="text" id="searchInput" placeholder="Nhập từ khóa cần tìm..." autocomplete="off">
                         <button onclick="performSearch()">TÌM</button>
                     </div>
+                    <button class="btn-ai-search-inline" onclick="modalAiSearch()" title="AI sẽ tìm thông tin ngoài phạm vi tài liệu của sổ tay nếu không có kết quả.">
+                        <svg width="16" height="16"><use href="#icon-robot"></use></svg>
+                        Hỏi AI
+                    </button>
                 </div>
                 
                 <div class="search-history-area" id="searchHistoryArea">

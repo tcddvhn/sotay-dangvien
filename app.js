@@ -985,7 +985,19 @@ function showThanks() {
             openSearchModal(); 
             document.getElementById('searchInput').value = kw; 
             document.getElementById('searchTagFilter').value = '';
-            performSearch(); 
+            setTimeout(() => performSearch(), 50); 
+        }
+
+        function homeAiSearch() {
+            let kw = document.getElementById('homeSearchInput').value;
+            if (!kw || !kw.trim()) return;
+            handleAiSearchPrompt(true, kw.trim());
+        }
+
+        function modalAiSearch() {
+            const kw = (document.getElementById('searchInput') || {}).value || "";
+            if (!kw.trim()) return;
+            handleAiSearchPrompt(true, kw.trim());
         }
 	// Hàm loại bỏ dấu tiếng Việt để tìm kiếm chính xác hơn
 function removeAccents(str) {
@@ -1152,7 +1164,16 @@ function performSearch(event) {
     
     // NÂNG CẤP 3: HIỂN THỊ KẾT QUẢ GIAO DIỆN MỚI
     if (results.length === 0) {
-        resContainer.innerHTML = `<div class="no-result">❌ Không tìm thấy.</div>`;
+        resContainer.innerHTML = `
+            <div class="no-result">❌ Không tìm thấy.</div>
+            <div class="ai-search-prompt">
+                <div class="ai-search-title">Không có kết quả trong sổ tay</div>
+                <div class="ai-search-desc">Bạn có muốn dùng trợ lý AI để tìm thêm không? (Thông tin có thể nằm ngoài phạm vi tài liệu của sổ tay)</div>
+                <div class="ai-search-actions">
+                    <button class="btn-mini btn-mini-detail" onclick="handleAiSearchPrompt(true, '${kwRaw.replace(/'/g, "\\'")}')">Có, hỏi AI</button>
+                    <button class="btn-mini" onclick="handleAiSearchPrompt(false)">Không, đóng</button>
+                </div>
+            </div>`;
     } else { 
         let html = `<div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px;">Tìm thấy ${results.length} kết quả</div>`; 
         results.forEach(r => {
@@ -1373,6 +1394,15 @@ if (tagFilter) {
             if (inputEl) inputEl.focus();
         }
 
+        function openChatBox() {
+            let chatBox = document.getElementById('chatBox');
+            if (!chatBox) return;
+            if (chatBox.style.display !== 'flex') {
+                centerChatBox();
+                chatBox.style.display = 'flex';
+            }
+        }
+
         function renderSafeMarkdown(text) {
             if (!text) return "";
             let escaped = text
@@ -1447,6 +1477,20 @@ if (tagFilter) {
                 botDiv.innerText = "Tôi đang nghiên cứu câu hỏi của bạn, bạn có thể hỏi tiếp nội dung khác!";
                 chatBody.appendChild(botDiv);
             }
+        }
+
+        function handleAiSearchPrompt(accept, keyword) {
+            if (!accept) {
+                closeSearchModal();
+                return;
+            }
+            const kw = (keyword || '').trim();
+            if (!kw) return;
+            openChatBox();
+            const inputEl = document.getElementById('chatInput');
+            if (inputEl) inputEl.value = kw;
+            closeSearchModal();
+            setTimeout(() => { if (typeof sendMessage === 'function') sendMessage(); }, 200);
         }
     // --- CHỨC NĂNG KÉO THẢ VÀ CLICK BONG BÓNG CHAT ---
         const chatWidget = document.getElementById("chatWidget");
