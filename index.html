@@ -254,7 +254,7 @@
                     </select>
                     <div class="search-input-core">
                         <input type="text" id="searchInput" placeholder="Nhập từ khóa cần tìm..." autocomplete="off">
-                        <button onclick="performSearch()">TÌM</button>
+                        <button onclick="openSearchChoice()">TÌM</button>
                     </div>
                 </div>
                 <div class="search-ai-row">
@@ -262,6 +262,16 @@
                         <svg width="16" height="16"><use href="#icon-robot"></use></svg>
                         Hỏi AI
                     </button>
+                </div>
+
+                <div id="searchChoiceOverlay" class="search-choice-overlay" onclick="closeSearchChoiceOnBg(event)">
+                    <div class="search-choice-box">
+                        <div class="search-choice-title">Bạn muốn thực hiện theo cách nào?</div>
+                        <div class="search-choice-actions">
+                            <button class="btn-choice primary" onclick="chooseSearchAction('search')">Tìm kiếm</button>
+                            <button class="btn-choice" onclick="chooseSearchAction('ai')">Gọi AI hỗ trợ</button>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="search-history-area" id="searchHistoryArea">

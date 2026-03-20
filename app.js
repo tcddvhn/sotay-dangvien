@@ -1005,6 +1005,31 @@ function showThanks() {
             if (!kw.trim()) return;
             handleAiSearchPrompt(true, kw.trim());
         }
+
+        function openSearchChoice() {
+            const kw = (document.getElementById('searchInput') || {}).value || "";
+            if (!kw.trim()) return;
+            const overlay = document.getElementById('searchChoiceOverlay');
+            if (overlay) overlay.style.display = 'flex';
+        }
+
+        function closeSearchChoice() {
+            const overlay = document.getElementById('searchChoiceOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function closeSearchChoiceOnBg(event) {
+            if (event && event.target && event.target.id === 'searchChoiceOverlay') closeSearchChoice();
+        }
+
+        function chooseSearchAction(type) {
+            closeSearchChoice();
+            if (type === 'ai') {
+                modalAiSearch();
+                return;
+            }
+            performSearch();
+        }
 	// Hàm loại bỏ dấu tiếng Việt để tìm kiếm chính xác hơn
 function removeAccents(str) {
     if (!str) return '';

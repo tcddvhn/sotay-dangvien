@@ -541,6 +541,38 @@
         }
         .btn-ai-search-inline:hover { border-color: #b30f14; background: rgba(179, 15, 20, 0.16); }
         .search-ai-row { margin: 6px 0 12px; }
+        .search-choice-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.25);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9200;
+        }
+        .search-choice-box {
+            background: var(--ux-surface);
+            border: 1px solid var(--ux-line);
+            border-radius: 14px;
+            padding: 16px 18px;
+            box-shadow: var(--ux-shadow);
+            min-width: 260px;
+            text-align: center;
+        }
+        .search-choice-title { font-weight: 700; margin-bottom: 12px; color: var(--text-main); }
+        .search-choice-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .btn-choice {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--ux-line);
+            background: var(--ux-surface-soft);
+            color: var(--text-main);
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-choice.primary { background: var(--ux-accent); color: #3f2a10; border-color: var(--ux-accent); }
+        .btn-choice:hover { filter: brightness(0.96); }
 
         /* Dashboard thống kê */
         #homeDashboard .dashboard-panel {
