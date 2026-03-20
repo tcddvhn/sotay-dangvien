@@ -530,16 +530,17 @@
             align-items: center;
             gap: 6px;
             padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid var(--ux-line);
-            background: var(--ux-surface-soft);
-            color: var(--text-main);
+            border-radius: 999px;
+            border: 1px solid rgba(179, 15, 20, 0.35);
+            background: rgba(179, 15, 20, 0.08);
+            color: #b30f14;
             font-weight: 700;
             cursor: pointer;
             transition: 0.2s;
             white-space: nowrap;
         }
-        .btn-ai-search-inline:hover { border-color: var(--ux-accent); color: var(--ux-primary); }
+        .btn-ai-search-inline:hover { border-color: #b30f14; background: rgba(179, 15, 20, 0.16); }
+        .search-ai-row { margin: 6px 0 12px; }
 
         /* Dashboard thống kê */
         #homeDashboard .dashboard-panel {
@@ -921,8 +922,7 @@ body.read-mode .top-controls { display: none; }
         #inpDetail .ql-editor { min-height: 250px; }
 /* --- GIAO DIỆN CHATBOT --- */
         #chatWidget { position: fixed; bottom: calc(var(--nav-bottom-height) + 20px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; }
-        /* Ẩn icon chatbot theo yêu cầu */
-        #chatWidget { display: none; }
+        /* Hiện lại icon chatbot */
         #chatBtn { background: var(--primary-color); color: white; border: none; width: 55px; height: 55px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; transition: 0.3s; }
         #chatBtn img { display: block; }
         #chatBtn:hover { transform: scale(1.05); background: var(--primary-dark); }
