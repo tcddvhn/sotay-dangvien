@@ -455,6 +455,8 @@
         .btn-mini { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; font-size: 0.85rem; cursor: pointer; font-weight: 600; font-family: -apple-system, sans-serif; transition: 0.2s; border: 1px solid transparent; white-space: nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis;}
         .btn-mini-detail { background-color: transparent; color: #2980b9; border-color: #3498db; }
         .btn-mini-detail:hover { background-color: #3498db; color: white; }
+        .btn-mini-outline { background-color: transparent; color: var(--text-muted); border: 1px dashed var(--border-color); }
+        .btn-mini-outline:hover { background-color: transparent; color: var(--primary-color); border-color: var(--primary-color); }
         .btn-mini-pdf { background-color: transparent; color: #c0392b; border-color: #e74c3c; }
         .btn-mini-pdf:hover { background-color: #e74c3c; color: white; }
         .inline-download { display: inline-flex; align-items: center; gap: 5px; justify-content: center; background-color: transparent; color: #27ae60; padding: 4px 10px; border: 1px solid #2ecc71; font-size: 0.85rem; font-weight: bold; text-decoration: none; margin-left: 10px; vertical-align: middle; white-space: normal; font-family: -apple-system, sans-serif; transition: 0.2s; word-break: break-word;}
@@ -471,6 +473,10 @@
         
         body.dark-mode .list-sub-group.sub-group-l3 > .list-sub-group-header { background-color: #2c3e50; border-color: #2980b9;}
         body.dark-mode .list-sub-group.sub-group-l4 > .list-sub-group-header { background-color: #34495e; border-color: #8e44ad;}
+        /* Tăng độ sáng chữ tiêu đề Level 2+ khi chế độ tối */
+        body.dark-mode .step-box.level-2 .step-title-wrapper div { color: #b7f5c0 !important; }
+        body.dark-mode .step-box.level-3 .step-title-wrapper div { color: #d2e3f0 !important; }
+        body.dark-mode .step-box.level-4 .step-number { color: #ffd6a6 !important; }
         
         .sub-group-arrow { transition: transform 0.3s; color: var(--text-muted);}
         .list-sub-group.open > .list-sub-group-header .sub-group-arrow { transform: rotate(180deg); color: var(--primary-color);}

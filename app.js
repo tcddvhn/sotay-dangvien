@@ -230,6 +230,12 @@ function showThanks() {
             jumpToResult(last.id);
         }
 
+        function clearContinueReading() {
+            localStorage.removeItem('sotay_last_read');
+            const box = document.getElementById('continueReading');
+            if (box) box.style.display = 'none';
+        }
+
         function setReadMode(enabled) {
             if (enabled) document.body.classList.add('read-mode');
             else document.body.classList.remove('read-mode');
