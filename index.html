@@ -387,6 +387,22 @@
         </div>
     </div>
 
+    <div id="protectedAccessOverlay" class="protected-access-overlay" onclick="closeProtectedAccessOnBg(event)">
+        <div class="protected-access-card">
+            <button class="protected-access-close" onclick="closeProtectedAccessModal()" aria-label="Đóng cửa sổ">✕</button>
+            <div class="protected-access-header">
+                <h2>Đăng nhập để tiếp tục</h2>
+                <p>Mục này chỉ dành cho người dùng đã có tài khoản trong hệ thống dữ liệu TCĐ,ĐV tập trung.</p>
+            </div>
+            <div class="protected-access-body">
+                <input type="text" id="protectedAccessUsername" class="form-control" placeholder="Tên đăng nhập hoặc email">
+                <input type="password" id="protectedAccessPassword" class="form-control" placeholder="Mật khẩu">
+                <div class="protected-access-error" id="protectedAccessError">Thông tin đăng nhập không hợp lệ hoặc tài khoản chưa được cấp quyền.</div>
+                <button class="btn-login protected-access-btn" onclick="submitProtectedAccessLogin()">MỞ HỆ THỐNG DỮ LIỆU</button>
+            </div>
+        </div>
+    </div>
+
     <div id="adminPanel">
         <div class="admin-topbar">
             <div class="admin-topbar-title">SỔ TAY NGHIỆP VỤ TCĐ, ĐV</div>

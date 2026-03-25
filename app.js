@@ -11,6 +11,10 @@
             RATE_LIMIT_MS: 1200,
             FCM_VAPID_KEY: "T-t1yEsxAdEil_DcRonTeeTO474Lg30qYdTnysOjyEQ"
         };
+        const PROTECTED_ROUTE_CONFIG = {
+            normalizedTitle: "he thong du lieu tcd dv tap trung",
+            url: "https://code-web-sotay.vercel.app/"
+        };
         // URL WEB APP KHẢO SÁT
 	const SURVEY_API_URL = CONFIG.SURVEY_API_URL;
 
@@ -47,6 +51,18 @@
             const ts = Date.now().toString();
             const token = btoa(`${CONFIG.API_KEY}:${ts}`);
             return { ...payload, ts, token };
+        }
+
+        function normalizeNodeTitleKey(text) {
+            return removeAccents((text || '').toLowerCase())
+                .replace(/[^a-z0-9]+/g, ' ')
+                .trim();
+        }
+
+        function getProtectedRouteForNode(nodeOrTitle) {
+            const rawTitle = typeof nodeOrTitle === 'string' ? nodeOrTitle : (nodeOrTitle && nodeOrTitle.title);
+            if (!rawTitle) return null;
+            return normalizeNodeTitleKey(rawTitle) === PROTECTED_ROUTE_CONFIG.normalizedTitle ? PROTECTED_ROUTE_CONFIG : null;
         }
 
 // 1. Tự động hiện sau 2 phút (120.000 ms)
@@ -127,7 +143,7 @@ function showThanks() {
             "hd06": { name: "Hướng dẫn 06", shortName: "HD 06", file: "huongdan06.pdf" }
         };
 
-        let APP_DATA = []; let currentEditNodeId = null; let loggedInUser = null; let expandedAdminNodes = new Set(); let isFirstLoadAdmin = true; let lastSearchKeyword = ""; let hasUnsavedChanges = false; let isSystemChangingContent = false; 
+        let APP_DATA = []; let currentEditNodeId = null; let loggedInUser = null; let expandedAdminNodes = new Set(); let isFirstLoadAdmin = true; let lastSearchKeyword = ""; let hasUnsavedChanges = false; let isSystemChangingContent = false; let pendingProtectedRoute = null;
 
         var toolbarOptions = [['bold', 'italic', 'underline'], [{'list': 'ordered'}, [{'list': 'bullet'}], ['link', 'clean']]];
         var quillSummary = new Quill('#inpSummary', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Nhập nội dung tóm tắt...' });
@@ -376,6 +392,7 @@ function showThanks() {
         function viewStandaloneItem(id) {
             let nodeData = findNode(id, APP_DATA);
             if(!nodeData) return;
+            if (openProtectedRouteForNode(nodeData)) return;
             
             let displayTitle = highlightText(nodeData.title || 'Chưa đặt tên', lastSearchKeyword);
             let safeSummary = processLegacyText(nodeData.summary);
@@ -729,6 +746,8 @@ function showThanks() {
 
         function toggleStep(headerEl, event, id, title) {
             if (event && (event.target.closest('a') || event.target.closest('.btn-mini'))) return; if (event) event.stopPropagation();
+            let nodeData = findNode(id, APP_DATA);
+            if (nodeData && openProtectedRouteForNode(nodeData)) return;
             const stepBox = headerEl.parentElement; let parentInner = stepBox.parentElement;
             if (parentInner) { let siblings = parentInner.children; for(let i=0; i<siblings.length; i++) { if (siblings[i] !== stepBox && siblings[i].classList.contains('step-box')) siblings[i].classList.remove('active'); } }
             stepBox.classList.toggle('active');
@@ -763,6 +782,105 @@ function showThanks() {
         }
 
         function closeSearchModal() { document.getElementById('modalSearch').style.display = 'none'; }
+
+        function isAuthenticatedProtectedUser() {
+            return !!(window.firebase && firebase.auth && firebase.auth().currentUser);
+        }
+
+        function redirectToProtectedRoute(route) {
+            if (!route || !route.url) return;
+            window.location.href = route.url;
+        }
+
+        function openProtectedAccessModal(route) {
+            pendingProtectedRoute = route;
+            const overlay = document.getElementById('protectedAccessOverlay');
+            const userEl = document.getElementById('protectedAccessUsername');
+            const passEl = document.getElementById('protectedAccessPassword');
+            const errEl = document.getElementById('protectedAccessError');
+            if (errEl) errEl.style.display = 'none';
+            if (passEl) passEl.value = '';
+            if (overlay) overlay.style.display = 'flex';
+            setTimeout(() => {
+                if (userEl) userEl.focus();
+            }, 60);
+        }
+
+        function closeProtectedAccessModal() {
+            const overlay = document.getElementById('protectedAccessOverlay');
+            const errEl = document.getElementById('protectedAccessError');
+            const passEl = document.getElementById('protectedAccessPassword');
+            if (overlay) overlay.style.display = 'none';
+            if (errEl) errEl.style.display = 'none';
+            if (passEl) passEl.value = '';
+            pendingProtectedRoute = null;
+        }
+
+        function closeProtectedAccessOnBg(event) {
+            if (event && event.target && event.target.id === 'protectedAccessOverlay') {
+                closeProtectedAccessModal();
+            }
+        }
+
+        function submitProtectedAccessLogin() {
+            if (!window.firebase || !firebase.auth) {
+                alert("Chưa tải được dịch vụ xác thực. Vui lòng thử lại.");
+                return;
+            }
+            const userEl = document.getElementById('protectedAccessUsername');
+            const passEl = document.getElementById('protectedAccessPassword');
+            const errEl = document.getElementById('protectedAccessError');
+            const btn = document.querySelector('.protected-access-btn');
+            let username = (userEl && userEl.value ? userEl.value : '').trim().toLowerCase();
+            const password = (passEl && passEl.value ? passEl.value : '').trim();
+
+            if (!username || !password) {
+                if (errEl) {
+                    errEl.textContent = "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.";
+                    errEl.style.display = 'block';
+                }
+                return;
+            }
+
+            const email = username.includes('@') ? username : `${username}@sotay.com`;
+            const originalText = btn ? btn.innerText : "";
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = "ĐANG XÁC THỰC...";
+            }
+            if (errEl) errEl.style.display = 'none';
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    const route = pendingProtectedRoute;
+                    closeProtectedAccessModal();
+                    redirectToProtectedRoute(route);
+                })
+                .catch(() => {
+                    if (errEl) {
+                        errEl.textContent = "Thông tin đăng nhập không hợp lệ hoặc tài khoản chưa được cấp quyền.";
+                        errEl.style.display = 'block';
+                    }
+                    if (passEl) passEl.value = '';
+                })
+                .finally(() => {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerText = originalText || "MỞ HỆ THỐNG DỮ LIỆU";
+                    }
+                });
+        }
+
+        function openProtectedRouteForNode(nodeOrTitle) {
+            const route = getProtectedRouteForNode(nodeOrTitle);
+            if (!route) return false;
+            if (isAuthenticatedProtectedUser()) {
+                redirectToProtectedRoute(route);
+            } else {
+                openProtectedAccessModal(route);
+            }
+            return true;
+        }
 
         let noticeList = [];
         let latestNotice = null;
@@ -1249,6 +1367,11 @@ if (tagFilter) {
 }
         
         function jumpToResult(id) {
+            let nodeToOpen = findNode(id, APP_DATA);
+            if (nodeToOpen && openProtectedRouteForNode(nodeToOpen)) {
+                closeSearchModal();
+                return;
+            }
             closeSearchModal(); switchTab('quydinh');
             setTimeout(() => {
                 let el = document.getElementById(id);
@@ -1257,7 +1380,7 @@ if (tagFilter) {
                     while (parentNode && parentNode.id !== 'dynamicContent') { if (parentNode.classList.contains('step-box')) parentNode.classList.add('active'); parentNode = parentNode.parentElement; }
                     if (el.classList.contains('step-box')) el.classList.add('active');
                     
-                    let nodeToOpen = findNode(id, APP_DATA); 
+                    nodeToOpen = findNode(id, APP_DATA); 
                     if(nodeToOpen) { updateBreadcrumb(id); addRecentView(nodeToOpen.id, nodeToOpen.title); setLastRead(nodeToOpen.id, nodeToOpen.title); }
                     window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 100, behavior: "smooth" });
                     let oBg = el.style.backgroundColor; el.style.backgroundColor = "rgba(241, 196, 15, 0.2)"; setTimeout(() => el.style.backgroundColor = oBg || '', 2000); 
@@ -1275,7 +1398,7 @@ if (tagFilter) {
             if (typeof f !== 'undefined') { if(f) { sb.classList.add('active'); ov.classList.add('active'); } else { sb.classList.remove('active'); ov.classList.remove('active'); } } else { sb.classList.toggle('active'); ov.classList.toggle('active'); } 
         }
         
-        function showPopup(id) { let nodeData = findNode(id, APP_DATA); if(nodeData && nodeData.detail) { let safeDetail = processLegacyText(nodeData.detail); document.getElementById('noi-dung-chi-tiet').innerHTML = highlightText(safeDetail, lastSearchKeyword); document.getElementById('modalTrichDan').style.display = 'flex'; updateBreadcrumb(id); addRecentView(id, nodeData.title); } }
+        function showPopup(id) { let nodeData = findNode(id, APP_DATA); if(nodeData && openProtectedRouteForNode(nodeData)) return; if(nodeData && nodeData.detail) { let safeDetail = processLegacyText(nodeData.detail); document.getElementById('noi-dung-chi-tiet').innerHTML = highlightText(safeDetail, lastSearchKeyword); document.getElementById('modalTrichDan').style.display = 'flex'; updateBreadcrumb(id); addRecentView(id, nodeData.title); } }
         function closePopup(id) { document.getElementById(id).style.display = 'none'; }
         function closeModalOnBgClick(e, id) { if(e.target.id === id) closePopup(id); }
         function topFunction() { window.scrollTo({top: 0, behavior: 'smooth'}); }
@@ -1377,7 +1500,7 @@ if (tagFilter) {
         function processLogin() { 
             let user = document.getElementById('username').value.trim().toLowerCase(); let pass = document.getElementById('password').value; let errBox = document.getElementById('loginError'); 
             let email = user.includes('@') ? user : user + '@sotay.com';
-            const btnLogin = document.querySelector('.btn-login'); btnLogin.innerHTML = "ĐANG KIỂM TRA..."; btnLogin.disabled = true;
+            const btnLogin = document.querySelector('#loginOverlay .btn-login'); btnLogin.innerHTML = "ĐANG KIỂM TRA..."; btnLogin.disabled = true;
             firebase.auth().signInWithEmailAndPassword(email, pass).then((userCredential) => {
                 loggedInUser = userCredential.user.email.split('@')[0]; document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b style="text-transform: capitalize;">${loggedInUser}</b>`; renderAdminTree(); btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
             }).catch((error) => { errBox.style.display = 'block'; document.getElementById('password').value = ''; btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false; });
@@ -1836,4 +1959,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    let protectedUserInput = document.getElementById('protectedAccessUsername');
+    let protectedPassInput = document.getElementById('protectedAccessPassword');
+    [protectedUserInput, protectedPassInput].forEach(el => {
+        if (!el) return;
+        el.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitProtectedAccessLogin();
+            }
+        });
+    });
 });
