@@ -190,6 +190,7 @@ function showThanks() {
             else if(tabId === 'hoidap') headerTitle.innerText = "HỎI ĐÁP NGHIỆP VỤ";
             else if(tabId === 'bieumau') headerTitle.innerText = "BIỂU MẪU TẢI VỀ";
             else if(tabId === 'tailieu') headerTitle.innerText = "TÀI LIỆU HƯỚNG DẪN";
+            else if(tabId === 'danhba') headerTitle.innerText = "DANH BẠ CHUYỂN SHĐ";
             
             if (lastSearchKeyword !== "") {
                 lastSearchKeyword = "";
@@ -197,6 +198,10 @@ function showThanks() {
                 document.getElementById('homeSearchInput').value = "";
                 renderUserInterface();
                 renderFAQAndForms();
+            }
+
+            if (tabId === 'danhba' && typeof renderDirectoryTab === 'function') {
+                renderDirectoryTab();
             }
 
             window.scrollTo({top: 0, behavior: 'smooth'});
@@ -1502,12 +1507,12 @@ if (tagFilter) {
             let email = user.includes('@') ? user : user + '@sotay.com';
             const btnLogin = document.querySelector('#loginOverlay .btn-login'); btnLogin.innerHTML = "ĐANG KIỂM TRA..."; btnLogin.disabled = true;
             firebase.auth().signInWithEmailAndPassword(email, pass).then((userCredential) => {
-                loggedInUser = userCredential.user.email.split('@')[0]; document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b style="text-transform: capitalize;">${loggedInUser}</b>`; renderAdminTree(); btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
+                loggedInUser = userCredential.user.email.split('@')[0]; document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b style="text-transform: capitalize;">${loggedInUser}</b>`; renderAdminTree(); document.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { loggedIn: true, user: loggedInUser } })); btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
             }).catch((error) => { errBox.style.display = 'block'; document.getElementById('password').value = ''; btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false; });
         }
         function openLoginForm() { toggleMenu(false); document.getElementById('loginOverlay').style.display = 'flex'; }
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
-        function closeAdminPanel() { if(!confirmUnsaved()) return; firebase.auth().signOut().then(() => { document.getElementById('adminPanel').style.display = 'none'; loggedInUser = null; }); }
+        function closeAdminPanel() { if(typeof getCurrentAdminMode === 'function' && getCurrentAdminMode() === 'directory') { if (typeof confirmDirectoryUnsaved === 'function' && !confirmDirectoryUnsaved()) return; } else { if(!confirmUnsaved()) return; } firebase.auth().signOut().then(() => { document.getElementById('adminPanel').style.display = 'none'; loggedInUser = null; document.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { loggedIn: false, user: null } })); }); }
         
         function toggleAccordion(headerEl) {
             let parentGroup = headerEl.parentElement; 

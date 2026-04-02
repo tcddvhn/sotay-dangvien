@@ -44,6 +44,7 @@
         <symbol id="icon-book-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></symbol>
         <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></symbol>
         <symbol id="icon-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="4" cy="6" r="1"></circle><circle cx="4" cy="12" r="1"></circle><circle cx="4" cy="18" r="1"></circle></symbol>
+        <symbol id="icon-directory" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"></path><path d="M8 3v4"></path><path d="M16 3v4"></path><circle cx="8.5" cy="11" r="1.5"></circle><path d="M6.8 15.2c.6-1 1.5-1.5 2.7-1.5 1.1 0 2 .5 2.6 1.5"></path><line x1="13" y1="11" x2="17" y2="11"></line><line x1="13" y1="15" x2="17" y2="15"></line></symbol>
         <symbol id="icon-robot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="5" y="8" width="14" height="10" rx="2"></rect>
             <path d="M9 8V6"></path>
@@ -93,6 +94,10 @@
             <svg class="nav-icon" width="24" height="24"><use href="#icon-file"></use></svg>
             <span>Tài liệu</span>
         </div>
+        <div class="nav-item" onclick="switchTab('danhba')" id="nav-danhba">
+            <svg class="nav-icon" width="24" height="24"><use href="#icon-directory"></use></svg>
+            <span>Danh bạ</span>
+        </div>
     </nav>
 
     <main class="main-content">
@@ -115,6 +120,12 @@
                     </button>
                 </div>
             </div>
+
+            <button id="homeDirectoryBanner" class="home-directory-banner" onclick="switchTab('danhba')" aria-label="Mở Danh bạ chuyển sinh hoạt đảng">
+                <span class="home-directory-banner-icon"><svg width="22" height="22"><use href="#icon-directory"></use></svg></span>
+                <span class="home-directory-banner-text">Danh bạ chuyển sinh hoạt đảng</span>
+                <span class="home-directory-banner-arrow"><i class="fas fa-chevron-right"></i></span>
+            </button>
 
             <div id="continueReading" class="continue-banner" style="display:none;">
                 <div class="continue-text">Tiếp tục đọc mục:</div>
@@ -189,6 +200,32 @@
                 </select>
             </div>
             <div id="docListContainer"></div>
+        </div>
+        <div id="tab-danhba" class="tab-pane">
+            <div class="directory-hero">
+                <div>
+                    <h1>Danh bạ chuyển sinh hoạt đảng</h1>
+                    <p class="directory-hero-desc">Tra cứu nhanh đơn vị theo 3 cấp và xem thông tin liên hệ cơ bản của từng đơn vị.</p>
+                </div>
+                <div class="directory-summary" id="directorySummary">
+                    <div class="directory-summary-value">132</div>
+                    <div class="directory-summary-label">Đơn vị cấp 1</div>
+                </div>
+            </div>
+            <div class="directory-toolbar">
+                <div class="directory-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="directorySearchInput" placeholder="Tìm theo tên đơn vị, mã đơn vị, số điện thoại, địa chỉ..." autocomplete="off">
+                </div>
+                <select id="directoryLevelFilter" class="directory-level-filter">
+                    <option value="">Tất cả cấp</option>
+                    <option value="1">Cấp 1</option>
+                    <option value="2">Cấp 2</option>
+                    <option value="3">Cấp 3</option>
+                </select>
+            </div>
+            <div id="directoryStatusNote" class="directory-status-note" style="display:none;"></div>
+            <div id="directoryListContainer"></div>
         </div>
 
     </main>
@@ -415,20 +452,34 @@
         </div>
         <div class="admin-layout">
             <div class="admin-sidebar">
+                <div class="admin-mode-switch">
+                    <button id="btnAdminModeContent" class="admin-mode-btn active" onclick="switchAdminMode('content')">Biên tập nội dung</button>
+                    <button id="btnAdminModeDirectory" class="admin-mode-btn" onclick="switchAdminMode('directory')">Quản trị danh bạ</button>
+                </div>
+                <div id="adminContentSidebarPane">
                 <div style="font-weight:bold; margin-bottom:5px; color: var(--primary-color);">CÂY THƯ MỤC CHUNG</div>
                 <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 10px; font-style: italic;">Mẹo: Kéo thả thư mục để chuyển cấp</div>
                 <input type="text" id="adminSearchInput" class="form-control" style="padding: 8px; font-size: 0.95rem; font-family: -apple-system, sans-serif; margin-bottom: 10px;" placeholder="Lọc nhanh thư mục để sửa...">
                 <button class="btn btn-add" style="width: 100%;" onclick="addNewRoot()">+ Thêm Phần Lớn</button>
                 <div class="tree-container" id="adminTree"></div>
+                </div>
+                <div id="adminDirectorySidebarPane" style="display:none;">
+                    <div style="font-weight:bold; margin-bottom:5px; color: var(--primary-color);">CÂY DANH BẠ 3 CẤP</div>
+                    <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 10px; font-style: italic;">Khởi tạo sẵn 132 đơn vị cấp 1 từ danh sách gốc. Có thể thêm cấp 2 và cấp 3 trong quản trị.</div>
+                    <input type="text" id="directoryAdminSearchInput" class="form-control" style="padding: 8px; font-size: 0.95rem; font-family: -apple-system, sans-serif; margin-bottom: 10px;" placeholder="Lọc nhanh đơn vị danh bạ...">
+                    <button class="btn btn-add" style="width: 100%; margin-bottom: 10px;" onclick="addDirectoryRoot()">+ Thêm đơn vị cấp 1</button>
+                    <div class="tree-container" id="directoryAdminTree"></div>
+                </div>
             </div>
             <div class="admin-main">
                 <div style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap:wrap; gap:10px;">
                     <div>
-                        <h2 style="margin:0; color: var(--text-main);">Biên tập Nội dung</h2>
+                        <h2 id="adminSectionTitle" style="margin:0; color: var(--text-main);">Biên tập Nội dung</h2>
                         <div id="adminWelcome" style="color:#27ae60; font-weight:bold; font-size:0.9rem;"></div>
                     </div>
                     <button class="btn btn-close" onclick="closeAdminPanel()">Thoát Quản trị</button>
                 </div>
+                <div id="adminContentPane">
                 <div class="admin-banner">
                     <div class="admin-banner-title">
                         <i class="fas fa-bullhorn"></i>
@@ -514,10 +565,82 @@
                 <div id="editorPlaceholder" style="text-align:center; color:#999; margin-top:50px;">
                     <span style="font-size: 40px; color: #ddd;">👈</span><br>Hãy chọn một mục bên trái để chỉnh sửa độc lập
                 </div>
+                </div>
+                <div id="adminDirectoryPane" style="display:none;">
+                    <div class="admin-banner admin-banner-directory">
+                        <div class="admin-banner-title">
+                            <svg width="18" height="18"><use href="#icon-directory"></use></svg>
+                            Quản trị danh bạ chuyển sinh hoạt đảng
+                        </div>
+                        <div class="admin-banner-actions">
+                            <button class="btn-mini btn-mini-detail" onclick="addDirectoryChild()">+ Thêm cấp dưới</button>
+                        </div>
+                    </div>
+                    <div id="directoryEditorArea" style="display:none; padding-bottom: 80px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
+                            <div id="directoryEditorHeading" class="directory-editor-heading">Đang chỉnh sửa: Đơn vị</div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="btn btn-add" style="font-size: 0.85rem;" onclick="addDirectorySibling()">+ Thêm cùng cấp</button>
+                                <button class="btn btn-add" style="font-size: 0.85rem;" onclick="addDirectoryChild()">+ Thêm cấp dưới</button>
+                                <button class="btn btn-delete" style="font-size: 0.85rem;" onclick="deleteCurrentDirectoryItem()">Xóa đơn vị</button>
+                            </div>
+                        </div>
+
+                        <div class="directory-admin-grid">
+                            <div>
+                                <label class="directory-admin-label">Tên đơn vị</label>
+                                <input type="text" id="dirInpName" class="form-control" placeholder="Nhập tên đơn vị">
+                            </div>
+                            <div>
+                                <label class="directory-admin-label">Mã đơn vị</label>
+                                <input type="text" id="dirInpCode" class="form-control" placeholder="Nhập mã đơn vị">
+                            </div>
+                            <div>
+                                <label class="directory-admin-label">Cấp đơn vị</label>
+                                <input type="text" id="dirInpLevel" class="form-control" readonly>
+                            </div>
+                            <div>
+                                <label class="directory-admin-label">Đơn vị cha</label>
+                                <input type="text" id="dirInpParent" class="form-control" readonly>
+                            </div>
+                        </div>
+
+                        <div class="directory-admin-grid">
+                            <div>
+                                <label class="directory-admin-label">Số điện thoại</label>
+                                <input type="text" id="dirInpPhone" class="form-control" placeholder="Ví dụ: 0243xxxxxxx">
+                            </div>
+                            <div>
+                                <label class="directory-admin-label">Vị trí</label>
+                                <input type="text" id="dirInpLocation" class="form-control" placeholder="Ví dụ: Khu vực nội thành, huyện...">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="directory-admin-label">Địa chỉ liên hệ</label>
+                            <textarea id="dirInpAddress" class="form-control directory-admin-textarea" placeholder="Nhập địa chỉ liên hệ"></textarea>
+                        </div>
+
+                        <div class="directory-admin-toggle">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:bold; color:var(--text-main);">
+                                <input type="checkbox" id="dirInpActive" style="width:18px; height:18px;">
+                                Hiển thị ra ngoài giao diện người dùng
+                            </label>
+                        </div>
+
+                        <div style="position: sticky; bottom: 15px; display: flex; justify-content: flex-end; pointer-events: none; margin-top: 10px;">
+                            <button id="btnSaveDirectory" style="pointer-events: auto; background: #b30f14; color: white; border: none; font-weight: bold; padding: 12px 20px; font-size: 1rem; border-radius: 4px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);" onclick="saveCurrentDirectoryItem()">LƯU DANH BẠ</button>
+                        </div>
+                    </div>
+                    <div id="directoryEditorPlaceholder" style="text-align:center; color:#999; margin-top:50px;">
+                        <span style="font-size: 40px; color: #ddd;">📇</span><br>Hãy chọn một đơn vị bên trái để chỉnh sửa danh bạ
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <script src="directory-seed.js?v=20260402" defer></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js" defer></script>
@@ -525,6 +648,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js" defer></script>
 
     <script src="app.js?v=20260317" defer></script>
+    <script src="directory-module.js?v=20260402" defer></script>
 <div id="autoSurveyOverlay" class="survey-overlay" style="display: none;">
     <div class="survey-card" style="position: relative; background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
         
