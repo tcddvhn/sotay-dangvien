@@ -327,11 +327,12 @@
         });
 
         if (note) {
-            note.style.display = 'block';
             if (keyword || levelValue) {
-                note.textContent = `Tìm thấy ${filtered.length} đơn vị phù hợp. Danh bạ được khởi tạo sẵn 132 đơn vị cấp 1 từ danh sách gốc; thông tin liên hệ chi tiết sẽ được cập nhật dần trong quản trị.`;
+                note.style.display = 'block';
+                note.textContent = `Tìm thấy ${filtered.length} đơn vị phù hợp.`;
             } else {
-                note.textContent = 'Danh bạ được khởi tạo sẵn 132 đơn vị cấp 1 từ danh sách gốc. Thông tin số điện thoại, địa chỉ liên hệ và vị trí đang được admin cập nhật dần trong quản trị.';
+                note.style.display = 'none';
+                note.textContent = '';
             }
         }
 
