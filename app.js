@@ -1583,6 +1583,11 @@ if (tagFilter) {
             return msg.includes('high demand') || msg.includes('experiencing high demand');
         }
 
+        function isSystemErrorLikeMessage(text) {
+            const msg = (text || '').toLowerCase();
+            return msg.includes('lỗi hệ thống') || msg.includes('error:') || isHighDemandErrorMessage(msg);
+        }
+
         function getFriendlyChatErrorMessage(text) {
             if (isHighDemandErrorMessage(text)) {
                 return "Trợ lý AI đang có nhiều lượt truy cập cùng lúc. Hệ thống đã thử lại nhưng chưa nhận được phản hồi ổn định, đồng chí vui lòng gửi lại sau ít phút.";
@@ -1661,7 +1666,16 @@ if (tagFilter) {
                 let botDiv = document.createElement('div');
                 botDiv.className = 'msg msg-bot';
 
-                let replyText = result.reply || (result.error ? getFriendlyChatErrorMessage(result.error) : "Xin lỗi, tôi không thể trả lời lúc này.");
+                let replyText = "";
+                if (result.reply && !isSystemErrorLikeMessage(result.reply)) {
+                    replyText = result.reply;
+                } else if (result.error) {
+                    replyText = getFriendlyChatErrorMessage(result.error);
+                } else if (result.reply && isSystemErrorLikeMessage(result.reply)) {
+                    replyText = getFriendlyChatErrorMessage(result.reply);
+                } else {
+                    replyText = "Xin lỗi, tôi không thể trả lời lúc này.";
+                }
                 botDiv.innerHTML = renderSafeMarkdown(replyText);
                 chatBody.appendChild(botDiv);
                 chatBody.scrollTop = chatBody.scrollHeight;
