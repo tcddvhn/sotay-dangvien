@@ -1574,6 +1574,54 @@ if (tagFilter) {
             return escaped;
         }
 
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function isHighDemandErrorMessage(text) {
+            const msg = (text || '').toLowerCase();
+            return msg.includes('high demand') || msg.includes('experiencing high demand');
+        }
+
+        function getFriendlyChatErrorMessage(text) {
+            if (isHighDemandErrorMessage(text)) {
+                return "Trợ lý AI đang có nhiều lượt truy cập cùng lúc. Hệ thống đã thử lại nhưng chưa nhận được phản hồi ổn định, đồng chí vui lòng gửi lại sau ít phút.";
+            }
+            return "Hệ thống AI đang tạm thời gián đoạn. Đồng chí vui lòng thử lại sau.";
+        }
+
+        async function requestChatbotReply(message) {
+            const WEB_APP_URL = CONFIG.CHATBOT_WEB_APP_URL;
+            const payload = buildAuthPayload({ message: message });
+            let response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload),
+                redirect: 'follow'
+            });
+            return response.json();
+        }
+
+        async function requestChatbotReplyWithRetry(message) {
+            const maxAttempts = 3;
+            let lastResult = null;
+
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                const result = await requestChatbotReply(message);
+                lastResult = result;
+
+                if (!result || !result.error || !isHighDemandErrorMessage(result.error)) {
+                    return result;
+                }
+
+                if (attempt < maxAttempts) {
+                    await sleep(1200 * attempt);
+                }
+            }
+
+            return lastResult || { error: "Lỗi hệ thống chưa xác định." };
+        }
+
         window.addEventListener('resize', () => {
             let chatBox = document.getElementById('chatBox');
             if (chatBox && chatBox.style.display === 'flex') centerChatBox();
@@ -1606,25 +1654,14 @@ if (tagFilter) {
             chatBody.scrollTop = chatBody.scrollHeight;
             typingEl.style.display = 'block';
 
-            // DÁN URL CỦA GOOGLE APPS SCRIPT Ở BƯỚC 2 VÀO ĐÂY
-            const WEB_APP_URL = CONFIG.CHATBOT_WEB_APP_URL;
-
             try {
-                const payload = buildAuthPayload({ message: message });
-                let response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload),
-                    redirect: 'follow' // Thêm dòng này để trình duyệt đi theo luồng dữ liệu của Google
-                });
-                
-                let result = await response.json();
+                let result = await requestChatbotReplyWithRetry(message);
                 typingEl.style.display = 'none';
 
                 let botDiv = document.createElement('div');
                 botDiv.className = 'msg msg-bot';
-                
-                let replyText = result.reply || result.error || "Xin lỗi, tôi không thể trả lời lúc này.";
+
+                let replyText = result.reply || (result.error ? getFriendlyChatErrorMessage(result.error) : "Xin lỗi, tôi không thể trả lời lúc này.");
                 botDiv.innerHTML = renderSafeMarkdown(replyText);
                 chatBody.appendChild(botDiv);
                 chatBody.scrollTop = chatBody.scrollHeight;
@@ -1633,7 +1670,7 @@ if (tagFilter) {
                 typingEl.style.display = 'none';
                 let botDiv = document.createElement('div');
                 botDiv.className = 'msg msg-bot';
-                botDiv.innerText = "Tôi đang nghiên cứu câu hỏi của bạn, bạn có thể hỏi tiếp nội dung khác!";
+                botDiv.innerText = "Hệ thống AI đang tạm thời gián đoạn. Đồng chí vui lòng thử lại sau.";
                 chatBody.appendChild(botDiv);
             }
         }
