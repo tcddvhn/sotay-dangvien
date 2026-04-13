@@ -17,6 +17,7 @@ public sealed class MockContentService : IContentService
             Tag = "Quy định",
             SummaryHtml = "Dữ liệu mẫu để dựng API thay Firestore.",
             DetailHtml = "Nội dung này chỉ là placeholder. Khi chuyển hệ thống thật, dữ liệu sẽ đọc từ SQL Server.",
+            ForceAccordion = false,
             Level = 0,
             SortOrder = 1,
             IsActive = true
@@ -29,6 +30,7 @@ public sealed class MockContentService : IContentService
             Tag = "Hỏi đáp",
             SummaryHtml = "Tóm tắt mẫu.",
             DetailHtml = "Chi tiết mẫu.",
+            ForceAccordion = false,
             Level = 1,
             SortOrder = 1,
             IsActive = true
@@ -78,6 +80,7 @@ public sealed class MockContentService : IContentService
             entity.FileUrl = request.FileUrl;
             entity.FileName = request.FileName;
             entity.PdfRefsJson = request.PdfRefsJson;
+            entity.ForceAccordion = request.ForceAccordion;
             entity.Level = level;
             entity.SortOrder = request.SortOrder;
             entity.IsActive = request.IsActive;
@@ -108,6 +111,16 @@ public sealed class MockContentService : IContentService
         }
     }
 
+    public Task<IReadOnlyList<ContentNodeDto>> SyncTreeAsync(ContentTreeSyncRequest request, CancellationToken cancellationToken)
+    {
+        lock (Sync)
+        {
+            Store.Clear();
+            Flatten(request.Tree, request.UpdatedBy, Store);
+            return Task.FromResult<IReadOnlyList<ContentNodeDto>>(BuildTree(parentId: null));
+        }
+    }
+
     private static IReadOnlyList<ContentNodeDto> BuildTree(Guid? parentId)
         => Store
             .Where(x => x.ParentId == parentId)
@@ -119,6 +132,10 @@ public sealed class MockContentService : IContentService
                 x.Tag,
                 x.SummaryHtml,
                 x.DetailHtml,
+                x.FileUrl,
+                x.FileName,
+                x.PdfRefsJson,
+                x.ForceAccordion,
                 x.Level,
                 x.SortOrder,
                 x.IsActive,
@@ -132,10 +149,44 @@ public sealed class MockContentService : IContentService
             item.Tag,
             item.SummaryHtml,
             item.DetailHtml,
+            item.FileUrl,
+            item.FileName,
+            item.PdfRefsJson,
+            item.ForceAccordion,
             item.Level,
             item.SortOrder,
             item.IsActive,
             BuildTree(item.Id));
+
+    private static void Flatten(
+        IEnumerable<ContentNodeTreeItem> nodes,
+        string? updatedBy,
+        List<MockContentState> output)
+    {
+        foreach (var node in nodes)
+        {
+            output.Add(new MockContentState
+            {
+                Id = node.Id,
+                ParentId = node.ParentId,
+                Title = node.Title,
+                Tag = node.Tag,
+                SummaryHtml = node.SummaryHtml,
+                DetailHtml = node.DetailHtml,
+                FileUrl = node.FileUrl,
+                FileName = node.FileName,
+                PdfRefsJson = node.PdfRefsJson,
+                ForceAccordion = node.ForceAccordion,
+                Level = node.Level,
+                SortOrder = node.SortOrder,
+                IsActive = node.IsActive,
+                UpdatedBy = updatedBy,
+                UpdatedAt = DateTime.UtcNow
+            });
+
+            Flatten(node.Children, updatedBy, output);
+        }
+    }
 
     private sealed class MockContentState
     {
@@ -156,6 +207,8 @@ public sealed class MockContentService : IContentService
         public string? FileName { get; set; }
 
         public string? PdfRefsJson { get; set; }
+
+        public bool ForceAccordion { get; set; }
 
         public int Level { get; set; }
 

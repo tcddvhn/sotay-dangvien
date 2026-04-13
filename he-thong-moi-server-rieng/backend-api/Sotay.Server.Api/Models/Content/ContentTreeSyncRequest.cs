@@ -1,7 +1,11 @@
 namespace Sotay.Server.Api.Models.Content;
 
-public sealed record ContentNodeSaveRequest(
-    Guid? Id,
+public sealed record ContentTreeSyncRequest(
+    IReadOnlyList<ContentNodeTreeItem> Tree,
+    string? UpdatedBy);
+
+public sealed record ContentNodeTreeItem(
+    Guid Id,
     Guid? ParentId,
     string Title,
     string? Tag,
@@ -11,7 +15,7 @@ public sealed record ContentNodeSaveRequest(
     string? FileName,
     string? PdfRefsJson,
     bool ForceAccordion,
-    int? Level,
+    int Level,
     int SortOrder,
     bool IsActive,
-    string? UpdatedBy);
+    IReadOnlyList<ContentNodeTreeItem> Children);

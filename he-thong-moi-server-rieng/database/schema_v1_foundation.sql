@@ -49,6 +49,7 @@ CREATE TABLE core.ContentNodes
     FileUrl NVARCHAR(1000) NULL,
     FileName NVARCHAR(255) NULL,
     PdfRefsJson NVARCHAR(MAX) NULL,
+    ForceAccordion BIT NOT NULL CONSTRAINT DF_ContentNodes_ForceAccordion DEFAULT(0),
     Level INT NOT NULL CONSTRAINT DF_ContentNodes_Level DEFAULT(0),
     SortOrder INT NOT NULL CONSTRAINT DF_ContentNodes_SortOrder DEFAULT(0),
     IsActive BIT NOT NULL CONSTRAINT DF_ContentNodes_IsActive DEFAULT(1),

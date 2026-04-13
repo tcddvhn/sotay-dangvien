@@ -11,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection(DatabaseOptions.SectionName));
 builder.Services.Configure<ChatbotOptions>(builder.Configuration.GetSection(ChatbotOptions.SectionName));
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
+builder.Services.Configure<AdminSeedOptions>(builder.Configuration.GetSection(AdminSeedOptions.SectionName));
+builder.Services.Configure<SampleDataSeedOptions>(builder.Configuration.GetSection(SampleDataSeedOptions.SectionName));
 
 builder.Services.AddCors(options =>
 {
@@ -73,6 +75,8 @@ if (!string.IsNullOrWhiteSpace(databaseConnectionString))
     builder.Services.AddScoped<IContentService, SqlContentService>();
     builder.Services.AddScoped<IDirectoryService, SqlDirectoryService>();
     builder.Services.AddScoped<IAdminAuthService, IdentityAdminAuthService>();
+    builder.Services.AddHostedService<AdminSeedHostedService>();
+    builder.Services.AddHostedService<SampleDataSeedHostedService>();
 }
 else
 {

@@ -11,4 +11,6 @@ public interface IDirectoryService
     Task<DirectoryUnitDto> SaveAsync(DirectoryUnitSaveRequest request, CancellationToken cancellationToken);
 
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<DirectoryUnitDto>> SyncTreeAsync(DirectoryTreeSyncRequest request, CancellationToken cancellationToken);
 }

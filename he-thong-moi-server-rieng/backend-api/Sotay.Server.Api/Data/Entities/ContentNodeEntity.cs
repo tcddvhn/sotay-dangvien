@@ -20,6 +20,8 @@ public sealed class ContentNodeEntity
 
     public string? PdfRefsJson { get; set; }
 
+    public bool ForceAccordion { get; set; }
+
     public int Level { get; set; }
 
     public int SortOrder { get; set; }

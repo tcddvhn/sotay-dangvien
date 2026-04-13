@@ -53,4 +53,14 @@ public sealed class DirectoryController(IDirectoryService directoryService) : Co
 
         return Ok(new ApiEnvelope<object>(true, null, "Xóa đơn vị thành công."));
     }
+
+    [HttpPost("tree/sync")]
+    public async Task<ActionResult<ApiEnvelope<IReadOnlyList<DirectoryUnitDto>>>> SyncTree(
+        [FromBody] DirectoryTreeSyncRequest request,
+        CancellationToken cancellationToken)
+    {
+        var tree = request.Tree ?? Array.Empty<DirectoryTreeItem>();
+        var data = await directoryService.SyncTreeAsync(request with { Tree = tree }, cancellationToken);
+        return Ok(new ApiEnvelope<IReadOnlyList<DirectoryUnitDto>>(true, data, "Đồng bộ cây danh bạ thành công."));
+    }
 }

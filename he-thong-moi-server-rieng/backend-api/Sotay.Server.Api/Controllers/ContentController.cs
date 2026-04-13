@@ -53,4 +53,14 @@ public sealed class ContentController(IContentService contentService) : Controll
 
         return Ok(new ApiEnvelope<object>(true, null, "Xóa nội dung thành công."));
     }
+
+    [HttpPost("tree/sync")]
+    public async Task<ActionResult<ApiEnvelope<IReadOnlyList<ContentNodeDto>>>> SyncTree(
+        [FromBody] ContentTreeSyncRequest request,
+        CancellationToken cancellationToken)
+    {
+        var tree = request.Tree ?? Array.Empty<ContentNodeTreeItem>();
+        var data = await contentService.SyncTreeAsync(request with { Tree = tree }, cancellationToken);
+        return Ok(new ApiEnvelope<IReadOnlyList<ContentNodeDto>>(true, data, "Đồng bộ cây nội dung thành công."));
+    }
 }

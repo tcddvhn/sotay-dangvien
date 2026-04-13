@@ -29,4 +29,7 @@ public sealed class MockAdminAuthService : IAdminAuthService
             "SuperAdmin",
             "Đăng nhập mock thành công."));
     }
+
+    public Task LogoutAsync(CancellationToken cancellationToken)
+        => Task.CompletedTask;
 }

@@ -20,3 +20,9 @@
 - Bổ sung `DbContext`, entity và service đọc `SQL Server` cho `content` và `directory` trong backend mới; backend hỗ trợ chế độ fallback sang mock khi chưa cấu hình `ConnectionString`.
 - Bổ sung nền `ASP.NET Core Identity` ở mức dữ liệu, mở CRUD nền cho `content` và `directory`, và cập nhật schema `auth` cho hệ thống mới trong workspace tách biệt.
 - Bổ sung service đăng nhập admin theo `Identity`, service chatbot gateway gọi API AI theo cấu hình, `ApplicationDbContextFactory` cho migration, và tài liệu tạo migration cho hệ thống mới.
+- Chuyển `frontend-static` sang lớp API mới cho `content`, `directory`, `admin auth`, `chatbot`, bổ sung endpoint `tree/sync` ở backend mới, và tạo tài liệu trạng thái chuyển frontend.
+- Bổ sung `AdminSeedHostedService` và cấu hình `AdminSeed` để có thể seed tài khoản quản trị đầu tiên khi backend mới chạy trên môi trường có `.NET SDK`.
+- Bổ sung cấu hình môi trường `Test`, `launchSettings.json`, và checklist smoke test cho backend mới để chuẩn bị chạy thử trên máy có `.NET SDK`.
+- Bổ sung `SampleDataSeedHostedService`, cấu hình `SampleDataSeed`, và tài liệu hướng dẫn seed dữ liệu mẫu test cho `content` và `directory` trong hệ thống mới.
+- Tạo bộ file Postman/environment mẫu và tài liệu import để đội test có thể gọi trực tiếp các API chính của backend mới.
+- Tạo `go_live_checklist_chuyen_he_thong_that.md` để dùng cho ngày cutover thật từ hệ thống cũ sang hệ thống mới.

@@ -54,6 +54,7 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
         entity.FileUrl = request.FileUrl;
         entity.FileName = request.FileName;
         entity.PdfRefsJson = request.PdfRefsJson;
+        entity.ForceAccordion = request.ForceAccordion;
         entity.Level = parent is not null ? parent.Level + 1 : request.Level ?? 0;
         entity.SortOrder = request.SortOrder;
         entity.IsActive = request.IsActive;
@@ -88,6 +89,19 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
         return true;
     }
 
+    public async Task<IReadOnlyList<ContentNodeDto>> SyncTreeAsync(ContentTreeSyncRequest request, CancellationToken cancellationToken)
+    {
+        var existing = await dbContext.ContentNodes.ToListAsync(cancellationToken);
+        dbContext.ContentNodes.RemoveRange(existing);
+
+        var flattened = new List<ContentNodeEntity>();
+        Flatten(request.Tree, request.UpdatedBy, flattened);
+        dbContext.ContentNodes.AddRange(flattened);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return await GetTreeAsync(cancellationToken);
+    }
+
     private static IReadOnlyList<ContentNodeDto> BuildTree(
         IReadOnlyList<ContentNodeEntity> allNodes,
         Guid? parentId)
@@ -102,6 +116,10 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
                 x.Tag,
                 x.SummaryHtml,
                 x.DetailHtml,
+                x.FileUrl,
+                x.FileName,
+                x.PdfRefsJson,
+                x.ForceAccordion,
                 x.Level,
                 x.SortOrder,
                 x.IsActive,
@@ -115,9 +133,45 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
             entity.Tag,
             entity.SummaryHtml,
             entity.DetailHtml,
+            entity.FileUrl,
+            entity.FileName,
+            entity.PdfRefsJson,
+            entity.ForceAccordion,
             entity.Level,
             entity.SortOrder,
             entity.IsActive,
             Array.Empty<ContentNodeDto>());
+
+    private static void Flatten(
+        IEnumerable<ContentNodeTreeItem> nodes,
+        string? updatedBy,
+        List<ContentNodeEntity> output)
+    {
+        foreach (var node in nodes)
+        {
+            output.Add(new ContentNodeEntity
+            {
+                Id = node.Id,
+                ParentId = node.ParentId,
+                Title = node.Title,
+                Tag = node.Tag,
+                SummaryHtml = node.SummaryHtml,
+                DetailHtml = node.DetailHtml,
+                FileUrl = node.FileUrl,
+                FileName = node.FileName,
+                PdfRefsJson = node.PdfRefsJson,
+                ForceAccordion = node.ForceAccordion,
+                Level = node.Level,
+                SortOrder = node.SortOrder,
+                IsActive = node.IsActive,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                CreatedBy = updatedBy,
+                UpdatedBy = updatedBy
+            });
+
+            Flatten(node.Children, updatedBy, output);
+        }
+    }
 }
 }

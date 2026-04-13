@@ -12,6 +12,7 @@ Thư mục này hiện đã có skeleton dự án tại:
 - Đã mở CRUD nền cho `content` và `directory`.
 - Đã bổ sung nền `ASP.NET Core Identity` ở mức dữ liệu và service registration.
 - Đã có `IdentityAdminAuthService`: nếu có DB thì login admin đi qua `Identity`.
+- Đã có `AdminSeedHostedService`: có thể seed admin đầu tiên bằng cấu hình.
 - Đã có `OpenAiChatbotService`: nếu có API key thì chatbot đi qua backend gateway gọi API AI.
 - Nếu chưa cấu hình `ConnectionString`, backend sẽ tự chạy bằng `mock service`.
 - Nếu có `ConnectionString`, `content` và `directory` sẽ đi qua `SQL Server`.
@@ -42,3 +43,6 @@ Thư mục này hiện đã có skeleton dự án tại:
 ## Tài liệu hỗ trợ
 
 - `../docs/huong_dan_tao_migration_identity_va_database.md`
+- `../docs/checklist_smoke_test_backend_moi.md`
+- `../docs/huong_dan_seed_du_lieu_mau_test.md`
+- `../docs/postman/README.md`

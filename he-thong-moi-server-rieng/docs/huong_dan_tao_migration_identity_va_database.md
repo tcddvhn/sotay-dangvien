@@ -61,9 +61,11 @@ dotnet ef database update
 - có thư mục `Migrations/`
 - có bảng nghiệp vụ `core`, `directory`, `survey`, `chatbot`, `notify`, `audit`
 - có bảng `Identity` đặt trong schema `auth`
+- nếu bật `AdminSeed.Enabled = true`, backend có thể tự tạo admin đầu tiên khi chạy
 
 ## 5. Lưu ý
 
 - chỉ chạy migration lên môi trường test trước
 - không update production trước khi đối soát schema
 - nếu schema được tạo bằng SQL script trước đó, cần thống nhất một đường quản lý chính để tránh lệch
+- sau khi seed admin lần đầu thành công, nên tắt `AdminSeed.Enabled` hoặc đổi mật khẩu ngay

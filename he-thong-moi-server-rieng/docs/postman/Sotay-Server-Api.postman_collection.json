@@ -1,0 +1,193 @@
+{
+  "info": {
+    "name": "Sotay Server API",
+    "_postman_id": "c8c62a62-20f8-4633-8756-fd9d307af345",
+    "description": "Bo request mau de smoke test backend moi cua he thong So tay.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        }
+      }
+    },
+    {
+      "name": "Admin Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "admin", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "Admin Logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/auth/logout",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "admin", "auth", "logout"]
+        }
+      }
+    },
+    {
+      "name": "Get Content Tree",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/content/tree",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "content", "tree"]
+        }
+      }
+    },
+    {
+      "name": "Save Content Node",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": null,\n  \"parentId\": null,\n  \"title\": \"Noi dung test\",\n  \"tag\": \"test\",\n  \"summaryHtml\": \"<p>Tom tat test</p>\",\n  \"detailHtml\": \"<p>Chi tiet test</p>\",\n  \"fileUrl\": \"\",\n  \"fileName\": \"\",\n  \"pdfRefsJson\": \"[]\",\n  \"forceAccordion\": false,\n  \"level\": 0,\n  \"sortOrder\": 1,\n  \"isActive\": true,\n  \"updatedBy\": \"{{adminUsername}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/content/save",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "content", "save"]
+        }
+      }
+    },
+    {
+      "name": "Sync Content Tree",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"updatedBy\": \"{{adminUsername}}\",\n  \"tree\": [\n    {\n      \"id\": \"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1\",\n      \"parentId\": null,\n      \"title\": \"PHAN 1\",\n      \"tag\": \"Quy dinh\",\n      \"summaryHtml\": \"<p>Noi dung test</p>\",\n      \"detailHtml\": \"<p>Chi tiet test</p>\",\n      \"fileUrl\": \"\",\n      \"fileName\": \"\",\n      \"pdfRefsJson\": \"[]\",\n      \"forceAccordion\": false,\n      \"level\": 0,\n      \"sortOrder\": 1,\n      \"isActive\": true,\n      \"children\": []\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/content/tree/sync",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "content", "tree", "sync"]
+        }
+      }
+    },
+    {
+      "name": "Get Directory Tree",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/directory/tree",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "directory", "tree"]
+        }
+      }
+    },
+    {
+      "name": "Save Directory Unit",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": null,\n  \"parentId\": null,\n  \"name\": \"Don vi test\",\n  \"unitCode\": \"DVTEST\",\n  \"level\": 1,\n  \"phone\": \"024-0000000\",\n  \"address\": \"Ha Noi\",\n  \"location\": \"Phong test\",\n  \"sortOrder\": 1,\n  \"isActive\": true,\n  \"updatedBy\": \"{{adminUsername}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/directory/save",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "directory", "save"]
+        }
+      }
+    },
+    {
+      "name": "Sync Directory Tree",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"updatedBy\": \"{{adminUsername}}\",\n  \"tree\": [\n    {\n      \"id\": \"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1\",\n      \"parentId\": null,\n      \"name\": \"Don vi cap 1 mau\",\n      \"unitCode\": \"DV001\",\n      \"level\": 1,\n      \"phone\": \"024-0000000\",\n      \"address\": \"Ha Noi\",\n      \"location\": \"Tang 1\",\n      \"sortOrder\": 1,\n      \"isActive\": true,\n      \"children\": []\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/directory/tree/sync",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "directory", "tree", "sync"]
+        }
+      }
+    },
+    {
+      "name": "Ask Chatbot",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Chao ban\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/chatbot/ask",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "chatbot", "ask"]
+        }
+      }
+    }
+  ]
+}

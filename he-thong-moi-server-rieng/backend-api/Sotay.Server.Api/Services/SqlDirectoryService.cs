@@ -86,6 +86,19 @@ public sealed class SqlDirectoryService(ApplicationDbContext dbContext) : IDirec
         return true;
     }
 
+    public async Task<IReadOnlyList<DirectoryUnitDto>> SyncTreeAsync(DirectoryTreeSyncRequest request, CancellationToken cancellationToken)
+    {
+        var existing = await dbContext.DirectoryUnits.ToListAsync(cancellationToken);
+        dbContext.DirectoryUnits.RemoveRange(existing);
+
+        var flattened = new List<DirectoryUnitEntity>();
+        Flatten(request.Tree, request.UpdatedBy, flattened);
+        dbContext.DirectoryUnits.AddRange(flattened);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return await GetTreeAsync(cancellationToken);
+    }
+
     private static IReadOnlyList<DirectoryUnitDto> BuildTree(
         IReadOnlyList<DirectoryUnitEntity> allUnits,
         Guid? parentId)
@@ -121,5 +134,34 @@ public sealed class SqlDirectoryService(ApplicationDbContext dbContext) : IDirec
             entity.SortOrder,
             entity.IsActive,
             Array.Empty<DirectoryUnitDto>());
+
+    private static void Flatten(
+        IEnumerable<DirectoryTreeItem> nodes,
+        string? updatedBy,
+        List<DirectoryUnitEntity> output)
+    {
+        foreach (var node in nodes)
+        {
+            output.Add(new DirectoryUnitEntity
+            {
+                Id = node.Id,
+                ParentId = node.ParentId,
+                Name = node.Name,
+                UnitCode = node.UnitCode,
+                Level = node.Level,
+                Phone = node.Phone,
+                Address = node.Address,
+                Location = node.Location,
+                SortOrder = node.SortOrder,
+                IsActive = node.IsActive,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                CreatedBy = updatedBy,
+                UpdatedBy = updatedBy
+            });
+
+            Flatten(node.Children, updatedBy, output);
+        }
+    }
 }
 }

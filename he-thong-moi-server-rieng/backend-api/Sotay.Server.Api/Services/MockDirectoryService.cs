@@ -108,6 +108,16 @@ public sealed class MockDirectoryService : IDirectoryService
         }
     }
 
+    public Task<IReadOnlyList<DirectoryUnitDto>> SyncTreeAsync(DirectoryTreeSyncRequest request, CancellationToken cancellationToken)
+    {
+        lock (Sync)
+        {
+            Store.Clear();
+            Flatten(request.Tree, request.UpdatedBy, Store);
+            return Task.FromResult<IReadOnlyList<DirectoryUnitDto>>(BuildTree(parentId: null));
+        }
+    }
+
     private static IReadOnlyList<DirectoryUnitDto> BuildTree(Guid? parentId)
         => Store
             .Where(x => x.ParentId == parentId)
@@ -140,6 +150,33 @@ public sealed class MockDirectoryService : IDirectoryService
             item.SortOrder,
             item.IsActive,
             BuildTree(item.Id));
+
+    private static void Flatten(
+        IEnumerable<DirectoryTreeItem> nodes,
+        string? updatedBy,
+        List<MockDirectoryState> output)
+    {
+        foreach (var node in nodes)
+        {
+            output.Add(new MockDirectoryState
+            {
+                Id = node.Id,
+                ParentId = node.ParentId,
+                Name = node.Name,
+                UnitCode = node.UnitCode,
+                Level = node.Level,
+                Phone = node.Phone,
+                Address = node.Address,
+                Location = node.Location,
+                SortOrder = node.SortOrder,
+                IsActive = node.IsActive,
+                UpdatedBy = updatedBy,
+                UpdatedAt = DateTime.UtcNow
+            });
+
+            Flatten(node.Children, updatedBy, output);
+        }
+    }
 
     private sealed class MockDirectoryState
     {

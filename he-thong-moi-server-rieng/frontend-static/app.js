@@ -2,6 +2,11 @@
         // CONFIG
         // =====================
         const CONFIG = {
+            SERVER_API_BASE_URL: "/api",
+            ENABLE_SERVER_CONTENT_API: true,
+            ENABLE_SERVER_DIRECTORY_API: true,
+            ENABLE_SERVER_AUTH_API: true,
+            ENABLE_SERVER_CHATBOT_API: true,
             SURVEY_API_URL: "https://script.google.com/macros/s/AKfycby1oXVzH9EeR0v1j2goesabdRwKECaUWLJNuPaeOJNBbsF0p5kAsgc53c-ISqOg491z/exec",
             CHATBOT_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwmOiTZdM6_Faew-OOTMzNhE8rkWGhVgTkBIzYcSntnD2MCkBKn-nnDgXwk-_Vs8xR7/exec",
             STATS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwi-3O5tJQeXy8We87nOdg3f0lYf2-DUI71G9jNyx-Z_fVUy6lWIQ4nXvvi9FFB0v0w/exec",
@@ -52,6 +57,238 @@
             const token = btoa(`${CONFIG.API_KEY}:${ts}`);
             return { ...payload, ts, token };
         }
+
+        function getServerApiBaseUrl() {
+            return String(CONFIG.SERVER_API_BASE_URL || '').replace(/\/+$/, '');
+        }
+
+        function isServerApiEnabled(flagName) {
+            return Boolean(CONFIG[flagName]) && Boolean(getServerApiBaseUrl());
+        }
+
+        function createClientNodeId() {
+            if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+                return window.crypto.randomUUID();
+            }
+            return `node_${Date.now()}_${Math.random().toString(16).slice(2, 10)}`;
+        }
+
+        function parseJsonSafe(text, fallback) {
+            try {
+                const parsed = JSON.parse(text);
+                return parsed;
+            } catch {
+                return fallback;
+            }
+        }
+
+        async function serverApiRequest(path, options = {}) {
+            const base = getServerApiBaseUrl();
+            if (!base) throw new Error('SERVER_API_BASE_URL chưa được cấu hình.');
+            const response = await fetch(`${base}${path}`, {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(options.headers || {})
+                },
+                ...options
+            });
+
+            const raw = await response.text();
+            const payload = raw ? parseJsonSafe(raw, null) : null;
+
+            if (!response.ok) {
+                const message = payload && payload.message ? payload.message : `HTTP ${response.status}`;
+                throw new Error(message);
+            }
+
+            if (payload && payload.success === false) {
+                throw new Error(payload.message || 'API trả về trạng thái thất bại.');
+            }
+
+            return payload && Object.prototype.hasOwnProperty.call(payload, 'data') ? payload.data : payload;
+        }
+
+        function mapServerContentNodeToLegacy(node) {
+            const pdfRefs = Array.isArray(node?.pdfRefsJson)
+                ? node.pdfRefsJson
+                : parseJsonSafe(node?.pdfRefsJson || '[]', []);
+
+            return {
+                id: String(node?.id || createClientNodeId()),
+                title: String(node?.title || ''),
+                tag: String(node?.tag || ''),
+                summary: String(node?.summary || ''),
+                detail: String(node?.detail || ''),
+                fileUrl: String(node?.fileUrl || ''),
+                fileName: String(node?.fileName || ''),
+                pdfRefs: Array.isArray(pdfRefs) ? pdfRefs : [],
+                forceAccordion: node?.forceAccordion === true,
+                level: Number(node?.level || 0),
+                order: Number(node?.sortOrder || 0),
+                isActive: node?.isActive !== false,
+                children: (node?.children || []).map(mapServerContentNodeToLegacy)
+            };
+        }
+
+        function mapLegacyContentNodeToServer(node, parentId = null, fallbackOrder = 0) {
+            return {
+                id: String(node.id || createClientNodeId()),
+                parentId,
+                title: String(node.title || ''),
+                tag: String(node.tag || ''),
+                summaryHtml: String(node.summary || ''),
+                detailHtml: String(node.detail || ''),
+                fileUrl: String(node.fileUrl || ''),
+                fileName: String(node.fileName || ''),
+                pdfRefsJson: JSON.stringify(Array.isArray(node.pdfRefs) ? node.pdfRefs : []),
+                forceAccordion: node.forceAccordion === true,
+                level: Number(node.level || 0),
+                sortOrder: Number(node.order || fallbackOrder || 0),
+                isActive: node.isActive !== false,
+                children: (node.children || []).map((child, index) =>
+                    mapLegacyContentNodeToServer(child, String(node.id || ''), index + 1))
+            };
+        }
+
+        function mapServerDirectoryNodeToLegacy(node) {
+            return {
+                id: String(node?.id || createClientNodeId()),
+                name: String(node?.name || ''),
+                unitCode: String(node?.unitCode || ''),
+                level: Number(node?.level || 1),
+                parentId: node?.parentId ? String(node.parentId) : null,
+                phone: String(node?.phone || ''),
+                address: String(node?.address || ''),
+                location: String(node?.location || ''),
+                isActive: node?.isActive !== false,
+                order: Number(node?.sortOrder || 0),
+                children: (node?.children || []).map(mapServerDirectoryNodeToLegacy)
+            };
+        }
+
+        function mapLegacyDirectoryNodeToServer(node, parentId = null, fallbackOrder = 0) {
+            return {
+                id: String(node.id || createClientNodeId()),
+                parentId,
+                name: String(node.name || ''),
+                unitCode: String(node.unitCode || ''),
+                level: Number(node.level || 1),
+                phone: String(node.phone || ''),
+                address: String(node.address || ''),
+                location: String(node.location || ''),
+                sortOrder: Number(node.order || fallbackOrder || 0),
+                isActive: node.isActive !== false,
+                children: (node.children || []).map((child, index) =>
+                    mapLegacyDirectoryNodeToServer(child, String(node.id || ''), index + 1))
+            };
+        }
+
+        window.SOTAY_SERVER_API = {
+            canUseContentApi() {
+                return isServerApiEnabled('ENABLE_SERVER_CONTENT_API');
+            },
+            canUseDirectoryApi() {
+                return isServerApiEnabled('ENABLE_SERVER_DIRECTORY_API');
+            },
+            canUseAuthApi() {
+                return isServerApiEnabled('ENABLE_SERVER_AUTH_API');
+            },
+            canUseChatbotApi() {
+                return isServerApiEnabled('ENABLE_SERVER_CHATBOT_API');
+            },
+            createClientNodeId,
+            async getContentTree() {
+                const data = await serverApiRequest('/content/tree');
+                return (data || []).map(mapServerContentNodeToLegacy);
+            },
+            async syncContentTree(tree, updatedBy) {
+                const data = await serverApiRequest('/content/tree/sync', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        tree: (tree || []).map((node, index) => mapLegacyContentNodeToServer(node, null, index + 1)),
+                        updatedBy: updatedBy || 'admin'
+                    })
+                });
+                return (data || []).map(mapServerContentNodeToLegacy);
+            },
+            async saveContentNode(node, updatedBy) {
+                const data = await serverApiRequest('/content/save', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        id: node.id || null,
+                        parentId: node.parentId || null,
+                        title: node.title || '',
+                        tag: node.tag || '',
+                        summaryHtml: node.summary || '',
+                        detailHtml: node.detail || '',
+                        fileUrl: node.fileUrl || '',
+                        fileName: node.fileName || '',
+                        pdfRefsJson: JSON.stringify(Array.isArray(node.pdfRefs) ? node.pdfRefs : []),
+                        forceAccordion: node.forceAccordion === true,
+                        level: node.level || 0,
+                        sortOrder: node.order || 0,
+                        isActive: node.isActive !== false,
+                        updatedBy: updatedBy || 'admin'
+                    })
+                });
+                return mapServerContentNodeToLegacy(data);
+            },
+            async deleteContentNode(id) {
+                await serverApiRequest(`/content/${encodeURIComponent(id)}`, { method: 'DELETE' });
+            },
+            async loginAdmin(username, password) {
+                return serverApiRequest('/admin/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+            },
+            async logoutAdmin() {
+                return serverApiRequest('/admin/auth/logout', { method: 'POST', body: '{}' });
+            },
+            async askChatbot(message, conversationId) {
+                return serverApiRequest('/chatbot/ask', {
+                    method: 'POST',
+                    body: JSON.stringify({ message, conversationId: conversationId || null })
+                });
+            },
+            async getDirectoryTree() {
+                const data = await serverApiRequest('/directory/tree');
+                return (data || []).map(mapServerDirectoryNodeToLegacy);
+            },
+            async syncDirectoryTree(tree, updatedBy) {
+                const data = await serverApiRequest('/directory/tree/sync', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        tree: (tree || []).map((node, index) => mapLegacyDirectoryNodeToServer(node, null, index + 1)),
+                        updatedBy: updatedBy || 'admin'
+                    })
+                });
+                return (data || []).map(mapServerDirectoryNodeToLegacy);
+            },
+            async saveDirectoryNode(node, updatedBy) {
+                const data = await serverApiRequest('/directory/save', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        id: node.id || null,
+                        parentId: node.parentId || null,
+                        name: node.name || '',
+                        unitCode: node.unitCode || '',
+                        level: node.level || 1,
+                        phone: node.phone || '',
+                        address: node.address || '',
+                        location: node.location || '',
+                        sortOrder: node.order || 0,
+                        isActive: node.isActive !== false,
+                        updatedBy: updatedBy || 'admin'
+                    })
+                });
+                return mapServerDirectoryNodeToLegacy(data);
+            },
+            async deleteDirectoryNode(id) {
+                await serverApiRequest(`/directory/${encodeURIComponent(id)}`, { method: 'DELETE' });
+            }
+        };
 
         function normalizeNodeTitleKey(text) {
             return removeAccents((text || '').toLowerCase())
@@ -355,13 +592,14 @@ function showThanks() {
 
         const thongKeRef = db ? db.collection("sotay").doc("thongke") : null;
         function getLocalTodayString() { return new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0]; }
- 
 
-        if (db) db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
-            if (doc.exists) { APP_DATA = doc.data().treeData || []; } else { APP_DATA = [{ id: 'r1', title: 'PHẦN 1', tag: '', summary: '', detail: '', level: 0, children: [] }]; }
+        function applyLoadedAppData(tree) {
+            APP_DATA = (tree && tree.length)
+                ? tree
+                : [{ id: createClientNodeId(), title: 'PHẦN 1', tag: '', summary: '', detail: '', level: 0, children: [], order: 1, isActive: true }];
             try { localStorage.setItem('sotay_cached_tree', JSON.stringify(APP_DATA)); } catch(e) {}
-            
-            if (isFirstLoadAdmin && APP_DATA.length > 0) { 
+
+            if (isFirstLoadAdmin && APP_DATA.length > 0) {
                 function initExpand(nodes) {
                     nodes.forEach(n => {
                         expandedAdminNodes.add(n.id);
@@ -369,18 +607,45 @@ function showThanks() {
                     });
                 }
                 initExpand(APP_DATA);
-                isFirstLoadAdmin = false; 
+                isFirstLoadAdmin = false;
             }
-            
+
             renderHomeCategories(); renderFAQAndForms(); renderUserInterface(); renderRecentViews(); renderFavorites(); renderContinueReading();
             if (document.getElementById('adminPanel').style.display === 'block') { renderAdminTree(); }
-        });
-        else {
+        }
+
+        async function loadAppDataFromServerApi() {
+            const data = await window.SOTAY_SERVER_API.getContentTree();
+            applyLoadedAppData(data);
+        }
+
+        if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseContentApi()) {
+            loadAppDataFromServerApi().catch(() => {
+                if (db) {
+                    db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
+                        applyLoadedAppData(doc.exists ? (doc.data().treeData || []) : []);
+                    });
+                    return;
+                }
+
+                try {
+                    const cached = JSON.parse(localStorage.getItem('sotay_cached_tree') || '[]');
+                    applyLoadedAppData(cached);
+                } catch(e) {
+                    applyLoadedAppData([]);
+                }
+            });
+        } else if (db) {
+            db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
+                applyLoadedAppData(doc.exists ? (doc.data().treeData || []) : []);
+            });
+        } else {
             try {
                 const cached = JSON.parse(localStorage.getItem('sotay_cached_tree') || '[]');
-                if (cached && cached.length) APP_DATA = cached;
-            } catch(e) {}
-            renderHomeCategories(); renderFAQAndForms(); renderUserInterface(); renderRecentViews(); renderFavorites(); renderContinueReading();
+                applyLoadedAppData(cached);
+            } catch(e) {
+                applyLoadedAppData([]);
+            }
         }
 
         function renderHomeCategories() {
@@ -828,10 +1093,6 @@ function showThanks() {
         }
 
         function submitProtectedAccessLogin() {
-            if (!window.firebase || !firebase.auth) {
-                alert("Chưa tải được dịch vụ xác thực. Vui lòng thử lại.");
-                return;
-            }
             const userEl = document.getElementById('protectedAccessUsername');
             const passEl = document.getElementById('protectedAccessPassword');
             const errEl = document.getElementById('protectedAccessError');
@@ -848,6 +1109,7 @@ function showThanks() {
             }
 
             const email = username.includes('@') ? username : `${username}@sotay.com`;
+            const authLogin = (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseAuthApi()) ? username : email;
             const originalText = btn ? btn.innerText : "";
             if (btn) {
                 btn.disabled = true;
@@ -855,8 +1117,15 @@ function showThanks() {
             }
             if (errEl) errEl.style.display = 'none';
 
-            firebase.auth().signInWithEmailAndPassword(email, password)
+            const loginTask = (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseAuthApi())
+                ? window.SOTAY_SERVER_API.loginAdmin(authLogin, password)
+                : (!window.firebase || !firebase.auth)
+                    ? Promise.reject(new Error('Chưa tải được dịch vụ xác thực.'))
+                    : firebase.auth().signInWithEmailAndPassword(email, password);
+
+            Promise.resolve(loginTask)
                 .then(() => {
+                    loggedInUser = username;
                     const route = pendingProtectedRoute;
                     closeProtectedAccessModal();
                     redirectToProtectedRoute(route);
@@ -1410,10 +1679,36 @@ if (tagFilter) {
 
         let draggedNodeId = null;
         function saveTreeToFirebase(newTree) { 
+            if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseContentApi()) {
+                window.SOTAY_SERVER_API.syncContentTree(newTree, loggedInUser || 'admin')
+                    .then((serverTree) => {
+                        applyLoadedAppData(serverTree);
+                    })
+                    .catch(err => alert("Lỗi khi đồng bộ cây nội dung: " + err.message));
+                return;
+            }
             if (!db) { alert("Không kết nối được Firebase. Vui lòng kiểm tra mạng hoặc tải lại trang."); return; }
             db.collection("sotay").doc("dulieu").update({ treeData: newTree }).catch(err => alert("Lỗi khi lưu cấu trúc: " + err)); 
         }
         function confirmUnsaved() { if (hasUnsavedChanges) return confirm("⚠️ Bạn có thay đổi chưa lưu! Xác nhận rời đi và HUỶ BỎ những thay đổi vừa nhập?"); return true; }
+
+        function createNewContentNode(level) {
+            return {
+                id: createClientNodeId(),
+                title: level === 0 ? 'PHẦN MỚI TẠO' : 'Mục con mới',
+                tag: '',
+                summary: '',
+                detail: '',
+                fileUrl: '',
+                fileName: '',
+                pdfRefs: [],
+                forceAccordion: false,
+                level,
+                order: 9999,
+                isActive: true,
+                children: []
+            };
+        }
 
         function moveNodeUp(e, id) { e.stopPropagation(); if(!confirmUnsaved()) return; let serverTree = JSON.parse(JSON.stringify(APP_DATA)); function process(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === id) { if(i > 0) { let temp = nodes[i]; nodes[i] = nodes[i-1]; nodes[i-1] = temp; return true; } return true; } if(nodes[i].children && process(nodes[i].children)) return true; } return false; } if(process(serverTree)) saveTreeToFirebase(serverTree); }
         function moveNodeDown(e, id) { e.stopPropagation(); if(!confirmUnsaved()) return; let serverTree = JSON.parse(JSON.stringify(APP_DATA)); function process(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === id) { if(i < nodes.length - 1) { let temp = nodes[i]; nodes[i] = nodes[i+1]; nodes[i+1] = temp; return true; } return true; } if(nodes[i].children && process(nodes[i].children)) return true; } return false; } if(process(serverTree)) saveTreeToFirebase(serverTree); }
@@ -1450,6 +1745,21 @@ if (tagFilter) {
                 forceAccordion: document.getElementById('inpForceAccordion').checked,
                 updatedAt: new Date().toISOString()
             };
+            if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseContentApi()) {
+                const currentNode = findNode(currentEditNodeId, APP_DATA);
+                window.SOTAY_SERVER_API.saveContentNode({ ...(currentNode || {}), ...updatedData }, loggedInUser || 'admin')
+                    .then(async () => {
+                        await loadAppDataFromServerApi();
+                        btn.disabled = false;
+                        resetSaveButton();
+                    })
+                    .catch((err) => {
+                        btn.disabled = false;
+                        resetSaveButton();
+                        alert("Lỗi đồng bộ API: " + err.message);
+                    });
+                return;
+            }
             if (!db) { alert("Không kết nối được Firebase. Vui lòng kiểm tra mạng hoặc tải lại trang."); btn.innerText = "LƯU MỤC NÀY"; btn.disabled = false; return; }
             const docRef = db.collection("sotay").doc("dulieu");
             db.runTransaction((transaction) => {
@@ -1461,9 +1771,43 @@ if (tagFilter) {
             }).then(() => { btn.disabled = false; resetSaveButton(); }).catch((err) => { btn.disabled = false; resetSaveButton(); alert("Lỗi đồng bộ: " + err); });
         }
 
-        function addNewRoot() { if(!confirmUnsaved()) return; let newNode = {id: 'r'+Date.now(), title:'PHẦN MỚI TẠO', tag:'', summary:'', detail:'', level:0, children:[]}; const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; serverTree.push(newNode); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { selectItem(newNode.id); }); }
-        function addSubItem() { if(!confirmUnsaved()) return; if(!currentEditNodeId) return; let parentNode = findNode(currentEditNodeId, APP_DATA); if(!parentNode) return; let newNode = {id: 'n'+Date.now(), title:'Mục con mới', tag:'', summary:'', detail:'', level: parentNode.level + 1, children:[]}; expandedAdminNodes.add(currentEditNodeId); const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; function appendChild(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === currentEditNodeId) { if(!nodes[i].children) nodes[i].children = []; nodes[i].children.push(newNode); return true; } if(nodes[i].children && appendChild(nodes[i].children)) return true; } return false; } appendChild(serverTree); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { selectItem(newNode.id); }); }
-        function deleteCurrentItem() { if(!currentEditNodeId || !confirm('CẢNH BÁO: Bạn có chắc chắn muốn XÓA mục này? Toàn bộ mục con bên trong cũng sẽ bị xóa vĩnh viễn!')) return; const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; function removeNode(nodes) { let idx = nodes.findIndex(c => c.id === currentEditNodeId); if(idx > -1) { nodes.splice(idx, 1); return true; } for(let i=0; i<nodes.length; i++){ if(nodes[i].children && removeNode(nodes[i].children)) return true; } return false; } removeNode(serverTree); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { currentEditNodeId = null; hasUnsavedChanges = false; document.getElementById('editorArea').style.display='none'; document.getElementById('editorPlaceholder').style.display='block'; }); }
+        function addNewRoot() {
+            if(!confirmUnsaved()) return;
+            let newNode = createNewContentNode(0);
+            if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseContentApi()) {
+                const nextTree = JSON.parse(JSON.stringify(APP_DATA || []));
+                nextTree.push(newNode);
+                saveTreeToFirebase(nextTree);
+                setTimeout(() => { selectItem(newNode.id); }, 150);
+                return;
+            }
+            const docRef = db.collection("sotay").doc("dulieu");
+            db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; serverTree.push(newNode); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { selectItem(newNode.id); });
+        }
+        function addSubItem() {
+            if(!confirmUnsaved()) return; if(!currentEditNodeId) return; let parentNode = findNode(currentEditNodeId, APP_DATA); if(!parentNode) return; let newNode = createNewContentNode(parentNode.level + 1);
+            if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseContentApi()) {
+                const nextTree = JSON.parse(JSON.stringify(APP_DATA || []));
+                function appendChild(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === currentEditNodeId) { if(!nodes[i].children) nodes[i].children = []; nodes[i].children.push(newNode); return true; } if(nodes[i].children && appendChild(nodes[i].children)) return true; } return false; }
+                appendChild(nextTree);
+                expandedAdminNodes.add(currentEditNodeId);
+                saveTreeToFirebase(nextTree);
+                setTimeout(() => { selectItem(newNode.id); }, 150);
+                return;
+            }
+            expandedAdminNodes.add(currentEditNodeId); const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; function appendChild(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === currentEditNodeId) { if(!nodes[i].children) nodes[i].children = []; nodes[i].children.push(newNode); return true; } if(nodes[i].children && appendChild(nodes[i].children)) return true; } return false; } appendChild(serverTree); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { selectItem(newNode.id); });
+        }
+        function deleteCurrentItem() {
+            if(!currentEditNodeId || !confirm('CẢNH BÁO: Bạn có chắc chắn muốn XÓA mục này? Toàn bộ mục con bên trong cũng sẽ bị xóa vĩnh viễn!')) return;
+            if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseContentApi()) {
+                window.SOTAY_SERVER_API.deleteContentNode(currentEditNodeId)
+                    .then(() => loadAppDataFromServerApi())
+                    .then(() => { currentEditNodeId = null; hasUnsavedChanges = false; document.getElementById('editorArea').style.display='none'; document.getElementById('editorPlaceholder').style.display='block'; })
+                    .catch((err) => alert("Lỗi xóa nội dung: " + err.message));
+                return;
+            }
+            const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; function removeNode(nodes) { let idx = nodes.findIndex(c => c.id === currentEditNodeId); if(idx > -1) { nodes.splice(idx, 1); return true; } for(let i=0; i<nodes.length; i++){ if(nodes[i].children && removeNode(nodes[i].children)) return true; } return false; } removeNode(serverTree); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { currentEditNodeId = null; hasUnsavedChanges = false; document.getElementById('editorArea').style.display='none'; document.getElementById('editorPlaceholder').style.display='block'; });
+        }
 
         function toggleAdminNode(event, id) { event.stopPropagation(); if (expandedAdminNodes.has(id)) expandedAdminNodes.delete(id); else expandedAdminNodes.add(id); renderAdminTree(); }
         function filterAdminTree() {
@@ -1505,14 +1849,43 @@ if (tagFilter) {
         function processLogin() { 
             let user = document.getElementById('username').value.trim().toLowerCase(); let pass = document.getElementById('password').value; let errBox = document.getElementById('loginError'); 
             let email = user.includes('@') ? user : user + '@sotay.com';
+            let authLogin = (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseAuthApi()) ? user : email;
             const btnLogin = document.querySelector('#loginOverlay .btn-login'); btnLogin.innerHTML = "ĐANG KIỂM TRA..."; btnLogin.disabled = true;
-            firebase.auth().signInWithEmailAndPassword(email, pass).then((userCredential) => {
-                loggedInUser = userCredential.user.email.split('@')[0]; document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b style="text-transform: capitalize;">${loggedInUser}</b>`; renderAdminTree(); document.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { loggedIn: true, user: loggedInUser } })); btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
-            }).catch((error) => { errBox.style.display = 'block'; document.getElementById('password').value = ''; btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false; });
+
+            const loginTask = (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseAuthApi())
+                ? window.SOTAY_SERVER_API.loginAdmin(authLogin, pass)
+                : (!window.firebase || !firebase.auth)
+                    ? Promise.reject(new Error('Chưa tải được dịch vụ xác thực.'))
+                    : firebase.auth().signInWithEmailAndPassword(email, pass);
+
+            Promise.resolve(loginTask).then((result) => {
+                loggedInUser = user;
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b style="text-transform: capitalize;">${loggedInUser}</b>`;
+                renderAdminTree();
+                document.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { loggedIn: true, user: loggedInUser, auth: result || null } }));
+                btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ";
+                btnLogin.disabled = false;
+            }).catch(() => {
+                errBox.style.display = 'block'; document.getElementById('password').value = ''; btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
+            });
         }
         function openLoginForm() { toggleMenu(false); document.getElementById('loginOverlay').style.display = 'flex'; }
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
-        function closeAdminPanel() { if(typeof getCurrentAdminMode === 'function' && getCurrentAdminMode() === 'directory') { if (typeof confirmDirectoryUnsaved === 'function' && !confirmDirectoryUnsaved()) return; } else { if(!confirmUnsaved()) return; } firebase.auth().signOut().then(() => { document.getElementById('adminPanel').style.display = 'none'; loggedInUser = null; document.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { loggedIn: false, user: null } })); }); }
+        function closeAdminPanel() {
+            if(typeof getCurrentAdminMode === 'function' && getCurrentAdminMode() === 'directory') { if (typeof confirmDirectoryUnsaved === 'function' && !confirmDirectoryUnsaved()) return; } else { if(!confirmUnsaved()) return; }
+            const logoutTask = (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseAuthApi())
+                ? window.SOTAY_SERVER_API.logoutAdmin()
+                : (!window.firebase || !firebase.auth)
+                    ? Promise.resolve()
+                    : firebase.auth().signOut();
+            Promise.resolve(logoutTask).finally(() => {
+                document.getElementById('adminPanel').style.display = 'none';
+                loggedInUser = null;
+                document.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { loggedIn: false, user: null } }));
+            });
+        }
         
         function toggleAccordion(headerEl) {
             let parentGroup = headerEl.parentElement; 
@@ -1596,6 +1969,11 @@ if (tagFilter) {
         }
 
         async function requestChatbotReply(message) {
+            if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseChatbotApi()) {
+                const result = await window.SOTAY_SERVER_API.askChatbot(message);
+                return { reply: result.reply || "" };
+            }
+
             const WEB_APP_URL = CONFIG.CHATBOT_WEB_APP_URL;
             const payload = buildAuthPayload({ message: message });
             let response = await fetch(WEB_APP_URL, {

@@ -88,6 +88,9 @@
     }
 
     function getDirectoryDb() {
+        if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseDirectoryApi()) {
+            return null;
+        }
         try {
             if (window.firebase && firebase.apps && firebase.apps.length) {
                 return firebase.firestore();
@@ -136,6 +139,18 @@
     }
 
     function subscribeDirectoryData() {
+        if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseDirectoryApi()) {
+            window.SOTAY_SERVER_API.getDirectoryTree()
+                .then((tree) => {
+                    setDirectoryData(tree && tree.length ? tree : getSeedDirectoryData());
+                })
+                .catch(() => {
+                    const fallback = readCachedDirectory();
+                    setDirectoryData(fallback.length ? fallback : getSeedDirectoryData());
+                });
+            return;
+        }
+
         const dbRef = getDirectoryDb();
         if (!dbRef) {
             const fallback = readCachedDirectory();
@@ -526,6 +541,18 @@
 
     function saveDirectoryTree(tree, options = {}) {
         const normalized = normalizeDirectoryTree(tree);
+        if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseDirectoryApi()) {
+            window.SOTAY_SERVER_API.syncDirectoryTree(normalized, getCurrentAdminUser())
+                .then((serverTree) => {
+                    setDirectoryData(serverTree, { selectId: options.selectId });
+                    if (options.selectId) fillDirectoryEditor(options.selectId);
+                })
+                .catch((error) => {
+                    alert(`Lỗi khi lưu danh bạ qua API: ${error.message || error}`);
+                });
+            return;
+        }
+
         const dbRef = getDirectoryDb();
         const payload = {
             treeData: normalized,
@@ -551,7 +578,9 @@
 
     function createDirectoryNode(level, parentId = null) {
         return {
-            id: `dir_${Date.now()}_${Math.random().toString(16).slice(2, 7)}`,
+            id: (window.SOTAY_SERVER_API && typeof window.SOTAY_SERVER_API.createClientNodeId === 'function')
+                ? window.SOTAY_SERVER_API.createClientNodeId()
+                : `dir_${Date.now()}_${Math.random().toString(16).slice(2, 7)}`,
             name: level === 1 ? 'Đơn vị cấp 1 mới' : level === 2 ? 'Đơn vị cấp 2 mới' : 'Đơn vị cấp 3 mới',
             unitCode: '',
             level,

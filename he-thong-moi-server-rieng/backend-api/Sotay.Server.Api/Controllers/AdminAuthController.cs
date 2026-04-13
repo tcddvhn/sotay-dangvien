@@ -23,4 +23,11 @@ public sealed class AdminAuthController(IAdminAuthService adminAuthService) : Co
 
         return Ok(new ApiEnvelope<AdminLoginResult>(true, result, result.Message));
     }
+
+    [HttpPost("logout")]
+    public async Task<ActionResult<ApiEnvelope<object>>> Logout(CancellationToken cancellationToken)
+    {
+        await adminAuthService.LogoutAsync(cancellationToken);
+        return Ok(new ApiEnvelope<object>(true, null, "Đăng xuất thành công."));
+    }
 }

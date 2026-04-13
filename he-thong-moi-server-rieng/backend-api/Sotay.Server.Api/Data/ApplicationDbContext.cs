@@ -64,6 +64,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(x => x.FileName).HasMaxLength(255);
             entity.Property(x => x.CreatedBy).HasMaxLength(100);
             entity.Property(x => x.UpdatedBy).HasMaxLength(100);
+            entity.Property(x => x.ForceAccordion).HasDefaultValue(false);
             entity.HasOne(x => x.Parent)
                 .WithMany(x => x.Children)
                 .HasForeignKey(x => x.ParentId)

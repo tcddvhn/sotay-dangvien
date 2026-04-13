@@ -80,4 +80,9 @@ public sealed class IdentityAdminAuthService(
             primaryRole,
             "Đăng nhập thành công qua Identity.");
     }
+
+    public async Task LogoutAsync(CancellationToken cancellationToken)
+    {
+        await signInManager.SignOutAsync();
+    }
 }
