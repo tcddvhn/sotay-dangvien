@@ -11,3 +11,10 @@
 - Bổ sung nghiên cứu giao diện danh bạ dựa trên tài liệu internet và đề xuất UI theo card/list cho 4 trường thông tin chính.
 - Seed sẵn 132 đơn vị cấp 1 từ file Excel `Danh sach don vị.xlsx` vào module `Danh bạ`.
 - Triển khai tab `Danh bạ`, banner trang chủ và quản trị cơ bản cho danh bạ trong mã nguồn.
+- Tạo tài liệu hướng dẫn chi tiết chuyển website sang máy chủ tĩnh Windows Server 2022 tại `docs/huong_dan_chuyen_sotay_sang_windows_server_2022.md`.
+- Tạo thêm checklist triển khai thực địa cho Windows Server 2022 tại `docs/checklist_trien_khai_windows_server_2022.md`.
+- Tạo báo cáo riêng đánh giá ảnh hưởng của `Firebase` và `Google Apps Script` khi đổi sang domain mới và phương án thay thế tại `docs/bao_cao_anh_huong_firebase_va_apps_script_khi_doi_ten_mien.md`.
+- Tạo báo cáo riêng về phương án chuyển toàn bộ hệ thống sang server riêng, thay thế `Firestore`, `Google Apps Script`, `Firebase Auth`, và đánh giá phương án chatbot qua API backend tại `docs/bao_cao_phuong_an_chuyen_toan_bo_sang_server_rieng.md`.
+- Tạo workspace tách biệt `he-thong-moi-server-rieng` để phát triển hệ thống mới song song, bao gồm bản sao frontend hiện tại và các thư mục riêng cho backend, database, tài liệu vận hành song song.
+- Dựng skeleton backend `ASP.NET Core Web API` trong `he-thong-moi-server-rieng/backend-api/Sotay.Server.Api`, tạo schema SQL nền trong `he-thong-moi-server-rieng/database`, và bổ sung hướng dẫn khởi động workspace hệ thống mới.
+- Bổ sung `DbContext`, entity và service đọc `SQL Server` cho `content` và `directory` trong backend mới; backend hỗ trợ chế độ fallback sang mock khi chưa cấu hình `ConnectionString`.
