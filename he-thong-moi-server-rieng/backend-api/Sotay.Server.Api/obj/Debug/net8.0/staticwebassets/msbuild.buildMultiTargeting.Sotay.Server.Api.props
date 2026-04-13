@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Sotay.Server.Api.props" />
+</Project>

@@ -1,0 +1,86 @@
+info: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[63]
+      User profile is available. Using 'C:\Users\ldkie\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+info: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[58]
+      Creating key {c5bc5890-7520-4fb9-bf02-59f3fc00bc9e} with creation date 2026-04-13 09:26:14Z, activation date 2026-04-13 09:26:14Z, and expiration date 2026-07-12 09:26:14Z.
+info: Microsoft.AspNetCore.DataProtection.Repositories.FileSystemXmlRepository[39]
+      Writing data to file 'C:\Users\ldkie\AppData\Local\ASP.NET\DataProtection-Keys\key-c5bc5890-7520-4fb9-bf02-59f3fc00bc9e.xml'.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5243
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Test
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\ldkie\OneDrive\Documents\GitHub\sotay-dangvien\he-thong-moi-server-rieng\backend-api\Sotay.Server.Api
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:5243/api/health - - -
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Sotay.Server.Api.Controllers.HealthController.Get (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "Get", controller = "Health"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.ActionResult`1[Sotay.Server.Api.Models.Common.ApiEnvelope`1[System.Object]] Get() on controller Sotay.Server.Api.Controllers.HealthController (Sotay.Server.Api).
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing OkObjectResult, writing value of type 'Sotay.Server.Api.Models.Common.ApiEnvelope`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action Sotay.Server.Api.Controllers.HealthController.Get (Sotay.Server.Api) in 43.656ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Sotay.Server.Api.Controllers.HealthController.Get (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:5243/api/health - 200 - application/json;+charset=utf-8 136.8581ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:5243/api/content/tree - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Sotay.Server.Api.Controllers.ContentController.GetTree (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "GetTree", controller = "Content"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Sotay.Server.Api.Models.Common.ApiEnvelope`1[System.Collections.Generic.IReadOnlyList`1[Sotay.Server.Api.Models.Content.ContentNodeDto]]]] GetTree(System.Threading.CancellationToken) on controller Sotay.Server.Api.Controllers.ContentController (Sotay.Server.Api).
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing OkObjectResult, writing value of type 'Sotay.Server.Api.Models.Common.ApiEnvelope`1[[System.Collections.Generic.IReadOnlyList`1[[Sotay.Server.Api.Models.Content.ContentNodeDto, Sotay.Server.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action Sotay.Server.Api.Controllers.ContentController.GetTree (Sotay.Server.Api) in 35.0785ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Sotay.Server.Api.Controllers.ContentController.GetTree (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:5243/api/content/tree - 200 - application/json;+charset=utf-8 51.6607ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:5243/api/stats/dashboard - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Sotay.Server.Api.Controllers.StatsController.GetDashboard (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "GetDashboard", controller = "Stats"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Sotay.Server.Api.Models.Common.ApiEnvelope`1[Sotay.Server.Api.Models.Stats.StatsDashboardDto]]] GetDashboard(System.Threading.CancellationToken) on controller Sotay.Server.Api.Controllers.StatsController (Sotay.Server.Api).
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing OkObjectResult, writing value of type 'Sotay.Server.Api.Models.Common.ApiEnvelope`1[[Sotay.Server.Api.Models.Stats.StatsDashboardDto, Sotay.Server.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action Sotay.Server.Api.Controllers.StatsController.GetDashboard (Sotay.Server.Api) in 23.5639ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Sotay.Server.Api.Controllers.StatsController.GetDashboard (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:5243/api/stats/dashboard - 200 - application/json;+charset=utf-8 31.8163ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://localhost:5243/api/survey/submit - application/json 120
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Sotay.Server.Api.Controllers.SurveyController.Submit (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "Submit", controller = "Survey"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Sotay.Server.Api.Models.Common.ApiEnvelope`1[Sotay.Server.Api.Models.Survey.SurveySubmitResult]]] Submit(Sotay.Server.Api.Models.Survey.SurveySubmitRequest, System.Threading.CancellationToken) on controller Sotay.Server.Api.Controllers.SurveyController (Sotay.Server.Api).
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing OkObjectResult, writing value of type 'Sotay.Server.Api.Models.Common.ApiEnvelope`1[[Sotay.Server.Api.Models.Survey.SurveySubmitResult, Sotay.Server.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action Sotay.Server.Api.Controllers.SurveyController.Submit (Sotay.Server.Api) in 41.8088ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Sotay.Server.Api.Controllers.SurveyController.Submit (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://localhost:5243/api/survey/submit - 200 - application/json;+charset=utf-8 46.0849ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:5243/api/push/public-key - - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Sotay.Server.Api.Controllers.PushController.GetPublicKey (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "GetPublicKey", controller = "Push"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Sotay.Server.Api.Models.Common.ApiEnvelope`1[Sotay.Server.Api.Models.Push.PushPublicKeyDto]]] GetPublicKey(System.Threading.CancellationToken) on controller Sotay.Server.Api.Controllers.PushController (Sotay.Server.Api).
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing OkObjectResult, writing value of type 'Sotay.Server.Api.Models.Common.ApiEnvelope`1[[Sotay.Server.Api.Models.Push.PushPublicKeyDto, Sotay.Server.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action Sotay.Server.Api.Controllers.PushController.GetPublicKey (Sotay.Server.Api) in 5.1223ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Sotay.Server.Api.Controllers.PushController.GetPublicKey (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:5243/api/push/public-key - 200 - application/json;+charset=utf-8 9.0182ms

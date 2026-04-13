@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "yRBoCKuc4ObnicwBEYAZlee1wfokpK5MutTx9mArGLc=",
+  "Source": "Sotay.Server.Api",
+  "BasePath": "_content/Sotay.Server.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
