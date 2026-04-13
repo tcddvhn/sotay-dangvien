@@ -26,6 +26,10 @@ IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'chatbot')
     EXEC('CREATE SCHEMA chatbot');
 GO
 
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'auth')
+    EXEC('CREATE SCHEMA auth');
+GO
+
 IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'notify')
     EXEC('CREATE SCHEMA notify');
 GO

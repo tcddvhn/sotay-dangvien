@@ -1,9 +1,13 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Sotay.Server.Api.Data.Entities;
+using Sotay.Server.Api.Data.Identity;
 
 namespace Sotay.Server.Api.Data;
 
-public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    : IdentityDbContext<AdminUserEntity, IdentityRole<Guid>, Guid>(options)
 {
     public DbSet<ContentNodeEntity> ContentNodes => Set<ContentNodeEntity>();
 
@@ -12,6 +16,43 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<AdminUserEntity>(entity =>
+        {
+            entity.ToTable("AdminUsers", "auth");
+            entity.Property(x => x.DisplayName).HasMaxLength(255);
+            entity.Property(x => x.IsActive).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<IdentityRole<Guid>>(entity =>
+        {
+            entity.ToTable("AdminRoles", "auth");
+        });
+
+        modelBuilder.Entity<IdentityUserRole<Guid>>(entity =>
+        {
+            entity.ToTable("AdminUserRoles", "auth");
+        });
+
+        modelBuilder.Entity<IdentityUserClaim<Guid>>(entity =>
+        {
+            entity.ToTable("AdminUserClaims", "auth");
+        });
+
+        modelBuilder.Entity<IdentityUserLogin<Guid>>(entity =>
+        {
+            entity.ToTable("AdminUserLogins", "auth");
+        });
+
+        modelBuilder.Entity<IdentityRoleClaim<Guid>>(entity =>
+        {
+            entity.ToTable("AdminRoleClaims", "auth");
+        });
+
+        modelBuilder.Entity<IdentityUserToken<Guid>>(entity =>
+        {
+            entity.ToTable("AdminUserTokens", "auth");
+        });
 
         modelBuilder.Entity<ContentNodeEntity>(entity =>
         {

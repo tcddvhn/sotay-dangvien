@@ -20,6 +20,72 @@ public sealed class SqlDirectoryService(ApplicationDbContext dbContext) : IDirec
         return BuildTree(units, parentId: null);
     }
 
+    public async Task<DirectoryUnitDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var item = await dbContext.DirectoryUnits
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        return item is null ? null : MapSingle(item);
+    }
+
+    public async Task<DirectoryUnitDto> SaveAsync(DirectoryUnitSaveRequest request, CancellationToken cancellationToken)
+    {
+        var parent = request.ParentId.HasValue
+            ? await dbContext.DirectoryUnits.FirstOrDefaultAsync(x => x.Id == request.ParentId.Value, cancellationToken)
+            : null;
+
+        var id = request.Id ?? Guid.NewGuid();
+        var entity = await dbContext.DirectoryUnits.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        var isNew = entity is null;
+
+        entity ??= new DirectoryUnitEntity
+        {
+            Id = id,
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = request.UpdatedBy
+        };
+
+        entity.ParentId = request.ParentId;
+        entity.Name = request.Name;
+        entity.UnitCode = request.UnitCode;
+        entity.Level = parent is not null ? parent.Level + 1 : request.Level ?? 1;
+        entity.Phone = request.Phone;
+        entity.Address = request.Address;
+        entity.Location = request.Location;
+        entity.SortOrder = request.SortOrder;
+        entity.IsActive = request.IsActive;
+        entity.UpdatedAt = DateTime.UtcNow;
+        entity.UpdatedBy = request.UpdatedBy;
+
+        if (isNew)
+        {
+            dbContext.DirectoryUnits.Add(entity);
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return MapSingle(entity);
+    }
+
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var hasChildren = await dbContext.DirectoryUnits.AnyAsync(x => x.ParentId == id, cancellationToken);
+        if (hasChildren)
+        {
+            return false;
+        }
+
+        var entity = await dbContext.DirectoryUnits.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        if (entity is null)
+        {
+            return false;
+        }
+
+        dbContext.DirectoryUnits.Remove(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
     private static IReadOnlyList<DirectoryUnitDto> BuildTree(
         IReadOnlyList<DirectoryUnitEntity> allUnits,
         Guid? parentId)
@@ -41,5 +107,19 @@ public sealed class SqlDirectoryService(ApplicationDbContext dbContext) : IDirec
                 x.IsActive,
                 BuildTree(allUnits, x.Id)))
             .ToList();
-    }
+
+    private static DirectoryUnitDto MapSingle(DirectoryUnitEntity entity)
+        => new(
+            entity.Id,
+            entity.Name,
+            entity.UnitCode,
+            entity.Level,
+            entity.ParentId,
+            entity.Phone,
+            entity.Address,
+            entity.Location,
+            entity.SortOrder,
+            entity.IsActive,
+            Array.Empty<DirectoryUnitDto>());
+}
 }

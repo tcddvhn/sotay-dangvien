@@ -19,7 +19,19 @@ public sealed class ChatbotController(IChatbotService chatbotService) : Controll
             return BadRequest(new ApiEnvelope<ChatReplyDto>(false, null, "Thiếu nội dung câu hỏi."));
         }
 
-        var result = await chatbotService.AskAsync(request, cancellationToken);
-        return Ok(new ApiEnvelope<ChatReplyDto>(true, result));
+        try
+        {
+            var result = await chatbotService.AskAsync(request, cancellationToken);
+            return Ok(new ApiEnvelope<ChatReplyDto>(true, result));
+        }
+        catch
+        {
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new ApiEnvelope<ChatReplyDto>(
+                    false,
+                    null,
+                    "Dịch vụ chatbot đang tạm thời bận hoặc chưa sẵn sàng. Vui lòng thử lại sau."));
+        }
     }
 }

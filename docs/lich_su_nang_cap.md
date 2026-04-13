@@ -18,3 +18,5 @@
 - Tạo workspace tách biệt `he-thong-moi-server-rieng` để phát triển hệ thống mới song song, bao gồm bản sao frontend hiện tại và các thư mục riêng cho backend, database, tài liệu vận hành song song.
 - Dựng skeleton backend `ASP.NET Core Web API` trong `he-thong-moi-server-rieng/backend-api/Sotay.Server.Api`, tạo schema SQL nền trong `he-thong-moi-server-rieng/database`, và bổ sung hướng dẫn khởi động workspace hệ thống mới.
 - Bổ sung `DbContext`, entity và service đọc `SQL Server` cho `content` và `directory` trong backend mới; backend hỗ trợ chế độ fallback sang mock khi chưa cấu hình `ConnectionString`.
+- Bổ sung nền `ASP.NET Core Identity` ở mức dữ liệu, mở CRUD nền cho `content` và `directory`, và cập nhật schema `auth` cho hệ thống mới trong workspace tách biệt.
+- Bổ sung service đăng nhập admin theo `Identity`, service chatbot gateway gọi API AI theo cấu hình, `ApplicationDbContextFactory` cho migration, và tài liệu tạo migration cho hệ thống mới.

@@ -15,4 +15,42 @@ public sealed class DirectoryController(IDirectoryService directoryService) : Co
         var data = await directoryService.GetTreeAsync(cancellationToken);
         return Ok(new ApiEnvelope<IReadOnlyList<DirectoryUnitDto>>(true, data));
     }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<ApiEnvelope<DirectoryUnitDto>>> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var data = await directoryService.GetByIdAsync(id, cancellationToken);
+        if (data is null)
+        {
+            return NotFound(new ApiEnvelope<DirectoryUnitDto>(false, null, "Không tìm thấy đơn vị."));
+        }
+
+        return Ok(new ApiEnvelope<DirectoryUnitDto>(true, data));
+    }
+
+    [HttpPost("save")]
+    public async Task<ActionResult<ApiEnvelope<DirectoryUnitDto>>> Save(
+        [FromBody] DirectoryUnitSaveRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return BadRequest(new ApiEnvelope<DirectoryUnitDto>(false, null, "Tên đơn vị không được để trống."));
+        }
+
+        var data = await directoryService.SaveAsync(request, cancellationToken);
+        return Ok(new ApiEnvelope<DirectoryUnitDto>(true, data, "Lưu đơn vị thành công."));
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult<ApiEnvelope<object>>> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        var deleted = await directoryService.DeleteAsync(id, cancellationToken);
+        if (!deleted)
+        {
+            return BadRequest(new ApiEnvelope<object>(false, null, "Không thể xóa đơn vị này. Có thể đơn vị không tồn tại hoặc còn đơn vị con."));
+        }
+
+        return Ok(new ApiEnvelope<object>(true, null, "Xóa đơn vị thành công."));
+    }
 }
