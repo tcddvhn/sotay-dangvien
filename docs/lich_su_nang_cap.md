@@ -1,28 +1,32 @@
-# Lịch sử nâng cấp
+# Lich su nang cap
 
 ## 2026-04-02
 
-- Tạo thư mục `docs`.
-- Bổ sung báo cáo thiết kế chức năng `Danh bạ` tại `docs/bao_cao_thiet_ke_danh_ba.md`.
-- Ghi nhận đề xuất kiến trúc mới cho module danh bạ 3 cấp, tách dữ liệu khỏi `APP_DATA`.
-- Bổ sung giải thích chi tiết phạm vi `quản trị cơ bản` và luồng `admin duyệt` trong báo cáo thiết kế.
-- Cập nhật báo cáo với quyết định tạm thời giữ mô hình `admin tự duyệt`.
-- Bổ sung yêu cầu banner `Danh bạ chuyển sinh hoạt đảng` tại trang chủ.
-- Bổ sung nghiên cứu giao diện danh bạ dựa trên tài liệu internet và đề xuất UI theo card/list cho 4 trường thông tin chính.
-- Seed sẵn 132 đơn vị cấp 1 từ file Excel `Danh sach don vị.xlsx` vào module `Danh bạ`.
-- Triển khai tab `Danh bạ`, banner trang chủ và quản trị cơ bản cho danh bạ trong mã nguồn.
-- Tạo tài liệu hướng dẫn chi tiết chuyển website sang máy chủ tĩnh Windows Server 2022 tại `docs/huong_dan_chuyen_sotay_sang_windows_server_2022.md`.
-- Tạo thêm checklist triển khai thực địa cho Windows Server 2022 tại `docs/checklist_trien_khai_windows_server_2022.md`.
-- Tạo báo cáo riêng đánh giá ảnh hưởng của `Firebase` và `Google Apps Script` khi đổi sang domain mới và phương án thay thế tại `docs/bao_cao_anh_huong_firebase_va_apps_script_khi_doi_ten_mien.md`.
-- Tạo báo cáo riêng về phương án chuyển toàn bộ hệ thống sang server riêng, thay thế `Firestore`, `Google Apps Script`, `Firebase Auth`, và đánh giá phương án chatbot qua API backend tại `docs/bao_cao_phuong_an_chuyen_toan_bo_sang_server_rieng.md`.
-- Tạo workspace tách biệt `he-thong-moi-server-rieng` để phát triển hệ thống mới song song, bao gồm bản sao frontend hiện tại và các thư mục riêng cho backend, database, tài liệu vận hành song song.
-- Dựng skeleton backend `ASP.NET Core Web API` trong `he-thong-moi-server-rieng/backend-api/Sotay.Server.Api`, tạo schema SQL nền trong `he-thong-moi-server-rieng/database`, và bổ sung hướng dẫn khởi động workspace hệ thống mới.
-- Bổ sung `DbContext`, entity và service đọc `SQL Server` cho `content` và `directory` trong backend mới; backend hỗ trợ chế độ fallback sang mock khi chưa cấu hình `ConnectionString`.
-- Bổ sung nền `ASP.NET Core Identity` ở mức dữ liệu, mở CRUD nền cho `content` và `directory`, và cập nhật schema `auth` cho hệ thống mới trong workspace tách biệt.
-- Bổ sung service đăng nhập admin theo `Identity`, service chatbot gateway gọi API AI theo cấu hình, `ApplicationDbContextFactory` cho migration, và tài liệu tạo migration cho hệ thống mới.
-- Chuyển `frontend-static` sang lớp API mới cho `content`, `directory`, `admin auth`, `chatbot`, bổ sung endpoint `tree/sync` ở backend mới, và tạo tài liệu trạng thái chuyển frontend.
-- Bổ sung `AdminSeedHostedService` và cấu hình `AdminSeed` để có thể seed tài khoản quản trị đầu tiên khi backend mới chạy trên môi trường có `.NET SDK`.
-- Bổ sung cấu hình môi trường `Test`, `launchSettings.json`, và checklist smoke test cho backend mới để chuẩn bị chạy thử trên máy có `.NET SDK`.
-- Bổ sung `SampleDataSeedHostedService`, cấu hình `SampleDataSeed`, và tài liệu hướng dẫn seed dữ liệu mẫu test cho `content` và `directory` trong hệ thống mới.
-- Tạo bộ file Postman/environment mẫu và tài liệu import để đội test có thể gọi trực tiếp các API chính của backend mới.
-- Tạo `go_live_checklist_chuyen_he_thong_that.md` để dùng cho ngày cutover thật từ hệ thống cũ sang hệ thống mới.
+- Tao thu muc `docs`.
+- Bo sung bao cao thiet ke chuc nang `Danh ba` tai `docs/bao_cao_thiet_ke_danh_ba.md`.
+- Ghi nhan de xuat kien truc moi cho module danh ba 3 cap, tach du lieu khoi `APP_DATA`.
+- Bo sung giai thich chi tiet pham vi `quan tri co ban` va luong `admin duyet` trong bao cao thiet ke.
+- Cap nhat bao cao voi quyet dinh tam thoi giu mo hinh `admin tu duyet`.
+- Bo sung yeu cau banner `Danh ba chuyen sinh hoat dang` tai trang chu.
+- Bo sung nghien cuu giao dien danh ba dua tren tai lieu internet va de xuat UI theo card/list cho 4 truong thong tin chinh.
+- Seed san 132 don vi cap 1 tu file Excel `Danh sach don vi.xlsx` vao module `Danh ba`.
+- Trien khai tab `Danh ba`, banner trang chu va quan tri co ban cho danh ba trong ma nguon.
+- Tao tai lieu huong dan chi tiet chuyen website sang may chu tinh Windows Server 2022 tai `docs/huong_dan_chuyen_sotay_sang_windows_server_2022.md`.
+- Tao them checklist trien khai thuc dia cho Windows Server 2022 tai `docs/checklist_trien_khai_windows_server_2022.md`.
+- Tao bao cao rieng danh gia anh huong cua `Firebase` va `Google Apps Script` khi doi sang domain moi va phuong an thay the tai `docs/bao_cao_anh_huong_firebase_va_apps_script_khi_doi_ten_mien.md`.
+- Tao bao cao rieng ve phuong an chuyen toan bo he thong sang server rieng, thay the `Firestore`, `Google Apps Script`, `Firebase Auth`, va danh gia phuong an chatbot qua API backend tai `docs/bao_cao_phuong_an_chuyen_toan_bo_sang_server_rieng.md`.
+- Tao workspace tach biet `he-thong-moi-server-rieng` de phat trien he thong moi song song, bao gom ban sao frontend hien tai va cac thu muc rieng cho backend, database, tai lieu van hanh song song.
+- Dung skeleton backend `ASP.NET Core Web API` trong `he-thong-moi-server-rieng/backend-api/Sotay.Server.Api`, tao schema SQL nen trong `he-thong-moi-server-rieng/database`, va bo sung huong dan khoi dong workspace he thong moi.
+- Bo sung `DbContext`, entity va service doc `SQL Server` cho `content` va `directory` trong backend moi; backend ho tro che do fallback sang mock khi chua cau hinh `ConnectionString`.
+- Bo sung nen `ASP.NET Core Identity` o muc du lieu, mo CRUD nen cho `content` va `directory`, va cap nhat schema `auth` cho he thong moi trong workspace tach biet.
+- Bo sung service dang nhap admin theo `Identity`, service chatbot gateway goi API AI theo cau hinh, `ApplicationDbContextFactory` cho migration, va tai lieu tao migration cho he thong moi.
+- Chuyen `frontend-static` sang lop API moi cho `content`, `directory`, `admin auth`, `chatbot`, bo sung endpoint `tree/sync` o backend moi, va tao tai lieu trang thai chuyen frontend.
+- Bo sung `AdminSeedHostedService` va cau hinh `AdminSeed` de co the seed tai khoan quan tri dau tien khi backend moi chay tren moi truong co `.NET SDK`.
+- Bo sung cau hinh moi truong `Test`, `launchSettings.json`, va checklist smoke test cho backend moi de chuan bi chay thu tren may co `.NET SDK`.
+- Bo sung `SampleDataSeedHostedService`, cau hinh `SampleDataSeed`, va tai lieu huong dan seed du lieu mau test cho `content` va `directory` trong he thong moi.
+- Tao bo file Postman/environment mau va tai lieu import de doi test co the goi truc tiep cac API chinh cua backend moi.
+- Tao `go_live_checklist_chuyen_he_thong_that.md` de dung cho ngay cutover that tu he thong cu sang he thong moi.
+- Tao `lenh_powershell_trien_khai_backend_moi.md` lam runbook lenh PowerShell tuan tu de trien khai backend moi tren may co `.NET SDK`.
+- Tao `runbook_trien_khai_frontend_static_len_iis.md` va `bao_cao_phu_thuoc_con_lai_trong_frontend_static.md` de chot cach deploy frontend moi len IIS va xac dinh cac phu thuoc Firebase/Google Apps Script con phai thay not.
+- Bo sung backend thay the `survey`, `stats`, `notice` trong workspace `he-thong-moi-server-rieng`, mo rong schema SQL voi `stats.UsageEvents` va `notify.Notices`, dieu chinh `frontend-static` de uu tien goi API moi, va tao bao cao `bao_cao_thay_the_survey_stats_notice.md`.
+- Bo sung backend thay the `push notification` theo huong `Web Push + VAPID`, tao `PushController`, `PushOptions`, service luu subscription/gui thong bao day, tao `frontend-static/push-sw.js`, chuyen `frontend-static/app.js` sang uu tien push backend moi, va tao bao cao `bao_cao_thay_the_push_notification.md`.

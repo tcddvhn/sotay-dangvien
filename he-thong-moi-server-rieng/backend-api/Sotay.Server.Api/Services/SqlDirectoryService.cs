@@ -120,6 +120,7 @@ public sealed class SqlDirectoryService(ApplicationDbContext dbContext) : IDirec
                 x.IsActive,
                 BuildTree(allUnits, x.Id)))
             .ToList();
+    }
 
     private static DirectoryUnitDto MapSingle(DirectoryUnitEntity entity)
         => new(
@@ -163,5 +164,4 @@ public sealed class SqlDirectoryService(ApplicationDbContext dbContext) : IDirec
             Flatten(node.Children, updatedBy, output);
         }
     }
-}
 }

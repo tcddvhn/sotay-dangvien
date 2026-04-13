@@ -1,116 +1,127 @@
-# Hướng dẫn khởi động workspace hệ thống mới
+# Huong dan khoi dong workspace he thong moi
 
-Ngày lập: 2026-04-13
+Ngay lap: 2026-04-13
 
-## 1. Mục tiêu
+## 1. Muc tieu
 
-Tài liệu này hướng dẫn cách bắt đầu phát triển hệ thống mới trong thư mục `he-thong-moi-server-rieng` mà không ảnh hưởng hệ thống cũ đang chạy.
+Tai lieu nay huong dan cach bat dau phat trien he thong moi trong thu muc `he-thong-moi-server-rieng` ma khong anh huong he thong cu dang chay.
 
-## 2. Cấu trúc đang có
+## 2. Cau truc dang co
 
-- `frontend-static/`: bản sao frontend hiện tại
-- `backend-api/Sotay.Server.Api/`: skeleton backend mới
-- `database/schema_v1_foundation.sql`: schema SQL khởi đầu
-- `database/du_kien_mapping_firestore_sang_sql.md`: mapping dữ liệu cũ sang mới
-- `database/identity_du_kien.md`: định hướng xác thực admin
-- `docs/trang_thai_chuyen_frontend_sang_backend_moi.md`: trạng thái chuyển frontend
-- `docs/checklist_smoke_test_backend_moi.md`: checklist chạy thử backend mới
-- `docs/huong_dan_seed_du_lieu_mau_test.md`: hướng dẫn seed dữ liệu mẫu test
+- `frontend-static/`: ban sao frontend hien tai
+- `backend-api/Sotay.Server.Api/`: skeleton backend moi
+- `database/schema_v1_foundation.sql`: schema SQL khoi dau
+- `database/du_kien_mapping_firestore_sang_sql.md`: mapping du lieu cu sang moi
+- `database/identity_du_kien.md`: dinh huong xac thuc admin
+- `docs/trang_thai_chuyen_frontend_sang_backend_moi.md`: trang thai chuyen frontend
+- `docs/checklist_smoke_test_backend_moi.md`: checklist chay thu backend moi
+- `docs/huong_dan_seed_du_lieu_mau_test.md`: huong dan seed du lieu mau test
 - `docs/postman/README.md`: bo request import vao Postman/Insomnia
 - `docs/go_live_checklist_chuyen_he_thong_that.md`: checklist cutover he thong that
+- `docs/lenh_powershell_trien_khai_backend_moi.md`: runbook lenh PowerShell thuc thi tuan tu
+- `docs/runbook_trien_khai_frontend_static_len_iis.md`: runbook dua frontend moi len IIS
+- `docs/bao_cao_phu_thuoc_con_lai_trong_frontend_static.md`: danh sach phu thuoc cu con sot lai
+- `docs/bao_cao_thay_the_survey_stats_notice.md`: ket qua thay survey/stats/notice sang backend moi
+- `docs/bao_cao_thay_the_push_notification.md`: ket qua thay push notification sang backend moi
 
-## 3. Trạng thái hiện tại
+## 3. Trang thai hien tai
 
-- Frontend mới: mới là bản sao nền để chuyển đổi dần
-- Backend mới: có skeleton, `DbContext`, entity và API mẫu
-- Database mới: có schema nền, chưa apply lên SQL Server
-- Auth mới: mới dừng ở định hướng, chưa tích hợp Identity thật
+- Frontend moi: la ban sao nen de chuyen doi dan
+- Backend moi: co skeleton, `DbContext`, entity va API mau
+- Database moi: co schema nen, chua apply len SQL Server
+- Auth moi: da co huong `Identity`, chua build test that tren may nay
 
-Chi tiết backend hiện tại:
+Chi tiet backend hien tai:
 
-- `content` và `directory` đã có service đọc `SQL Server`
-- `content` và `directory` đã có CRUD nền
-- nếu chưa có `ConnectionString`, backend tự rơi về `mock service`
-- `auth` đã có `IdentityAdminAuthService`; nếu có DB thì login admin đi qua `Identity`
-- `auth` đã có `AdminSeedHostedService`; có thể seed admin đầu tiên bằng cấu hình
-- `chatbot` đã có gateway gọi API AI; nếu có `ApiKey` thì chatbot đi qua backend thật
-- nếu chưa có `ApiKey`, chatbot tự rơi về `mock service`
+- `content` va `directory` da co service doc `SQL Server`
+- `content` va `directory` da co CRUD nen
+- neu chua co `ConnectionString`, backend tu roi ve `mock service`
+- `auth` da co `IdentityAdminAuthService`; neu co DB thi login admin di qua `Identity`
+- `auth` da co `AdminSeedHostedService`; co the seed admin dau tien bang cau hinh
+- `chatbot` da co gateway goi API AI; neu co `ApiKey` thi chatbot di qua backend that
+- `survey` da co service va controller ghi nhan du lieu vao `survey.Responses`
+- `stats` da co service va controller ghi `UsageEvents` va tong hop dashboard
+- `notice` da co service va controller doc/ghi `notify.Notices`
+- `push` da co service va controller luu subscription va gui thong bao day theo Web Push
+- neu chua co `ApiKey`, chatbot tu roi ve `mock service`
 
-## 4. Những gì chưa cài trên máy hiện tại
+## 4. Nhung gi chua cai tren may hien tai
 
-Máy làm việc hiện tại chưa có:
+May lam viec hien tai chua co:
 
 - `.NET SDK`
 
-Vì vậy:
+Vi vay:
 
-- chưa chạy `dotnet restore`
-- chưa build được project backend
-- chưa tạo migration thật
+- chua chay `dotnet restore`
+- chua build duoc project backend
+- chua tao migration that
 
-## 5. Điều kiện để bắt đầu chạy backend thật
+## 5. Dieu kien de bat dau chay backend that
 
-Phải cài:
+Phai cai:
 
 - `.NET SDK 8`
-- `SQL Server` hoặc môi trường test có SQL Server
-- công cụ quản trị SQL như `SSMS` hoặc `Azure Data Studio`
+- `SQL Server` hoac moi truong test co SQL Server
+- cong cu quan tri SQL nhu `SSMS` hoac `Azure Data Studio`
 
-## 6. Trình tự khuyến nghị để tiếp tục
+## 6. Trinh tu khuyen nghi de tiep tuc
 
-### Bước 1
+### Buoc 1
 
-- Cài `.NET SDK 8`
-- Mở project `backend-api/Sotay.Server.Api`
-- Chạy restore và build
+- Cai `.NET SDK 8`
+- Mo project `backend-api/Sotay.Server.Api`
+- Chay restore va build
 
-### Bước 2
+### Buoc 2
 
-- Chạy restore cho các package `Entity Framework Core`
-- Kiểm tra `appsettings.json`
-- Chuẩn bị `appsettings.Test.json` từ `appsettings.Test.example.json`
-- Điền `ConnectionString` cho môi trường test
-- Tạo migration đầu tiên nếu chọn quản lý schema bằng migration
-- Tham khảo thêm `huong_dan_tao_migration_identity_va_database.md`
+- Chuan bi `appsettings.Test.json` tu `appsettings.Test.example.json`
+- Dien `ConnectionString` cho moi truong test
+- Tao migration dau tien neu chon quan ly schema bang migration
+- Tham khao them `huong_dan_tao_migration_identity_va_database.md`
 
-### Bước 3
+### Buoc 3
 
-- Apply `schema_v1_foundation.sql` hoặc chuyển sang quản lý schema bằng migration
-- Tạo database test
+- Apply `schema_v1_foundation.sql` hoac chuyen sang quan ly schema bang migration
+- Tao database test
 
-### Bước 4
+### Buoc 4
 
-- Hoàn thiện CRUD cho `content` và `directory`
-- Tạo migration cho các bảng `auth`
-- Tạo tài khoản admin đầu tiên
-- Cấu hình `ApiKey` chatbot ở secret store hoặc biến môi trường
+- Bat `AdminSeed`, tao tai khoan admin dau tien
+- Bat `SampleDataSeed`, tao du lieu mau test cho `content`, `directory`, `usage events`, `notices`
+- Cau hinh `ApiKey` chatbot o secret store hoac bien moi truong
 
-### Bước 5
+### Buoc 5
 
-- Chỉnh `frontend-static/app.js` để gọi backend mới
-- Tách dần các phụ thuộc Firebase và Apps Script
+- Chay Postman test cho `content`, `directory`, `auth`, `chatbot`, `survey`, `stats`, `notice`
+- Mo `frontend-static` de test luong backend moi
+- Sau do moi mo CRUD quan tri chi tiet cho tung man hinh
 
-## 7. Quy tắc an toàn
+## 7. Quy tac an toan
 
-- Không sửa hệ thống cũ ở thư mục gốc nếu chỉ để phục vụ hệ thống mới
-- Chỉ làm việc trong `he-thong-moi-server-rieng`
-- Mọi kết nối thật đến AI API, SQL production, secret production đều phải quản lý ngoài source code
+- Khong sua he thong cu o thu muc goc neu chi de phuc vu he thong moi
+- Chi lam viec trong `he-thong-moi-server-rieng`
+- Moi ket noi that den AI API, SQL production, secret production deu phai quan ly ngoai source code
 
-## 8. Đầu việc tiếp theo nên làm ngay
+## 8. Dau viec tiep theo nen lam ngay
 
-1. Tạo migration thật cho `Identity` và `SQL Server`
-2. Bật `AdminSeed`, tạo tài khoản admin đầu tiên và test login thực tế
-3. Bật `SampleDataSeed`, tạo dữ liệu mẫu test cho `content` và `directory`
-4. Cấu hình `ApiKey` chatbot và test gateway AI thực tế
-5. Bắt đầu chỉnh frontend bản sao để đổi endpoint
-6. Sau đó mới mở CRUD quản trị chi tiết cho từng màn hình
+1. Tao migration that cho `Identity` va `SQL Server`
+2. Bat `AdminSeed`, tao tai khoan admin dau tien va test login thuc te
+3. Bat `SampleDataSeed`, tao du lieu mau test
+4. Cau hinh `ApiKey` chatbot va test gateway AI thuc te
+5. Dien `PushOptions` va test `Web Push`
+6. Mo `frontend-static` de test lai toan bo luong da chuyen
+7. Sau khi on dinh moi bo fallback cu
 
 Khi chay thu lan dau, dung them:
 
 - `checklist_smoke_test_backend_moi.md`
 - `huong_dan_seed_du_lieu_mau_test.md`
 - `postman/README.md`
+- `lenh_powershell_trien_khai_backend_moi.md`
 
 Khi san sang cutover that, dung:
 
 - `go_live_checklist_chuyen_he_thong_that.md`
+- `runbook_trien_khai_frontend_static_len_iis.md`
+- `bao_cao_phu_thuoc_con_lai_trong_frontend_static.md`

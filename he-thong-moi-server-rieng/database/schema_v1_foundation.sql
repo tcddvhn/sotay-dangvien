@@ -22,6 +22,10 @@ IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'survey')
     EXEC('CREATE SCHEMA survey');
 GO
 
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'stats')
+    EXEC('CREATE SCHEMA stats');
+GO
+
 IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'chatbot')
     EXEC('CREATE SCHEMA chatbot');
 GO
@@ -111,6 +115,42 @@ CREATE TABLE survey.Responses
 GO
 
 CREATE INDEX IX_SurveyResponses_ResponseType_SubmittedAt ON survey.Responses(ResponseType, SubmittedAt DESC);
+GO
+
+CREATE TABLE stats.UsageEvents
+(
+    Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_UsageEvents PRIMARY KEY,
+    ActionType NVARCHAR(50) NOT NULL,
+    Detail NVARCHAR(2000) NULL,
+    SessionKey NVARCHAR(200) NULL,
+    SourcePage NVARCHAR(255) NULL,
+    ClientIpHash NVARCHAR(255) NULL,
+    UserAgent NVARCHAR(1000) NULL,
+    CreatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_UsageEvents_CreatedAt DEFAULT(SYSUTCDATETIME())
+);
+GO
+
+CREATE INDEX IX_UsageEvents_ActionType_CreatedAt ON stats.UsageEvents(ActionType, CreatedAt DESC);
+CREATE INDEX IX_UsageEvents_CreatedAt ON stats.UsageEvents(CreatedAt DESC);
+GO
+
+CREATE TABLE notify.Notices
+(
+    Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_NotifyNotices PRIMARY KEY,
+    Title NVARCHAR(300) NOT NULL,
+    Content NVARCHAR(MAX) NOT NULL,
+    IsPublic BIT NOT NULL CONSTRAINT DF_NotifyNotices_IsPublic DEFAULT(0),
+    PublishedAt DATETIME2(0) NOT NULL CONSTRAINT DF_NotifyNotices_PublishedAt DEFAULT(SYSUTCDATETIME()),
+    IsActive BIT NOT NULL CONSTRAINT DF_NotifyNotices_IsActive DEFAULT(1),
+    CreatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_NotifyNotices_CreatedAt DEFAULT(SYSUTCDATETIME()),
+    CreatedBy NVARCHAR(100) NULL,
+    UpdatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_NotifyNotices_UpdatedAt DEFAULT(SYSUTCDATETIME()),
+    UpdatedBy NVARCHAR(100) NULL
+);
+GO
+
+CREATE INDEX IX_NotifyNotices_PublishedAt ON notify.Notices(PublishedAt DESC);
+CREATE INDEX IX_NotifyNotices_IsActive_PublishedAt ON notify.Notices(IsActive, PublishedAt DESC);
 GO
 
 CREATE TABLE chatbot.Conversations

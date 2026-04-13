@@ -32,7 +32,19 @@ public sealed class SampleDataSeedHostedService(
             dbContext.DirectoryUnits.AddRange(BuildSampleDirectoryUnits());
         }
 
-        if (!hasContent || !hasDirectory)
+        var hasUsageEvents = await dbContext.UsageEvents.AnyAsync(stoppingToken);
+        if (!hasUsageEvents)
+        {
+            dbContext.UsageEvents.AddRange(BuildSampleUsageEvents());
+        }
+
+        var hasNotices = await dbContext.Notices.AnyAsync(stoppingToken);
+        if (!hasNotices)
+        {
+            dbContext.Notices.AddRange(BuildSampleNotices());
+        }
+
+        if (!hasContent || !hasDirectory || !hasUsageEvents || !hasNotices)
         {
             await dbContext.SaveChangesAsync(stoppingToken);
         }
@@ -162,6 +174,91 @@ public sealed class SampleDataSeedHostedService(
                 Address = "Ha Noi",
                 Location = "Tang 3",
                 SortOrder = 1,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                CreatedBy = "sample-seed",
+                UpdatedBy = "sample-seed"
+            }
+        ];
+    }
+
+    private static IReadOnlyList<UsageEventEntity> BuildSampleUsageEvents()
+    {
+        var today = DateTime.UtcNow.Date;
+
+        return
+        [
+            new UsageEventEntity
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-ccccccccccc1"),
+                ActionType = "visit",
+                CreatedAt = today.AddDays(-6).AddHours(1)
+            },
+            new UsageEventEntity
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-ccccccccccc2"),
+                ActionType = "visit",
+                CreatedAt = today.AddDays(-5).AddHours(2)
+            },
+            new UsageEventEntity
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-ccccccccccc3"),
+                ActionType = "visit",
+                CreatedAt = today.AddDays(-4).AddHours(3)
+            },
+            new UsageEventEntity
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-ccccccccccc4"),
+                ActionType = "visit",
+                CreatedAt = today.AddDays(-3).AddHours(4)
+            },
+            new UsageEventEntity
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-ccccccccccc5"),
+                ActionType = "visit",
+                CreatedAt = today.AddDays(-2).AddHours(5)
+            },
+            new UsageEventEntity
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-ccccccccccc6"),
+                ActionType = "visit",
+                CreatedAt = today.AddDays(-1).AddHours(6)
+            },
+            new UsageEventEntity
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-ccccccccccc7"),
+                ActionType = "visit",
+                CreatedAt = today.AddHours(7)
+            },
+            new UsageEventEntity
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-ccccccccccc8"),
+                ActionType = "search",
+                Detail = "dang phi",
+                CreatedAt = today.AddHours(8)
+            },
+            new UsageEventEntity
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-ccccccccccc9"),
+                ActionType = "chatbot",
+                Detail = "dong dang phi tren dich vu cong",
+                CreatedAt = today.AddHours(9)
+            }
+        ];
+    }
+
+    private static IReadOnlyList<NoticeEntity> BuildSampleNotices()
+    {
+        return
+        [
+            new NoticeEntity
+            {
+                Id = Guid.Parse("dddddddd-dddd-dddd-dddd-ddddddddddd1"),
+                Title = "Thong bao mau",
+                Content = "Thong bao mau de test luong notice cua backend moi.",
+                IsPublic = true,
+                PublishedAt = DateTime.UtcNow,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,

@@ -13,6 +13,7 @@ builder.Services.Configure<ChatbotOptions>(builder.Configuration.GetSection(Chat
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
 builder.Services.Configure<AdminSeedOptions>(builder.Configuration.GetSection(AdminSeedOptions.SectionName));
 builder.Services.Configure<SampleDataSeedOptions>(builder.Configuration.GetSection(SampleDataSeedOptions.SectionName));
+builder.Services.Configure<PushOptions>(builder.Configuration.GetSection(PushOptions.SectionName));
 
 builder.Services.AddCors(options =>
 {
@@ -75,6 +76,10 @@ if (!string.IsNullOrWhiteSpace(databaseConnectionString))
     builder.Services.AddScoped<IContentService, SqlContentService>();
     builder.Services.AddScoped<IDirectoryService, SqlDirectoryService>();
     builder.Services.AddScoped<IAdminAuthService, IdentityAdminAuthService>();
+    builder.Services.AddScoped<ISurveyService, SqlSurveyService>();
+    builder.Services.AddScoped<IStatsService, SqlStatsService>();
+    builder.Services.AddScoped<INoticeService, SqlNoticeService>();
+    builder.Services.AddScoped<IPushService, SqlPushService>();
     builder.Services.AddHostedService<AdminSeedHostedService>();
     builder.Services.AddHostedService<SampleDataSeedHostedService>();
 }
@@ -84,6 +89,10 @@ else
     builder.Services.AddSingleton<IContentService, MockContentService>();
     builder.Services.AddSingleton<IDirectoryService, MockDirectoryService>();
     builder.Services.AddSingleton<IAdminAuthService, MockAdminAuthService>();
+    builder.Services.AddSingleton<ISurveyService, MockSurveyService>();
+    builder.Services.AddSingleton<IStatsService, MockStatsService>();
+    builder.Services.AddSingleton<INoticeService, MockNoticeService>();
+    builder.Services.AddSingleton<IPushService, MockPushService>();
 }
 
 if (!string.IsNullOrWhiteSpace(chatbotApiKey))

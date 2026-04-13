@@ -7,6 +7,10 @@
             ENABLE_SERVER_DIRECTORY_API: true,
             ENABLE_SERVER_AUTH_API: true,
             ENABLE_SERVER_CHATBOT_API: true,
+            ENABLE_SERVER_SURVEY_API: true,
+            ENABLE_SERVER_STATS_API: true,
+            ENABLE_SERVER_NOTICE_API: true,
+            ENABLE_SERVER_PUSH_API: true,
             SURVEY_API_URL: "https://script.google.com/macros/s/AKfycby1oXVzH9EeR0v1j2goesabdRwKECaUWLJNuPaeOJNBbsF0p5kAsgc53c-ISqOg491z/exec",
             CHATBOT_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwmOiTZdM6_Faew-OOTMzNhE8rkWGhVgTkBIzYcSntnD2MCkBKn-nnDgXwk-_Vs8xR7/exec",
             STATS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwi-3O5tJQeXy8We87nOdg3f0lYf2-DUI71G9jNyx-Z_fVUy6lWIQ4nXvvi9FFB0v0w/exec",
@@ -14,6 +18,7 @@
             PDF_VIEWER_URL: "web/viewer.html",
             API_KEY: "SOTAY-API-KEY-2026-03-16-5F8C2A9D7E3B4A1C",
             RATE_LIMIT_MS: 1200,
+            WEB_PUSH_SW_URL: "push-sw.js",
             FCM_VAPID_KEY: "T-t1yEsxAdEil_DcRonTeeTO474Lg30qYdTnysOjyEQ"
         };
         const PROTECTED_ROUTE_CONFIG = {
@@ -73,6 +78,16 @@
             return `node_${Date.now()}_${Math.random().toString(16).slice(2, 10)}`;
         }
 
+        function getClientSessionKey() {
+            const storageKey = 'sotay_session_key';
+            let sessionKey = sessionStorage.getItem(storageKey);
+            if (!sessionKey) {
+                sessionKey = createClientNodeId();
+                sessionStorage.setItem(storageKey, sessionKey);
+            }
+            return sessionKey;
+        }
+
         function parseJsonSafe(text, fallback) {
             try {
                 const parsed = JSON.parse(text);
@@ -80,6 +95,26 @@
             } catch {
                 return fallback;
             }
+        }
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        function detectBrowserName() {
+            const ua = navigator.userAgent || '';
+            if (/Edg\//.test(ua)) return 'Edge';
+            if (/Chrome\//.test(ua)) return 'Chrome';
+            if (/Firefox\//.test(ua)) return 'Firefox';
+            if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) return 'Safari';
+            return 'Unknown';
         }
 
         async function serverApiRequest(path, options = {}) {
@@ -184,6 +219,18 @@
             };
         }
 
+        function mapServerNoticeToLegacy(item) {
+            return {
+                id: String(item?.id || createClientNodeId()),
+                title: String(item?.title || ''),
+                content: String(item?.content || ''),
+                is_public: item?.isPublic === true || item?.is_public === true,
+                is_active: item?.isActive !== false && item?.is_active !== false,
+                published_at: String(item?.publishedAt || item?.published_at || ''),
+                created_at: String(item?.createdAt || item?.created_at || '')
+            };
+        }
+
         window.SOTAY_SERVER_API = {
             canUseContentApi() {
                 return isServerApiEnabled('ENABLE_SERVER_CONTENT_API');
@@ -196,6 +243,18 @@
             },
             canUseChatbotApi() {
                 return isServerApiEnabled('ENABLE_SERVER_CHATBOT_API');
+            },
+            canUseSurveyApi() {
+                return isServerApiEnabled('ENABLE_SERVER_SURVEY_API');
+            },
+            canUseStatsApi() {
+                return isServerApiEnabled('ENABLE_SERVER_STATS_API');
+            },
+            canUseNoticeApi() {
+                return isServerApiEnabled('ENABLE_SERVER_NOTICE_API');
+            },
+            canUsePushApi() {
+                return isServerApiEnabled('ENABLE_SERVER_PUSH_API');
             },
             createClientNodeId,
             async getContentTree() {
@@ -287,6 +346,88 @@
             },
             async deleteDirectoryNode(id) {
                 await serverApiRequest(`/directory/${encodeURIComponent(id)}`, { method: 'DELETE' });
+            },
+            async submitSurveyResponse(payload) {
+                return serverApiRequest('/survey/submit', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        responseType: payload.responseType || '',
+                        ratingLabel: payload.ratingLabel || null,
+                        content: payload.content || null,
+                        sourcePage: payload.sourcePage || window.location.pathname,
+                        clientIpHash: null,
+                        userAgent: navigator.userAgent || ''
+                    })
+                });
+            },
+            async recordStatEvent(actionType, detail, sessionKey, sourcePage) {
+                return serverApiRequest('/stats/record', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        actionType: actionType || 'none',
+                        detail: detail || '',
+                        sessionKey: sessionKey || getClientSessionKey(),
+                        sourcePage: sourcePage || window.location.pathname,
+                        clientIpHash: null,
+                        userAgent: navigator.userAgent || ''
+                    })
+                });
+            },
+            async getDashboardStats() {
+                return serverApiRequest('/stats/dashboard');
+            },
+            async getLatestNotices(take = 5) {
+                const data = await serverApiRequest(`/notices/latest?take=${encodeURIComponent(take)}`);
+                return (data || []).map(mapServerNoticeToLegacy);
+            },
+            async saveNotice(notice, updatedBy) {
+                const data = await serverApiRequest('/notices/save', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        id: notice.id || null,
+                        title: notice.title || '',
+                        content: notice.content || '',
+                        isPublic: notice.isPublic === true,
+                        publishedAt: notice.publishedAt || null,
+                        updatedBy: updatedBy || 'admin',
+                        isActive: notice.isActive !== false
+                    })
+                });
+                return mapServerNoticeToLegacy(data);
+            },
+            async getPushPublicKey() {
+                return serverApiRequest('/push/public-key');
+            },
+            async savePushSubscription(subscription, userKey) {
+                return serverApiRequest('/push/subscriptions/save', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        endpoint: subscription.endpoint,
+                        keys: {
+                            p256dh: subscription.keys?.p256dh || '',
+                            auth: subscription.keys?.auth || ''
+                        },
+                        browserName: detectBrowserName(),
+                        deviceLabel: navigator.platform || '',
+                        userKey: userKey || null
+                    })
+                });
+            },
+            async deletePushSubscription(endpoint) {
+                return serverApiRequest('/push/subscriptions', {
+                    method: 'DELETE',
+                    body: JSON.stringify({ endpoint })
+                });
+            },
+            async sendNoticePush(title, content, clickUrl) {
+                return serverApiRequest('/push/send-notice', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        title: title || '',
+                        content: content || '',
+                        clickUrl: clickUrl || `${window.location.origin}/`
+                    })
+                });
             }
         };
 
@@ -314,13 +455,20 @@ setTimeout(() => {
 function sendQuickRating(level) {
     if (isRateLimited('survey', 1500)) return;
     if (localStorage.getItem(getTodayKey('survey_done'))) return;
-    let url = buildApiUrl(SURVEY_API_URL, { action: 'Danh gia', content: level });
+    const submitTask = (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseSurveyApi())
+        ? window.SOTAY_SERVER_API.submitSurveyResponse({
+            responseType: 'Danh gia',
+            ratingLabel: level,
+            content: null,
+            sourcePage: 'autoSurveyOverlay'
+        })
+        : fetch(buildApiUrl(SURVEY_API_URL, { action: 'Danh gia', content: level }));
     
     // BƯỚC CẢI TIẾN: Hiện cảm ơn ngay lập tức không cần đợi server
     showThanks(); 
     
     // Gửi dữ liệu ngầm bên dưới
-    fetch(url).catch(err => console.log("Lỗi gửi ngầm: ", err));
+    Promise.resolve(submitTask).catch(err => console.log("Lỗi gửi ngầm: ", err));
 }
 
 // 3. Hiện khung nhập ý kiến
@@ -347,14 +495,21 @@ function sendFullFeedback() {
     if (!content) return alert("Mời đồng chí nhập nội dung!");
     if (isRateLimited('survey', 1500)) return;
     if (localStorage.getItem(getTodayKey('survey_done'))) return;
-    
-    let url = buildApiUrl(SURVEY_API_URL, { action: 'Gop y', content: content });
+
+    const submitTask = (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseSurveyApi())
+        ? window.SOTAY_SERVER_API.submitSurveyResponse({
+            responseType: 'Gop y',
+            ratingLabel: null,
+            content: content,
+            sourcePage: 'autoSurveyOverlay'
+        })
+        : fetch(buildApiUrl(SURVEY_API_URL, { action: 'Gop y', content: content }));
     
     // BƯỚC CẢI TIẾN: Hiện cảm ơn ngay lập tức
     showThanks();
     
     // Gửi dữ liệu ngầm
-    fetch(url).catch(err => console.log("Lỗi gửi ngầm: ", err));
+    Promise.resolve(submitTask).catch(err => console.log("Lỗi gửi ngầm: ", err));
 }
 
 // 5. Hiển thị lời cảm ơn và đóng
@@ -1159,6 +1314,8 @@ function showThanks() {
         let noticeList = [];
         let latestNotice = null;
         let fcmToken = null;
+        let webPushSubscriptionEndpoint = null;
+        let serverPushConfig = null;
 
         function openNoticeModal() {
             const modal = document.getElementById('modalNotice');
@@ -1261,10 +1418,13 @@ function showThanks() {
         }
 
         function fetchLatestNotice(markAfter = false) {
-            if (!STATS_WEB_APP_URL) return;
-            const url = buildApiUrl(STATS_WEB_APP_URL, { action: 'notice_get' });
-            fetch(url)
-                .then(res => res.json())
+            const canUseServerNotice = window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseNoticeApi();
+            if (!canUseServerNotice && !STATS_WEB_APP_URL) return;
+            const loadTask = canUseServerNotice
+                ? window.SOTAY_SERVER_API.getLatestNotices(5)
+                : fetch(buildApiUrl(STATS_WEB_APP_URL, { action: 'notice_get' })).then(res => res.json());
+
+            Promise.resolve(loadTask)
                 .then(data => {
                     let items = [];
                     if (Array.isArray(data)) items = data;
@@ -1287,16 +1447,24 @@ function showThanks() {
             const dateVal = (document.getElementById('noticeDateInput') || {}).value || "";
             if (!title.trim() || !content.trim()) return alert("Vui lòng nhập đầy đủ tiêu đề và nội dung.");
 
-            const url = buildApiUrl(STATS_WEB_APP_URL, {
-                action: 'notice_set',
-                title: title.trim(),
-                content: content.trim(),
-                is_public: isPublic,
-                published_at: dateVal
-            });
+            const canUseServerNotice = window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseNoticeApi();
+            const submitTask = canUseServerNotice
+                ? window.SOTAY_SERVER_API.saveNotice({
+                    title: title.trim(),
+                    content: content.trim(),
+                    isPublic: isPublic === "TRUE",
+                    publishedAt: dateVal ? new Date(dateVal).toISOString() : null,
+                    isActive: true
+                }, loggedInUser)
+                : fetch(buildApiUrl(STATS_WEB_APP_URL, {
+                    action: 'notice_set',
+                    title: title.trim(),
+                    content: content.trim(),
+                    is_public: isPublic,
+                    published_at: dateVal
+                })).then(res => res.json());
 
-            fetch(url)
-                .then(res => res.json())
+            Promise.resolve(submitTask)
                 .then(() => {
                     fetchLatestNotice();
                     if (isPublic === "TRUE") triggerNoticePush(title.trim(), content.trim());
@@ -1317,6 +1485,12 @@ function showThanks() {
         function updatePushStatus() {
             const statusEl = document.getElementById('pushStatus');
             if (!statusEl) return;
+            if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUsePushApi() && serverPushConfig?.enabled) {
+                statusEl.textContent = webPushSubscriptionEndpoint
+                    ? "Đã bật thông báo đẩy"
+                    : "Chưa bật thông báo đẩy";
+                return;
+            }
             if (!CONFIG.FCM_VAPID_KEY) {
                 statusEl.textContent = "Chưa cấu hình thông báo đẩy";
                 return;
@@ -1328,9 +1502,18 @@ function showThanks() {
             }
         }
 
-        function enablePushNotifications() {
+        async function enablePushNotifications() {
+            if ('serviceWorker' in navigator && 'PushManager' in window && window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUsePushApi()) {
+                try {
+                    await requestWebPushSubscription();
+                    return;
+                } catch (error) {
+                    console.log("Web Push chưa bật được, chuyển fallback cũ:", error);
+                }
+            }
+
             if (!CONFIG.FCM_VAPID_KEY) {
-                alert("Chưa cấu hình VAPID Key cho thông báo đẩy.");
+                alert("Chưa cấu hình thông báo đẩy.");
                 return;
             }
             if (!('serviceWorker' in navigator)) {
@@ -1342,6 +1525,73 @@ function showThanks() {
                 return;
             }
             requestFcmToken();
+        }
+
+        async function getServerPushConfig(forceRefresh = false) {
+            if (!(window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUsePushApi())) {
+                return { enabled: false, publicKey: null, defaultClickUrl: null };
+            }
+
+            if (!forceRefresh && serverPushConfig) {
+                return serverPushConfig;
+            }
+
+            serverPushConfig = await window.SOTAY_SERVER_API.getPushPublicKey();
+            return serverPushConfig || { enabled: false, publicKey: null, defaultClickUrl: null };
+        }
+
+        async function requestWebPushSubscription() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                throw new Error('Trình duyệt không hỗ trợ Web Push.');
+            }
+
+            const pushConfig = await getServerPushConfig(true);
+            if (!pushConfig?.enabled || !pushConfig?.publicKey) {
+                throw new Error('Backend Web Push chưa được cấu hình VAPID.');
+            }
+
+            const permission = Notification.permission === 'granted'
+                ? 'granted'
+                : await Notification.requestPermission();
+
+            if (permission !== 'granted') {
+                throw new Error('Người dùng chưa cấp quyền thông báo.');
+            }
+
+            const registration = await navigator.serviceWorker.register(CONFIG.WEB_PUSH_SW_URL || 'push-sw.js');
+            const existing = await registration.pushManager.getSubscription();
+            const subscription = existing || await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(pushConfig.publicKey)
+            });
+
+            const rawSubscription = subscription.toJSON ? subscription.toJSON() : subscription;
+            const saved = await window.SOTAY_SERVER_API.savePushSubscription(rawSubscription, loggedInUser || 'public');
+            webPushSubscriptionEndpoint = saved?.endpoint || subscription.endpoint || null;
+            updatePushStatus();
+        }
+
+        async function syncWebPushSubscriptionStatus() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                updatePushStatus();
+                return;
+            }
+
+            try {
+                const pushConfig = await getServerPushConfig(false);
+                if (!pushConfig?.enabled || !pushConfig?.publicKey) {
+                    updatePushStatus();
+                    return;
+                }
+
+                const registration = await navigator.serviceWorker.register(CONFIG.WEB_PUSH_SW_URL || 'push-sw.js');
+                const existing = await registration.pushManager.getSubscription();
+                webPushSubscriptionEndpoint = existing ? existing.endpoint : null;
+            } catch (error) {
+                console.log("Không đồng bộ được trạng thái Web Push:", error);
+            }
+
+            updatePushStatus();
         }
 
         function requestFcmToken() {
@@ -1362,6 +1612,26 @@ function showThanks() {
         }
 
         function triggerNoticePush(title, content) {
+            if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUsePushApi()) {
+                getServerPushConfig(false)
+                    .then(pushConfig => {
+                        if (pushConfig?.enabled && pushConfig?.publicKey) {
+                            return window.SOTAY_SERVER_API.sendNoticePush(title, content, pushConfig.defaultClickUrl || `${window.location.origin}/`);
+                        }
+
+                        if (!STATS_WEB_APP_URL) return null;
+                        const url = buildApiUrl(STATS_WEB_APP_URL, {
+                            action: 'notice_push',
+                            title: title,
+                            content: content
+                        });
+                        return fetch(url);
+                    })
+                    .catch(() => {});
+                return;
+            }
+
+            if (!STATS_WEB_APP_URL) return;
             const url = buildApiUrl(STATS_WEB_APP_URL, {
                 action: 'notice_push',
                 title: title,
@@ -2185,7 +2455,8 @@ if (tagFilter) {
 const STATS_WEB_APP_URL = CONFIG.STATS_WEB_APP_URL; 
 
 function recordAndLoadStats(actionType, detail = "") {
-    if (!STATS_WEB_APP_URL) return;
+    const canUseServerStats = window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseStatsApi();
+    if (!canUseServerStats && !STATS_WEB_APP_URL) return;
     let action = actionType;
     let params = {};
 
@@ -2196,10 +2467,11 @@ function recordAndLoadStats(actionType, detail = "") {
 
     params.action = action;
     if (detail) params.detail = detail;
-    let url = buildApiUrl(STATS_WEB_APP_URL, params);
+    const loadTask = canUseServerStats
+        ? window.SOTAY_SERVER_API.recordStatEvent(action, detail, getClientSessionKey(), window.location.pathname)
+        : fetch(buildApiUrl(STATS_WEB_APP_URL, params)).then(response => response.json());
 
-    fetch(url)
-        .then(response => response.json())
+    Promise.resolve(loadTask)
         .then(data => {
             if (actionType === 'visit') sessionStorage.setItem('has_recorded_visit', 'true');
             renderDashboard(data);
@@ -2291,6 +2563,7 @@ function renderDashboard(data) {
 document.addEventListener("DOMContentLoaded", () => {
     recordAndLoadStats('visit');
     fetchLatestNotice();
+    syncWebPushSubscriptionStatus();
     renderFavorites();
     renderContinueReading();
     setReadMode(localStorage.getItem('sotay_read_mode') === '1');
@@ -2303,7 +2576,8 @@ const SURVEY_WEB_APP_URL = CONFIG.SURVEY_WEB_APP_URL;
 
 // 1. Hàm gửi mức độ hài lòng (Rất hài lòng / Hài lòng)
 function submitSurvey(level) {
-    if (!SURVEY_WEB_APP_URL) return;
+    const canUseServerSurvey = window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseSurveyApi();
+    if (!canUseServerSurvey && !SURVEY_WEB_APP_URL) return;
     if (isRateLimited('survey', 1500)) return;
     
     // Hiển thị thông báo đang xử lý để người dùng không bấm nhiều lần
@@ -2311,10 +2585,16 @@ function submitSurvey(level) {
     const originalContent = btnContainer.innerHTML;
     btnContainer.innerHTML = "<p style='color:var(--primary-color)'>Đang gửi đánh giá...</p>";
 
-    let url = buildApiUrl(SURVEY_WEB_APP_URL, { action: 'survey', content: level });
+    const submitTask = canUseServerSurvey
+        ? window.SOTAY_SERVER_API.submitSurveyResponse({
+            responseType: 'survey',
+            ratingLabel: level,
+            content: null,
+            sourcePage: 'legacySurveyModal'
+        })
+        : fetch(buildApiUrl(SURVEY_WEB_APP_URL, { action: 'survey', content: level })).then(response => response.json());
 
-    fetch(url)
-        .then(response => response.json())
+    Promise.resolve(submitTask)
         .then(data => {
             btnContainer.innerHTML = "<p style='color:green; font-weight:bold;'>Cảm ơn đồng chí đã đánh giá " + level + "!</p>";
             // Sau 3 giây đóng khung khảo sát
@@ -2340,10 +2620,17 @@ function submitFeedback() {
     btnSubmit.disabled = true;
     btnSubmit.innerText = "Đang gửi...";
 
-    let url = buildApiUrl(SURVEY_WEB_APP_URL, { action: 'feedback', content: fbContent });
+    const canUseServerSurvey = window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseSurveyApi();
+    const submitTask = canUseServerSurvey
+        ? window.SOTAY_SERVER_API.submitSurveyResponse({
+            responseType: 'feedback',
+            ratingLabel: null,
+            content: fbContent,
+            sourcePage: 'legacySurveyModal'
+        })
+        : fetch(buildApiUrl(SURVEY_WEB_APP_URL, { action: 'feedback', content: fbContent })).then(response => response.json());
 
-    fetch(url)
-        .then(response => response.json())
+    Promise.resolve(submitTask)
         .then(data => {
             alert("Cảm ơn đồng chí đã đóng góp ý kiến!");
             document.getElementById('feedbackContent').value = ""; // Xóa nội dung đã nhập

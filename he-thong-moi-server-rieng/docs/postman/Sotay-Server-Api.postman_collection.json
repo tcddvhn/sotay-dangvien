@@ -188,6 +188,174 @@
           "path": ["api", "chatbot", "ask"]
         }
       }
+    },
+    {
+      "name": "Submit Survey",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"responseType\": \"survey\",\n  \"ratingLabel\": \"Rat hai long\",\n  \"content\": null,\n  \"sourcePage\": \"/\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/survey/submit",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "survey", "submit"]
+        }
+      }
+    },
+    {
+      "name": "Get Stats Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/stats/dashboard",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "stats", "dashboard"]
+        }
+      }
+    },
+    {
+      "name": "Record Stats Event",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"actionType\": \"visit\",\n  \"detail\": \"\",\n  \"sessionKey\": \"postman-session\",\n  \"sourcePage\": \"/\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/stats/record",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "stats", "record"]
+        }
+      }
+    },
+    {
+      "name": "Get Latest Notices",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/notices/latest?take=5",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notices", "latest"],
+          "query": [
+            {
+              "key": "take",
+              "value": "5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Save Notice",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": null,\n  \"title\": \"Thong bao test\",\n  \"content\": \"Noi dung thong bao test tu Postman\",\n  \"isPublic\": true,\n  \"publishedAt\": \"2026-04-13T08:00:00Z\",\n  \"updatedBy\": \"{{adminUsername}}\",\n  \"isActive\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/notices/save",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notices", "save"]
+        }
+      }
+    },
+    {
+      "name": "Get Push Public Key",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/push/public-key",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "push", "public-key"]
+        }
+      }
+    },
+    {
+      "name": "Save Push Subscription",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"endpoint\": \"https://example.push.service/subscriptions/test-endpoint\",\n  \"keys\": {\n    \"p256dh\": \"test-p256dh-key\",\n    \"auth\": \"test-auth-key\"\n  },\n  \"browserName\": \"Chrome\",\n  \"deviceLabel\": \"Windows Test\",\n  \"userKey\": \"{{adminUsername}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/push/subscriptions/save",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "push", "subscriptions", "save"]
+        }
+      }
+    },
+    {
+      "name": "Send Push Notice",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Thong bao push test\",\n  \"content\": \"Noi dung push test tu Postman\",\n  \"clickUrl\": \"https://sotaynghiepvu.dcs.vn/\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/push/send-notice",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "push", "send-notice"]
+        }
+      }
+    },
+    {
+      "name": "Delete Push Subscription",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"endpoint\": \"https://example.push.service/subscriptions/test-endpoint\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/push/subscriptions",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "push", "subscriptions"]
+        }
+      }
     }
   ]
 }

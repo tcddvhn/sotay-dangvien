@@ -125,6 +125,7 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
                 x.IsActive,
                 BuildTree(allNodes, x.Id)))
             .ToList();
+    }
 
     private static ContentNodeDto MapSingle(ContentNodeEntity entity)
         => new(
@@ -173,5 +174,4 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
             Flatten(node.Children, updatedBy, output);
         }
     }
-}
 }

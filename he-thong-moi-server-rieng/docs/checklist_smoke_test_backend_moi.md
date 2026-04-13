@@ -16,6 +16,7 @@ Checklist nay dung de chay thu nhanh backend moi sau khi:
 - Sao chep `appsettings.Test.example.json` thanh `appsettings.Test.json`
 - Dien `ConnectionString` test
 - Dien `Chatbot.ApiKey` neu muon test gateway AI that
+- Dien `Push.PublicKey`, `Push.PrivateKey`, `Push.Subject` neu muon test Web Push that
 - Chay backend voi moi truong `ASPNETCORE_ENVIRONMENT=Test`
 
 ## 3. Chay backend
@@ -137,6 +138,62 @@ dotnet run --launch-profile "Sotay.Server.Api.Test"
   - Neu co `ApiKey`: HTTP 200, co `reply`
   - Neu chua co `ApiKey`: backend fallback mock, van co `reply`
 
+### 4.8. Survey
+
+- Goi `POST /api/survey/submit`
+- Payload:
+
+```json
+{
+  "responseType": "survey",
+  "ratingLabel": "Rat hai long",
+  "content": null,
+  "sourcePage": "/"
+}
+```
+
+- Ky vong:
+  - HTTP 200
+  - tra ve `id`
+
+### 4.9. Stats
+
+- Goi `GET /api/stats/dashboard`
+- Goi `POST /api/stats/record`
+- Payload:
+
+```json
+{
+  "actionType": "visit",
+  "detail": "",
+  "sessionKey": "smoke-test-session",
+  "sourcePage": "/"
+}
+```
+
+- Ky vong:
+  - HTTP 200
+  - dashboard co `totalVisits`, `today`, `daily`
+
+### 4.10. Notice
+
+- Goi `GET /api/notices/latest`
+- Goi `POST /api/notices/save`
+- Ky vong:
+  - doc/ghi thong bao thanh cong
+
+### 4.11. Push
+
+- Goi `GET /api/push/public-key`
+- Neu co VAPID:
+  - `enabled = true`
+  - `publicKey` khong rong
+- Goi `POST /api/push/subscriptions/save` voi payload mau Postman
+- Goi `POST /api/push/send-notice`
+- Ky vong:
+  - luu subscription thanh cong
+  - co ket qua `attempted/delivered/removed`
+
 ## 5. Smoke test frontend-static
 
 - Dung web server tinh de mo `frontend-static`
@@ -147,6 +204,9 @@ dotnet run --launch-profile "Sotay.Server.Api.Test"
   - luu noi dung
   - tab danh ba
   - chatbot
+  - dashboard thong ke
+  - notice
+  - bat thong bao day neu da cau hinh VAPID
 
 ## 6. Dieu kien dat
 
@@ -155,6 +215,8 @@ dotnet run --launch-profile "Sotay.Server.Api.Test"
 - content CRUD duoc
 - directory CRUD duoc
 - chatbot co phan hoi
+- survey/stats/notice chay duoc
+- push API tra ve dung theo cau hinh
 
 ## 7. Neu loi
 
@@ -162,4 +224,5 @@ dotnet run --launch-profile "Sotay.Server.Api.Test"
 - kiem tra migration da chay chua
 - kiem tra `AdminSeed.Enabled`
 - kiem tra `Chatbot.ApiKey`
+- kiem tra `Push.Enabled`, `Push.PublicKey`, `Push.PrivateKey`, `Push.Subject`
 - kiem tra CORS va port chay test

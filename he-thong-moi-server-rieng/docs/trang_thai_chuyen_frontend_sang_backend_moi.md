@@ -1,62 +1,74 @@
-# Trạng thái chuyển frontend-static sang backend mới
+# Trang thai chuyen frontend-static sang backend moi
 
-Ngày lập: 2026-04-13
+Ngay lap: 2026-04-13
 
-## 1. Mục tiêu
+## 1. Muc tieu
 
-Tài liệu này ghi nhận phần nào của `frontend-static` đã được nối sang backend mới trong workspace `he-thong-moi-server-rieng`.
+Tai lieu nay ghi nhan phan nao cua `frontend-static` da duoc noi sang backend moi trong workspace `he-thong-moi-server-rieng`.
 
-## 2. Các luồng đã được chuyển sang lớp API mới
+## 2. Cac luong da duoc chuyen sang lop API moi
 
-Trong [app.js](C:\Users\ldkie\OneDrive\Documents\GitHub\sotay-dangvien\he-thong-moi-server-rieng\frontend-static\app.js) đã có lớp `window.SOTAY_SERVER_API` để gọi:
+Trong `frontend-static/app.js` da co lop `window.SOTAY_SERVER_API` de goi:
 
 - `content`
 - `directory`
 - `admin auth`
 - `chatbot`
+- `survey`
+- `stats`
+- `notice`
+- `push`
 
-Các luồng đã có khả năng đi qua backend mới:
+Trong `frontend-static/directory-module.js` da chuyen lop luu/nap danh ba sang API moi neu backend san sang.
 
-- tải cây nội dung từ `GET /api/content/tree`
-- đồng bộ cây nội dung qua `POST /api/content/tree/sync`
-- lưu 1 node nội dung qua `POST /api/content/save`
-- xóa 1 node nội dung qua `DELETE /api/content/{id}`
-- đăng nhập admin qua `POST /api/admin/auth/login`
-- đăng xuất admin qua `POST /api/admin/auth/logout`
+## 3. Cac endpoint frontend moi da dung duoc
+
+- tai cay noi dung tu `GET /api/content/tree`
+- dong bo cay noi dung qua `POST /api/content/tree/sync`
+- luu 1 node noi dung qua `POST /api/content/save`
+- xoa 1 node noi dung qua `DELETE /api/content/{id}`
+- dang nhap admin qua `POST /api/admin/auth/login`
+- dang xuat admin qua `POST /api/admin/auth/logout`
 - chatbot qua `POST /api/chatbot/ask`
-- tải cây danh bạ qua `GET /api/directory/tree`
-- đồng bộ cây danh bạ qua `POST /api/directory/tree/sync`
+- tai cay danh ba qua `GET /api/directory/tree`
+- dong bo cay danh ba qua `POST /api/directory/tree/sync`
+- khao sat/gop y qua `POST /api/survey/submit`
+- dashboard thong ke qua `GET /api/stats/dashboard`
+- ghi nhan `visit/search/chatbot` qua `POST /api/stats/record`
+- tai thong bao qua `GET /api/notices/latest`
+- luu thong bao qua `POST /api/notices/save`
+- lay public key push qua `GET /api/push/public-key`
+- luu subscription push qua `POST /api/push/subscriptions/save`
+- gui notice push qua `POST /api/push/send-notice`
 
-Trong [directory-module.js](C:\Users\ldkie\OneDrive\Documents\GitHub\sotay-dangvien\he-thong-moi-server-rieng\frontend-static\directory-module.js) đã chuyển lớp lưu/nạp danh bạ sang API mới nếu backend sẵn sàng.
+## 4. Co che fallback hien tai
 
-## 3. Cơ chế fallback hiện tại
+Frontend ban sao dang chay theo nguyen tac:
 
-Frontend bản sao đang chạy theo nguyên tắc:
+- neu API moi san sang, dung API moi
+- neu API moi chua san sang, fallback ve cach cu hoac cache cuc bo
 
-- nếu API mới sẵn sàng, dùng API mới
-- nếu API mới chưa sẵn sàng, fallback về cách cũ hoặc cache cục bộ
+Dieu nay giup qua trinh chuyen doi khong bi chan.
 
-Điều này giúp quá trình chuyển đổi không bị chặn.
+## 5. Nhung phan con dang o trang thai chuyen tiep
 
-## 4. Những phần còn đang ở trạng thái chuyển tiếp
+Chua chuyen han sang backend moi:
 
-Chưa chuyển hẳn sang backend mới:
+- mot so luong quan tri cu van mang cau truc thao tac tu Firebase/Firestore
+- mot so fallback FCM cu de giu van hanh chuyen tiep
 
-- khảo sát
-- thống kê
-- thông báo đẩy
-- một số luồng quản trị cũ vẫn mang cấu trúc thao tác từ Firebase/Firestore
+## 6. Y nghia hien tai
 
-## 5. Ý nghĩa hiện tại
+- workspace moi da co nen frontend du de bat dau test voi backend moi
+- nhung chua the coi la hoan tat chuyen doi frontend
+- de chay that can co backend `.NET` build duoc va database test
 
-- Workspace mới đã có nền frontend đủ để bắt đầu test với backend mới
-- nhưng chưa thể coi là hoàn tất chuyển đổi frontend
-- để chạy thật cần có backend `.NET` build được và database test
+## 7. Viec tiep theo nen lam
 
-## 6. Việc tiếp theo nên làm
-
-1. Dựng môi trường `.NET SDK 8`
-2. Tạo migration thật và database test
-3. Seed admin đầu tiên
-4. Chạy backend mới
-5. Mở `frontend-static` trên môi trường test và kiểm tra các luồng đã chuyển
+1. Dung moi truong `.NET SDK 8`
+2. Tao migration that va database test
+3. Seed admin dau tien
+4. Chay backend moi
+5. Mo `frontend-static` tren moi truong test va kiem tra cac luong da chuyen
+6. Cau hinh VAPID va test `push notification`
+7. Sau khi on dinh moi bo fallback FCM cu

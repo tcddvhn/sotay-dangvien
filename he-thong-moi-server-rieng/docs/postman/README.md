@@ -13,7 +13,7 @@ Ngay lap: 2026-04-13
 2. Import `environment`
 3. Chon environment `Sotay Server API Test`
 4. Chay `Admin Login`
-5. Chay tiep cac request `Health`, `Content`, `Directory`, `Chatbot`
+5. Chay tiep cac request `Health`, `Content`, `Directory`, `Chatbot`, `Survey`, `Stats`, `Notice`, `Push`
 
 ## Ghi chu
 
