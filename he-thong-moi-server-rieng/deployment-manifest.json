@@ -1,0 +1,66 @@
+{
+  "manifestVersion": "1.0.0",
+  "updatedAt": "2026-04-14",
+  "projectName": "So tay Nghiep vu TCĐ, ĐV",
+  "workspaceRoot": "he-thong-moi-server-rieng",
+  "defaultCommandTrigger": "Hay thuc hien chuyen doi",
+  "paths": {
+    "frontendRoot": "he-thong-moi-server-rieng/frontend-static",
+    "backendProject": "he-thong-moi-server-rieng/backend-api/Sotay.Server.Api/Sotay.Server.Api.csproj",
+    "backendRoot": "he-thong-moi-server-rieng/backend-api/Sotay.Server.Api",
+    "docsRoot": "he-thong-moi-server-rieng/docs",
+    "migrationDataRoot": "he-thong-moi-server-rieng/migration-data",
+    "toolsRoot": "he-thong-moi-server-rieng/tools"
+  },
+  "defaults": {
+    "domain": "sotaynghiepvu.dcs.vn",
+    "sqlInstance": ".\\\\SQLEXPRESS",
+    "databaseProduction": "SotayNghiepVu_Production",
+    "databaseTest": "SotayNghiepVu_Test",
+    "frontendIisPath": "C:\\\\inetpub\\\\sotay-nghiep-vu",
+    "frontendIisSiteName": "SotayNghiepVu",
+    "backendUrlsProduction": "http://localhost:5243",
+    "frontendUrlsLocal": "http://localhost:5080"
+  },
+  "requiredConfigFiles": [
+    "he-thong-moi-server-rieng/backend-api/Sotay.Server.Api/appsettings.Production.json",
+    "he-thong-moi-server-rieng/frontend-static/runtime-config.js"
+  ],
+  "requiredSecrets": [
+    "Database.ConnectionString",
+    "AdminSeed.UserName",
+    "AdminSeed.Password",
+    "Push.PublicKey",
+    "Push.PrivateKey",
+    "Chatbot.ApiKey"
+  ],
+  "deploymentSteps": [
+    "verify-prerequisites",
+    "configure-production-settings",
+    "generate-vapid-keys",
+    "restore-build-publish-backend",
+    "apply-database-migrations",
+    "seed-first-admin",
+    "import-legacy-data-if-present",
+    "deploy-frontend-to-iis",
+    "configure-reverse-proxy",
+    "run-smoke-tests",
+    "write-deployment-report"
+  ],
+  "smokeTests": [
+    "GET /api/health",
+    "POST /api/admin/auth/login",
+    "GET /api/content/tree",
+    "GET /api/directory/tree",
+    "GET /api/stats/dashboard",
+    "GET /api/notices/latest",
+    "POST /api/survey/submit",
+    "GET /api/push/public-key",
+    "POST /api/chatbot/ask"
+  ],
+  "notes": [
+    "Production frontend phai dung runtime-config production, khong duoc de localhost.",
+    "Khong duoc dua Chatbot.ApiKey vao frontend.",
+    "Neu migration-data co file content-tree.export.json va directory-tree.export.json thi import du lieu cu vao SQL Server."
+  ]
+}

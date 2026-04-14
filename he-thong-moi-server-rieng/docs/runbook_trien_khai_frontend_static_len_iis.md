@@ -53,28 +53,34 @@ Copy-Item "C:\Users\ldkie\OneDrive\Documents\GitHub\sotay-dangvien\he-thong-moi-
 
 Neu deploy tu may khac, dung zip hoac copy qua share/RDP roi giai nen vao thu muc dich.
 
-## 7. Buoc 4 - Dieu chinh API base neu frontend va backend tach cong
+## 7. Buoc 4 - Doi runtime-config sang ban production
 
-Mac dinh trong `frontend-static/app.js`:
-
-```javascript
-SERVER_API_BASE_URL: "/api"
-```
-
-Dung cau hinh nay neu:
-
-- frontend va backend cung domain
-- co reverse proxy tu IIS vao backend
-
-Neu frontend goi truc tiep backend test port rieng, doi tam thanh:
+Khong deploy file `runtime-config.js` dang dung cho local vi file nay hien dang tro toi:
 
 ```javascript
-SERVER_API_BASE_URL: "https://localhost:7243/api"
+SERVER_API_BASE_URL: "http://localhost:5243/api"
 ```
+
+Truoc khi dua len IIS, thay noi dung `runtime-config.js` bang file mau production:
+
+```powershell
+Copy-Item `
+  "C:\Users\ldkie\OneDrive\Documents\GitHub\sotay-dangvien\he-thong-moi-server-rieng\frontend-static\runtime-config.production.example.js" `
+  "C:\Users\ldkie\OneDrive\Documents\GitHub\sotay-dangvien\he-thong-moi-server-rieng\frontend-static\runtime-config.js" `
+  -Force
+```
+
+Cau hinh production dung:
+
+- `SERVER_API_BASE_URL: "/api"`
+- `STRICT_SERVER_MODE: true`
+- tat ca URL fallback cu de rong
 
 Khuyen nghi:
 
-- dung reverse proxy cung domain de giam CORS
+- frontend va backend cung domain
+- reverse proxy `https://domain/api/...` vao backend
+- khong dung API base tuyet doi `localhost` trong production
 
 ## 8. Buoc 5 - Tao website trong IIS
 
@@ -118,6 +124,7 @@ Neu chua co reverse proxy, frontend van co the test bang API base tuyet doi tam 
 ## 12. Buoc 9 - Kiem tra nhanh sau deploy
 
 - mo `https://domain`
+- mo `https://domain/runtime-config.js` va xac nhan khong con chuoi `localhost`
 - kiem tra CSS tai du
 - kiem tra tab danh ba
 - kiem tra tim kiem noi dung
@@ -162,4 +169,3 @@ Kiem tra:
 - login admin duoc
 - content va directory hien thi dung
 - chatbot tra loi duoc
-

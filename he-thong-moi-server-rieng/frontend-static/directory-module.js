@@ -10,6 +10,13 @@
     let expandedDirectoryNodes = new Set();
     let isFirstDirectoryLoad = true;
 
+    function isStrictServerMode() {
+        if (window.SOTAY_SERVER_API && typeof window.SOTAY_SERVER_API.isStrictServerMode === 'function') {
+            return window.SOTAY_SERVER_API.isStrictServerMode();
+        }
+        return window.SOTAY_RUNTIME_CONFIG?.STRICT_SERVER_MODE === true;
+    }
+
     function safeClone(value) {
         return JSON.parse(JSON.stringify(value || []));
     }
@@ -88,7 +95,7 @@
     }
 
     function getDirectoryDb() {
-        if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseDirectoryApi()) {
+        if (isStrictServerMode() || (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseDirectoryApi())) {
             return null;
         }
         try {
@@ -144,10 +151,21 @@
                 .then((tree) => {
                     setDirectoryData(tree && tree.length ? tree : getSeedDirectoryData());
                 })
-                .catch(() => {
+                .catch((error) => {
+                    console.error('Lỗi tải danh bạ từ backend mới:', error);
+                    if (isStrictServerMode()) {
+                        setDirectoryData([]);
+                        return;
+                    }
                     const fallback = readCachedDirectory();
                     setDirectoryData(fallback.length ? fallback : getSeedDirectoryData());
                 });
+            return;
+        }
+
+        if (isStrictServerMode()) {
+            console.error('Danh ba chi duoc phep chay qua backend moi trong moi truong test.');
+            setDirectoryData([]);
             return;
         }
 
@@ -550,6 +568,11 @@
                 .catch((error) => {
                     alert(`Lỗi khi lưu danh bạ qua API: ${error.message || error}`);
                 });
+            return;
+        }
+
+        if (isStrictServerMode()) {
+            alert('Danh ba chi duoc phep chay qua backend moi trong moi truong test.');
             return;
         }
 

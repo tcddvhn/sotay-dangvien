@@ -20,12 +20,14 @@ Da hoan tat:
 - Cap nhat DB test `SotayNghiepVu_Test`
 - Tao tool import tai `he-thong-moi-server-rieng/tools/import-legacy-data.js`
 - Tao script ho tro export Firestore tu browser console tai `he-thong-moi-server-rieng/tools/export-firestore-docs-from-browser-console.js`
-- Nhap `Danh ba` tu `directory-seed.js` vao DB moi
+- Nhap `Danh ba` live tu file export Firestore vao DB moi
+- Nhap `Noi dung so tay` live tu file export Firestore vao DB moi
 
 Ket qua hien tai:
 
-- `directory/tree`: da co 132 don vi cap 1 that tu file seed goc
-- `content/tree`: van dang la du lieu mau do chua co file export tu Firestore
+- `directory/tree`: 132 don vi goc, tong 134 don vi
+- `content/tree`: 8 muc goc, tong 319 muc
+- He thong test khong con du lieu mau o `content` va `directory`
 
 ## 3. Cac file va cong cu lien quan
 
@@ -115,5 +117,19 @@ Can xac nhan:
 
 - `directory-seed.js` chi la nguon fallback trong repo, khong chac chan la du lieu live moi nhat
 - Neu he thong cu da sua danh ba tren Firestore, phai uu tien `directory-tree.export.json` tu live system
-- `content` hien chua migrate that do repo khong chua `APP_DATA`; du lieu live nam trong Firestore
-- Sau khi lay duoc file export live, tool import hien tai da san sang de nap thang vao SQL Server
+- `content` va `directory` da duoc import live vao `SotayNghiepVu_Test` ngay 2026-04-14
+- Khi can import lai, van dung chinh quy trinh export/import tren
+
+## 9. Ket qua import live ngay 2026-04-14
+
+- Nguon `sotay/dulieu`: `content-tree.export.json`
+- Nguon `sotay/danhba`: `directory-tree.export.json`
+- Lenh da chay:
+
+```powershell
+node .\he-thong-moi-server-rieng\tools\import-legacy-data.js --base-url http://127.0.0.1:5243/api --updated-by migration-firestore-live
+```
+
+- Ket qua:
+  - `Noi dung`: 319 muc, 8 muc goc
+  - `Danh ba`: 134 don vi, 132 don vi goc

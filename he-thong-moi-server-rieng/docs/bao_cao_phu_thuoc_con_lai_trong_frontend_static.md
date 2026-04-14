@@ -1,6 +1,6 @@
 # Bao cao phu thuoc con lai trong frontend-static
 
-Ngay lap: 2026-04-13
+Ngay cap nhat: 2026-04-14
 
 ## 1. Muc tieu
 
@@ -34,6 +34,15 @@ Da co kha nang di qua backend moi cho:
 - push save/delete subscription
 - push send notice
 
+Ngoai ra, moi truong test local hien da bat:
+
+- `STRICT_SERVER_MODE = true` trong `frontend-static/runtime-config.js`
+
+Y nghia:
+
+- frontend test chi di qua backend moi
+- neu backend loi hoac thieu endpoint, frontend se bao loi ro thay vi quay ve Firebase/Apps Script
+
 ## 3. Cac phan con phu thuoc Firebase
 
 ### 3.1. Fallback noi dung cu
@@ -50,7 +59,8 @@ Y nghia:
 
 Tac dong:
 
-- day la phu thuoc chuyen tiep, chua phai phu thuoc bat buoc neu backend moi da on dinh
+- trong moi truong test local, fallback nay da bi vo hieu hoa boi `STRICT_SERVER_MODE`
+- trong ma nguon, fallback van duoc giu lai cho cac moi truong chuyen tiep neu can
 
 ### 3.2. Protected access login cu
 
@@ -60,7 +70,8 @@ Trong `frontend-static/app.js` van con fallback:
 
 Y nghia:
 
-- neu auth API moi chua bat, frontend van quay ve Firebase Auth
+- trong moi truong test local, fallback nay da bi vo hieu hoa
+- trong ma nguon, fallback van con de phuc vu chuyen tiep neu can
 
 ### 3.3. Push fallback cu
 
@@ -72,11 +83,13 @@ Trong `frontend-static/app.js` van con:
 
 Y nghia:
 
-- day la fallback an toan khi backend Web Push chua duoc cau hinh VAPID
+- trong moi truong test local, fallback FCM da bi vo hieu hoa khi `STRICT_SERVER_MODE = true`
+- neu backend Web Push chua cau hinh VAPID, frontend test se dung va bao loi ro
 
 Ket luan:
 
-- neu muon cat dut Firebase hoan toan, day la mot trong cac diem can lam sach sau khi Web Push backend da on dinh
+- de cat dut Firebase hoan toan o ma nguon, van can xoa not code fallback
+- con o moi truong test local, Firebase da khong con la duong chay hop le nua
 
 ## 4. Cac phan con phu thuoc Google Apps Script
 
@@ -94,8 +107,8 @@ Hien con lien quan den `STATS_WEB_APP_URL` chu yeu la fallback chuyen tiep cho p
 
 Ket luan:
 
-- phu thuoc Google Apps Script da giam manh hon nua
-- phan con lai chu yeu la code fallback chuyen tiep
+- trong moi truong test local, fallback Apps Script da bi vo hieu hoa
+- phan con lai trong ma nguon chu yeu la no ky thuat chuyen tiep
 
 ## 5. Cac phan con phu thuoc ben ngoai khac
 
@@ -109,7 +122,7 @@ Nhom nay khong phai Firebase/Apps Script, nhung neu muc tieu la tu chu cao hon t
 
 ## 6. Danh sach viec con phai thay truoc cutover that
 
-### Bat buoc neu muon bo Firebase/Apps Script o frontend moi
+### Bat buoc neu muon bo Firebase/Apps Script o frontend moi tren ma nguon production
 
 1. Bo fallback Firestore trong `frontend-static/app.js`
 2. Bo fallback Firebase Auth trong `frontend-static/app.js`
@@ -149,9 +162,5 @@ Neu muc tieu la `toan bo he thong server rieng`, huong B la huong dung.
 
 - `frontend-static` da di duoc them mot buoc quan trong sang backend moi
 - survey, stats, notice va push da co duong backend rieng
-- nhung chua cat dut hoan toan Firebase va Google Apps Script
-- phan con lai tap trung chu yeu o:
-  - fallback auth/firestore
-  - fallback push cu
-
-Day la danh sach viec can thay not truoc khi co the noi he thong moi la da tach khoi kien truc cu.
+- moi truong test local da duoc khoa o che do `server-only`
+- phan con lai la viec don ma nguon fallback cu cho giai doan production/cutover cuoi cung

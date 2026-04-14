@@ -1,5 +1,5 @@
 window.SOTAY_RUNTIME_CONFIG = {
-    SERVER_API_BASE_URL: "http://localhost:5243/api",
+    SERVER_API_BASE_URL: "/api",
     STRICT_SERVER_MODE: true,
     ENABLE_SERVER_CONTENT_API: true,
     ENABLE_SERVER_DIRECTORY_API: true,

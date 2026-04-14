@@ -4,6 +4,7 @@
         const RUNTIME_CONFIG = window.SOTAY_RUNTIME_CONFIG || {};
         const CONFIG = {
             SERVER_API_BASE_URL: "/api",
+            STRICT_SERVER_MODE: false,
             ENABLE_SERVER_CONTENT_API: true,
             ENABLE_SERVER_DIRECTORY_API: true,
             ENABLE_SERVER_AUTH_API: true,
@@ -71,6 +72,18 @@
 
         function isServerApiEnabled(flagName) {
             return Boolean(CONFIG[flagName]) && Boolean(getServerApiBaseUrl());
+        }
+
+        function isStrictServerMode() {
+            return CONFIG.STRICT_SERVER_MODE === true;
+        }
+
+        function getStrictServerModeMessage(featureName) {
+            return `${featureName} chi duoc phep chay qua backend moi trong moi truong test.`;
+        }
+
+        function rejectStrictServerMode(featureName) {
+            return Promise.reject(new Error(getStrictServerModeMessage(featureName)));
         }
 
         function createClientNodeId() {
@@ -234,6 +247,9 @@
         }
 
         window.SOTAY_SERVER_API = {
+            isStrictServerMode() {
+                return isStrictServerMode();
+            },
             canUseContentApi() {
                 return isServerApiEnabled('ENABLE_SERVER_CONTENT_API');
             },
@@ -736,15 +752,19 @@ function showThanks() {
 
         const firebaseConfig = { apiKey: "AIzaSyAN6SAuJhlkYtnuqVclEBhMn2Jz565Q7gs", authDomain: "sotay-dangvien.firebaseapp.com", projectId: "sotay-dangvien", storageBucket: "sotay-dangvien.firebasestorage.app", messagingSenderId: "699788813951", appId: "1:699788813951:web:14eb81183799f83e0f814a" };
         let db = null;
-        try {
-            if (window.firebase && firebase.apps) {
-                if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-                db = firebase.firestore();
-            } else {
-                console.error("Firebase chưa được tải.");
+        if (!isStrictServerMode()) {
+            try {
+                if (window.firebase && firebase.apps) {
+                    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+                    db = firebase.firestore();
+                } else {
+                    console.error("Firebase chưa được tải.");
+                }
+            } catch (e) {
+                console.error("Lỗi khởi tạo Firebase:", e);
             }
-        } catch (e) {
-            console.error("Lỗi khởi tạo Firebase:", e);
+        } else {
+            console.info("Strict server mode đang bật, bỏ qua khởi tạo Firebase.");
         }
 
         const thongKeRef = db ? db.collection("sotay").doc("thongke") : null;
@@ -777,7 +797,12 @@ function showThanks() {
         }
 
         if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseContentApi()) {
-            loadAppDataFromServerApi().catch(() => {
+            loadAppDataFromServerApi().catch((error) => {
+                console.error("Lỗi tải nội dung từ backend mới:", error);
+                if (isStrictServerMode()) {
+                    applyLoadedAppData([]);
+                    return;
+                }
                 if (db) {
                     db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
                         applyLoadedAppData(doc.exists ? (doc.data().treeData || []) : []);
@@ -792,6 +817,9 @@ function showThanks() {
                     applyLoadedAppData([]);
                 }
             });
+        } else if (isStrictServerMode()) {
+            console.error(getStrictServerModeMessage('Noi dung so tay'));
+            applyLoadedAppData([]);
         } else if (db) {
             db.collection("sotay").doc("dulieu").onSnapshot((doc) => {
                 applyLoadedAppData(doc.exists ? (doc.data().treeData || []) : []);
@@ -1211,6 +1239,12 @@ function showThanks() {
         function closeSearchModal() { document.getElementById('modalSearch').style.display = 'none'; }
 
         function isAuthenticatedProtectedUser() {
+            if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseAuthApi()) {
+                return Boolean(loggedInUser);
+            }
+            if (isStrictServerMode()) {
+                return false;
+            }
             return !!(window.firebase && firebase.auth && firebase.auth().currentUser);
         }
 
@@ -1276,6 +1310,8 @@ function showThanks() {
 
             const loginTask = (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseAuthApi())
                 ? window.SOTAY_SERVER_API.loginAdmin(authLogin, password)
+                : isStrictServerMode()
+                    ? rejectStrictServerMode('Xac thuc protected route')
                 : (!window.firebase || !firebase.auth)
                     ? Promise.reject(new Error('Chưa tải được dịch vụ xác thực.'))
                     : firebase.auth().signInWithEmailAndPassword(email, password);
@@ -1421,7 +1457,13 @@ function showThanks() {
 
         function fetchLatestNotice(markAfter = false) {
             const canUseServerNotice = window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseNoticeApi();
-            if (!canUseServerNotice && !STATS_WEB_APP_URL) return;
+            if (!canUseServerNotice) {
+                if (isStrictServerMode()) {
+                    console.error(getStrictServerModeMessage('Thong bao'));
+                    return;
+                }
+                if (!STATS_WEB_APP_URL) return;
+            }
             const loadTask = canUseServerNotice
                 ? window.SOTAY_SERVER_API.getLatestNotices(5)
                 : fetch(buildApiUrl(STATS_WEB_APP_URL, { action: 'notice_get' })).then(res => res.json());
@@ -1458,6 +1500,8 @@ function showThanks() {
                     publishedAt: dateVal ? new Date(dateVal).toISOString() : null,
                     isActive: true
                 }, loggedInUser)
+                : isStrictServerMode()
+                    ? rejectStrictServerMode('Thong bao')
                 : fetch(buildApiUrl(STATS_WEB_APP_URL, {
                     action: 'notice_set',
                     title: title.trim(),
@@ -1510,8 +1554,17 @@ function showThanks() {
                     await requestWebPushSubscription();
                     return;
                 } catch (error) {
+                    if (isStrictServerMode()) {
+                        alert(error?.message || getStrictServerModeMessage('Thong bao day'));
+                        return;
+                    }
                     console.log("Web Push chưa bật được, chuyển fallback cũ:", error);
                 }
+            }
+
+            if (isStrictServerMode()) {
+                alert(getStrictServerModeMessage('Thong bao day'));
+                return;
             }
 
             if (!CONFIG.FCM_VAPID_KEY) {
@@ -1597,6 +1650,9 @@ function showThanks() {
         }
 
         function requestFcmToken() {
+            if (isStrictServerMode()) {
+                return Promise.reject(new Error(getStrictServerModeMessage('FCM fallback')));
+            }
             navigator.serviceWorker.register('firebase-messaging-sw.js')
                 .then(reg => {
                     const messaging = firebase.messaging();
@@ -1621,6 +1677,7 @@ function showThanks() {
                             return window.SOTAY_SERVER_API.sendNoticePush(title, content, pushConfig.defaultClickUrl || `${window.location.origin}/`);
                         }
 
+                        if (isStrictServerMode()) return null;
                         if (!STATS_WEB_APP_URL) return null;
                         const url = buildApiUrl(STATS_WEB_APP_URL, {
                             action: 'notice_push',
@@ -1633,6 +1690,7 @@ function showThanks() {
                 return;
             }
 
+            if (isStrictServerMode()) return;
             if (!STATS_WEB_APP_URL) return;
             const url = buildApiUrl(STATS_WEB_APP_URL, {
                 action: 'notice_push',
@@ -1959,6 +2017,10 @@ if (tagFilter) {
                     .catch(err => alert("Lỗi khi đồng bộ cây nội dung: " + err.message));
                 return;
             }
+            if (isStrictServerMode()) {
+                alert(getStrictServerModeMessage('Noi dung so tay'));
+                return;
+            }
             if (!db) { alert("Không kết nối được Firebase. Vui lòng kiểm tra mạng hoặc tải lại trang."); return; }
             db.collection("sotay").doc("dulieu").update({ treeData: newTree }).catch(err => alert("Lỗi khi lưu cấu trúc: " + err)); 
         }
@@ -2032,6 +2094,7 @@ if (tagFilter) {
                     });
                 return;
             }
+            if (isStrictServerMode()) { alert(getStrictServerModeMessage('Noi dung so tay')); btn.innerText = "LƯU MỤC NÀY"; btn.disabled = false; return; }
             if (!db) { alert("Không kết nối được Firebase. Vui lòng kiểm tra mạng hoặc tải lại trang."); btn.innerText = "LƯU MỤC NÀY"; btn.disabled = false; return; }
             const docRef = db.collection("sotay").doc("dulieu");
             db.runTransaction((transaction) => {
@@ -2053,6 +2116,7 @@ if (tagFilter) {
                 setTimeout(() => { selectItem(newNode.id); }, 150);
                 return;
             }
+            if (isStrictServerMode()) { alert(getStrictServerModeMessage('Noi dung so tay')); return; }
             const docRef = db.collection("sotay").doc("dulieu");
             db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; serverTree.push(newNode); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { selectItem(newNode.id); });
         }
@@ -2067,6 +2131,7 @@ if (tagFilter) {
                 setTimeout(() => { selectItem(newNode.id); }, 150);
                 return;
             }
+            if (isStrictServerMode()) { alert(getStrictServerModeMessage('Noi dung so tay')); return; }
             expandedAdminNodes.add(currentEditNodeId); const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; function appendChild(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === currentEditNodeId) { if(!nodes[i].children) nodes[i].children = []; nodes[i].children.push(newNode); return true; } if(nodes[i].children && appendChild(nodes[i].children)) return true; } return false; } appendChild(serverTree); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { selectItem(newNode.id); });
         }
         function deleteCurrentItem() {
@@ -2078,6 +2143,7 @@ if (tagFilter) {
                     .catch((err) => alert("Lỗi xóa nội dung: " + err.message));
                 return;
             }
+            if (isStrictServerMode()) { alert(getStrictServerModeMessage('Noi dung so tay')); return; }
             const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; function removeNode(nodes) { let idx = nodes.findIndex(c => c.id === currentEditNodeId); if(idx > -1) { nodes.splice(idx, 1); return true; } for(let i=0; i<nodes.length; i++){ if(nodes[i].children && removeNode(nodes[i].children)) return true; } return false; } removeNode(serverTree); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { currentEditNodeId = null; hasUnsavedChanges = false; document.getElementById('editorArea').style.display='none'; document.getElementById('editorPlaceholder').style.display='block'; });
         }
 
@@ -2126,6 +2192,8 @@ if (tagFilter) {
 
             const loginTask = (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseAuthApi())
                 ? window.SOTAY_SERVER_API.loginAdmin(authLogin, pass)
+                : isStrictServerMode()
+                    ? rejectStrictServerMode('Dang nhap quan tri')
                 : (!window.firebase || !firebase.auth)
                     ? Promise.reject(new Error('Chưa tải được dịch vụ xác thực.'))
                     : firebase.auth().signInWithEmailAndPassword(email, pass);
@@ -2149,6 +2217,8 @@ if (tagFilter) {
             if(typeof getCurrentAdminMode === 'function' && getCurrentAdminMode() === 'directory') { if (typeof confirmDirectoryUnsaved === 'function' && !confirmDirectoryUnsaved()) return; } else { if(!confirmUnsaved()) return; }
             const logoutTask = (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseAuthApi())
                 ? window.SOTAY_SERVER_API.logoutAdmin()
+                : isStrictServerMode()
+                    ? Promise.resolve()
                 : (!window.firebase || !firebase.auth)
                     ? Promise.resolve()
                     : firebase.auth().signOut();
@@ -2244,6 +2314,10 @@ if (tagFilter) {
             if (window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseChatbotApi()) {
                 const result = await window.SOTAY_SERVER_API.askChatbot(message);
                 return { reply: result.reply || "" };
+            }
+
+            if (isStrictServerMode()) {
+                return { error: getStrictServerModeMessage('Tro ly AI') };
             }
 
             const WEB_APP_URL = CONFIG.CHATBOT_WEB_APP_URL;
@@ -2458,7 +2532,15 @@ const STATS_WEB_APP_URL = CONFIG.STATS_WEB_APP_URL;
 
 function recordAndLoadStats(actionType, detail = "") {
     const canUseServerStats = window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseStatsApi();
-    if (!canUseServerStats && !STATS_WEB_APP_URL) return;
+    if (!canUseServerStats) {
+        if (isStrictServerMode()) {
+            console.error(getStrictServerModeMessage('Thong ke'));
+            let dash = document.getElementById('homeDashboard');
+            if(dash) dash.innerHTML = "<p style='text-align:center;font-size:0.8rem;'>Backend thong ke chua san sang.</p>";
+            return;
+        }
+        if (!STATS_WEB_APP_URL) return;
+    }
     let action = actionType;
     let params = {};
 
@@ -2579,7 +2661,13 @@ const SURVEY_WEB_APP_URL = CONFIG.SURVEY_WEB_APP_URL;
 // 1. Hàm gửi mức độ hài lòng (Rất hài lòng / Hài lòng)
 function submitSurvey(level) {
     const canUseServerSurvey = window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseSurveyApi();
-    if (!canUseServerSurvey && !SURVEY_WEB_APP_URL) return;
+    if (!canUseServerSurvey) {
+        if (isStrictServerMode()) {
+            alert(getStrictServerModeMessage('Khao sat'));
+            return;
+        }
+        if (!SURVEY_WEB_APP_URL) return;
+    }
     if (isRateLimited('survey', 1500)) return;
     
     // Hiển thị thông báo đang xử lý để người dùng không bấm nhiều lần
@@ -2623,6 +2711,12 @@ function submitFeedback() {
     btnSubmit.innerText = "Đang gửi...";
 
     const canUseServerSurvey = window.SOTAY_SERVER_API && window.SOTAY_SERVER_API.canUseSurveyApi();
+    if (!canUseServerSurvey && isStrictServerMode()) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "Gửi góp ý";
+        alert(getStrictServerModeMessage('Gop y'));
+        return;
+    }
     const submitTask = canUseServerSurvey
         ? window.SOTAY_SERVER_API.submitSurveyResponse({
             responseType: 'feedback',

@@ -14,18 +14,33 @@ builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOpt
 builder.Services.Configure<AdminSeedOptions>(builder.Configuration.GetSection(AdminSeedOptions.SectionName));
 builder.Services.Configure<SampleDataSeedOptions>(builder.Configuration.GetSection(SampleDataSeedOptions.SectionName));
 builder.Services.Configure<PushOptions>(builder.Configuration.GetSection(PushOptions.SectionName));
+builder.Services.Configure<CorsOptions>(builder.Configuration.GetSection(CorsOptions.SectionName));
+
+var corsAllowedOrigins = builder.Configuration
+    .GetSection(CorsOptions.SectionName)
+    .GetSection(nameof(CorsOptions.AllowedOrigins))
+    .Get<string[]>()?
+    .Where(origin => !string.IsNullOrWhiteSpace(origin))
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray()
+    ?? [];
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendOnly", policy =>
     {
-        policy.WithOrigins(
-                "https://sotaynghiepvu.dcs.vn",
-                "https://localhost:5443",
-                "http://localhost:5080")
+        if (corsAllowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(corsAllowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+            return;
+        }
+
+        policy.AllowAnyOrigin()
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowAnyMethod();
     });
 });
 
