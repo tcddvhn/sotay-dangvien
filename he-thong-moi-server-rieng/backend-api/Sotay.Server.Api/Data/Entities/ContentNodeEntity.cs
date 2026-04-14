@@ -4,6 +4,8 @@ public sealed class ContentNodeEntity
 {
     public Guid Id { get; set; }
 
+    public string? LegacyId { get; set; }
+
     public Guid? ParentId { get; set; }
 
     public string Title { get; set; } = string.Empty;

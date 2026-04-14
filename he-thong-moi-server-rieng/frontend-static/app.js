@@ -1,6 +1,7 @@
 ﻿// =====================
         // CONFIG
         // =====================
+        const RUNTIME_CONFIG = window.SOTAY_RUNTIME_CONFIG || {};
         const CONFIG = {
             SERVER_API_BASE_URL: "/api",
             ENABLE_SERVER_CONTENT_API: true,
@@ -21,6 +22,7 @@
             WEB_PUSH_SW_URL: "push-sw.js",
             FCM_VAPID_KEY: "T-t1yEsxAdEil_DcRonTeeTO474Lg30qYdTnysOjyEQ"
         };
+        Object.assign(CONFIG, RUNTIME_CONFIG);
         const PROTECTED_ROUTE_CONFIG = {
             normalizedTitle: "he thong du lieu tcd dv tap trung",
             url: "https://code-web-sotay.vercel.app/"

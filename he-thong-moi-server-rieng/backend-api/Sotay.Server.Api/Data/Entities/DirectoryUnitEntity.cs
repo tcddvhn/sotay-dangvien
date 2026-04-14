@@ -4,6 +4,8 @@ public sealed class DirectoryUnitEntity
 {
     public Guid Id { get; set; }
 
+    public string? LegacyId { get; set; }
+
     public Guid? ParentId { get; set; }
 
     public string Name { get; set; } = string.Empty;

@@ -56,7 +56,9 @@ if (!string.IsNullOrWhiteSpace(databaseConnectionString))
                 .GetSection(AuthOptions.SectionName)
                 .GetValue<string>(nameof(AuthOptions.CookieName)) ?? "sotay_admin";
             options.Cookie.HttpOnly = true;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SecurePolicy = builder.Environment.IsProduction()
+                ? CookieSecurePolicy.Always
+                : CookieSecurePolicy.SameAsRequest;
             options.SlidingExpiration = true;
         });
 

@@ -15,4 +15,7 @@ public sealed record DirectoryTreeItem(
     string? Location,
     int SortOrder,
     bool IsActive,
-    IReadOnlyList<DirectoryTreeItem> Children);
+    IReadOnlyList<DirectoryTreeItem> Children)
+{
+    public string? LegacyId { get; init; }
+}

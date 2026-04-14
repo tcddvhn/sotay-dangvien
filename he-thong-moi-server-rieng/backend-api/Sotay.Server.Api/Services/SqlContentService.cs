@@ -153,6 +153,7 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
             output.Add(new ContentNodeEntity
             {
                 Id = node.Id,
+                LegacyId = node.LegacyId,
                 ParentId = node.ParentId,
                 Title = node.Title,
                 Tag = node.Tag,

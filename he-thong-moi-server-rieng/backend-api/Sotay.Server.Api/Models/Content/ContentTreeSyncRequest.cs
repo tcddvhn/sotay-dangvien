@@ -18,4 +18,7 @@ public sealed record ContentNodeTreeItem(
     int Level,
     int SortOrder,
     bool IsActive,
-    IReadOnlyList<ContentNodeTreeItem> Children);
+    IReadOnlyList<ContentNodeTreeItem> Children)
+{
+    public string? LegacyId { get; init; }
+}

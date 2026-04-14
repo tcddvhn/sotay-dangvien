@@ -146,6 +146,7 @@ public sealed class SqlDirectoryService(ApplicationDbContext dbContext) : IDirec
             output.Add(new DirectoryUnitEntity
             {
                 Id = node.Id,
+                LegacyId = node.LegacyId,
                 ParentId = node.ParentId,
                 Name = node.Name,
                 UnitCode = node.UnitCode,

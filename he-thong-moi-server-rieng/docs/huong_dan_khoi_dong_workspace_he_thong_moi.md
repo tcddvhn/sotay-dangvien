@@ -43,19 +43,20 @@ Chi tiet backend hien tai:
 - `stats` da co service va controller ghi `UsageEvents` va tong hop dashboard
 - `notice` da co service va controller doc/ghi `notify.Notices`
 - `push` da co service va controller luu subscription va gui thong bao day theo Web Push
+- da tao migration EF Core dau tien `InitialFoundation` trong `Data/Migrations`
 - neu chua co `ApiKey`, chatbot tu roi ve `mock service`
 
 ## 4. Nhung gi chua cai tren may hien tai
 
-May lam viec hien tai chua co:
+May lam viec hien tai da co:
 
-- `.NET SDK`
+- `.NET SDK 8.0.419`
 
-Vi vay:
+Da lam duoc tren may nay:
 
-- chua chay `dotnet restore`
-- chua build duoc project backend
-- chua tao migration that
+- `dotnet restore`
+- `dotnet build`
+- tao migration that
 
 ## 5. Dieu kien de bat dau chay backend that
 
@@ -105,13 +106,14 @@ Phai cai:
 
 ## 8. Dau viec tiep theo nen lam ngay
 
-1. Tao migration that cho `Identity` va `SQL Server`
-2. Bat `AdminSeed`, tao tai khoan admin dau tien va test login thuc te
-3. Bat `SampleDataSeed`, tao du lieu mau test
-4. Cau hinh `ApiKey` chatbot va test gateway AI thuc te
-5. Dien `PushOptions` va test `Web Push`
-6. Mo `frontend-static` de test lai toan bo luong da chuyen
-7. Sau khi on dinh moi bo fallback cu
+1. Xac dinh hoac cai dat instance SQL Server/LocalDB cho may test
+2. Chay `database update`
+3. Bat `AdminSeed`, tao tai khoan admin dau tien va test login thuc te
+4. Bat `SampleDataSeed`, tao du lieu mau test
+5. Cau hinh `ApiKey` chatbot va test gateway AI thuc te
+6. Dien `PushOptions` va test `Web Push`
+7. Mo `frontend-static` de test lai toan bo luong da chuyen
+8. Sau khi on dinh moi bo fallback cu
 
 Khi chay thu lan dau, dung them:
 

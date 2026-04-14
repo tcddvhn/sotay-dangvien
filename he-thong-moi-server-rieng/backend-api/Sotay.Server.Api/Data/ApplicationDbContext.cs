@@ -66,6 +66,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             entity.ToTable("ContentNodes", "core");
             entity.HasKey(x => x.Id);
+            entity.Property(x => x.LegacyId).HasMaxLength(200);
             entity.Property(x => x.Title).HasMaxLength(500).IsRequired();
             entity.Property(x => x.Tag).HasMaxLength(250);
             entity.Property(x => x.FileUrl).HasMaxLength(1000);
@@ -73,6 +74,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(x => x.CreatedBy).HasMaxLength(100);
             entity.Property(x => x.UpdatedBy).HasMaxLength(100);
             entity.Property(x => x.ForceAccordion).HasDefaultValue(false);
+            entity.HasIndex(x => x.LegacyId).IsUnique().HasFilter("[LegacyId] IS NOT NULL");
             entity.HasOne(x => x.Parent)
                 .WithMany(x => x.Children)
                 .HasForeignKey(x => x.ParentId)
@@ -83,6 +85,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             entity.ToTable("Units", "directory");
             entity.HasKey(x => x.Id);
+            entity.Property(x => x.LegacyId).HasMaxLength(200);
             entity.Property(x => x.Name).HasMaxLength(500).IsRequired();
             entity.Property(x => x.UnitCode).HasMaxLength(100);
             entity.Property(x => x.Phone).HasMaxLength(100);
@@ -90,6 +93,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(x => x.Location).HasMaxLength(1000);
             entity.Property(x => x.CreatedBy).HasMaxLength(100);
             entity.Property(x => x.UpdatedBy).HasMaxLength(100);
+            entity.HasIndex(x => x.LegacyId).IsUnique().HasFilter("[LegacyId] IS NOT NULL");
             entity.HasOne(x => x.Parent)
                 .WithMany(x => x.Children)
                 .HasForeignKey(x => x.ParentId)

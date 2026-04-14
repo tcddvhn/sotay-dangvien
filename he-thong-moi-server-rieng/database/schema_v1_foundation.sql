@@ -45,6 +45,7 @@ GO
 CREATE TABLE core.ContentNodes
 (
     Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_ContentNodes PRIMARY KEY,
+    LegacyId NVARCHAR(200) NULL,
     ParentId UNIQUEIDENTIFIER NULL,
     Title NVARCHAR(500) NOT NULL,
     Tag NVARCHAR(250) NULL,
@@ -71,11 +72,13 @@ GO
 
 CREATE INDEX IX_ContentNodes_ParentId ON core.ContentNodes(ParentId);
 CREATE INDEX IX_ContentNodes_IsActive_SortOrder ON core.ContentNodes(IsActive, SortOrder);
+CREATE UNIQUE INDEX UX_ContentNodes_LegacyId ON core.ContentNodes(LegacyId) WHERE LegacyId IS NOT NULL;
 GO
 
 CREATE TABLE directory.Units
 (
     Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_DirectoryUnits PRIMARY KEY,
+    LegacyId NVARCHAR(200) NULL,
     ParentId UNIQUEIDENTIFIER NULL,
     Name NVARCHAR(500) NOT NULL,
     UnitCode NVARCHAR(100) NULL,
@@ -99,6 +102,7 @@ GO
 
 CREATE INDEX IX_DirectoryUnits_ParentId ON directory.Units(ParentId);
 CREATE INDEX IX_DirectoryUnits_Level_IsActive_SortOrder ON directory.Units(Level, IsActive, SortOrder);
+CREATE UNIQUE INDEX UX_DirectoryUnits_LegacyId ON directory.Units(LegacyId) WHERE LegacyId IS NOT NULL;
 GO
 
 CREATE TABLE survey.Responses
