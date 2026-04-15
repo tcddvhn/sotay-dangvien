@@ -145,6 +145,7 @@ function showThanks() {
 
         const ADMIN_USERS_COLLECTION = "admin_users";
         const CONTENT_PERMISSIONS_COLLECTION = "content_permissions";
+        const SYSTEM_ROOT_ADMIN_USERNAME = "admin";
         let APP_DATA = []; let currentEditNodeId = null; let loggedInUser = null; let expandedAdminNodes = new Set(); let isFirstLoadAdmin = true; let lastSearchKeyword = ""; let hasUnsavedChanges = false; let isSystemChangingContent = false; let pendingProtectedRoute = null;
         let currentAdminProfile = null;
         let currentUserPermissions = [];
@@ -1410,6 +1411,7 @@ if (tagFilter) {
         function getParentIdPath(targetId, nodes, path = []) { for(let node of nodes) { if(node.id === targetId) return [...path, node.id]; if(node.children) { let foundPath = getParentIdPath(targetId, node.children, [...path, node.id]); if(foundPath) return foundPath; } } return null; }
         function findNode(id, nodes) { for(let node of nodes) { if(node.id === id) return node; if(node.children) { let f = findNode(id, node.children); if(f) return f; } } return null; }
         function normalizeAdminUsername(value) { return String(value || '').trim().toLowerCase(); }
+        function isSystemRootAdmin(username) { return normalizeAdminUsername(username) === SYSTEM_ROOT_ADMIN_USERNAME; }
         function getNowIsoString() { return new Date().toISOString(); }
         function escapeHtml(value) { return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char] || char)); }
         function formatMetaDateTime(value) {
@@ -1581,6 +1583,7 @@ if (tagFilter) {
         async function ensureAdminProfileForLogin(userCredential, username) {
             if (!db) throw new Error('Không kết nối được Firestore.');
             const normalized = normalizeAdminUsername(username);
+            const forceSystemRootAdmin = isSystemRootAdmin(normalized);
             const collectionRef = db.collection(ADMIN_USERS_COLLECTION);
             const existingProfiles = await collectionRef.limit(1).get();
             const profileRef = collectionRef.doc(normalized);
@@ -1592,7 +1595,7 @@ if (tagFilter) {
                 await profileRef.set({
                     username: normalized,
                     email,
-                    displayName: normalized,
+                    displayName: forceSystemRootAdmin ? 'admin' : normalized,
                     role: 'super_admin',
                     isActive: true,
                     createdAt: now,
@@ -1601,6 +1604,20 @@ if (tagFilter) {
                     updatedBy: normalized,
                     lastLoginAt: now
                 });
+            } else if (forceSystemRootAdmin) {
+                const existingData = profileDoc.exists ? profileDoc.data() : {};
+                await profileRef.set({
+                    username: normalized,
+                    email,
+                    displayName: existingData.displayName || 'admin',
+                    role: 'super_admin',
+                    isActive: true,
+                    createdAt: existingData.createdAt || now,
+                    createdBy: existingData.createdBy || normalized,
+                    updatedAt: now,
+                    updatedBy: normalized,
+                    lastLoginAt: now
+                }, { merge: true });
             } else if (!profileDoc.exists) {
                 throw new Error('Tài khoản này chưa được admin cấp hồ sơ quản trị.');
             } else if (profileDoc.data().isActive === false) {
@@ -1756,12 +1773,13 @@ if (tagFilter) {
             const now = getNowIsoString();
             const ref = db.collection(ADMIN_USERS_COLLECTION).doc(username);
             const existing = await ref.get();
+            const forceSystemRootAdmin = isSystemRootAdmin(username);
             const payload = {
                 username,
                 email: document.getElementById('permInpEmail').value.trim(),
                 displayName: document.getElementById('permInpDisplayName').value.trim() || username,
-                role: document.getElementById('permInpRole').value || 'editor',
-                isActive: document.getElementById('permInpStatus').value !== 'inactive',
+                role: forceSystemRootAdmin ? 'super_admin' : (document.getElementById('permInpRole').value || 'editor'),
+                isActive: forceSystemRootAdmin ? true : (document.getElementById('permInpStatus').value !== 'inactive'),
                 updatedAt: now,
                 updatedBy: normalizeAdminUsername(loggedInUser)
             };
