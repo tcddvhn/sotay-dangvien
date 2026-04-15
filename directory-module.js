@@ -434,22 +434,26 @@
 
         const isDirectory = currentAdminMode === 'directory';
         const isPermissions = currentAdminMode === 'permissions';
-        contentSidebar.style.display = (!isDirectory && !isPermissions) ? 'block' : 'none';
-        directorySidebar.style.display = isDirectory ? 'block' : 'none';
-        permissionsSidebar.style.display = isPermissions ? 'block' : 'none';
+        contentSidebar.style.display = (!isDirectory && !isPermissions) ? 'flex' : 'none';
+        directorySidebar.style.display = isDirectory ? 'flex' : 'none';
+        permissionsSidebar.style.display = isPermissions ? 'flex' : 'none';
         contentPane.style.display = (!isDirectory && !isPermissions) ? 'block' : 'none';
         directoryPane.style.display = isDirectory ? 'block' : 'none';
         permissionsPane.style.display = isPermissions ? 'block' : 'none';
         contentBtn.classList.toggle('active', !isDirectory && !isPermissions);
         directoryBtn.classList.toggle('active', isDirectory);
         permissionsBtn.classList.toggle('active', isPermissions);
+        title.textContent = isDirectory ? 'Quản trị Danh bạ' : (isPermissions ? 'Tài khoản & quyền' : 'Biên tập Nội dung');
         title.textContent = isDirectory ? 'Quản trị Danh bạ' : 'Biên tập Nội dung';
 
+        title.textContent = isDirectory ? 'Quản trị Danh bạ' : (isPermissions ? 'Tài khoản & quyền' : 'Biên tập Nội dung');
         if (isDirectory) {
             renderDirectoryAdminTree();
             if (directoryCurrentEditId) {
                 fillDirectoryEditor(directoryCurrentEditId);
             }
+        } else if (isPermissions && typeof window.renderPermissionMode === 'function') {
+            window.renderPermissionMode();
         }
     }
 
