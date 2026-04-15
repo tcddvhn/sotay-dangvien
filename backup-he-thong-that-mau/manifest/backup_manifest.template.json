@@ -1,0 +1,33 @@
+{
+  "backupName": "backup-truoc-phan-quyen-YYYYMMDD-HHMM",
+  "createdAt": "2026-04-15T09:30:00+07:00",
+  "createdBy": "ten_nguoi_thuc_hien",
+  "systemScope": "he-thong-that",
+  "repoPath": "C:\\Users\\ldkie\\OneDrive\\Documents\\GitHub\\sotay-dangvien",
+  "sourceCodeIncluded": true,
+  "firestoreDocuments": [
+    "sotay/dulieu",
+    "sotay/thongke",
+    "sotay/danhba"
+  ],
+  "firebaseAuthExportIncluded": true,
+  "appsScriptIncluded": true,
+  "firebaseConfigIncluded": true,
+  "lastKnownGood": true,
+  "notes": [
+    "Backup dung truoc khi nang cap phan quyen",
+    "Rollback uu tien khoi phuc sotay/dulieu truoc"
+  ],
+  "files": [
+    "source-code",
+    "firestore/sotay_dulieu.json",
+    "firestore/sotay_thongke.json",
+    "firestore/sotay_danhba.json",
+    "firebase-auth/auth_users.csv",
+    "firebase-config/firebase_web_config.json",
+    "apps-script/chatbot_url.txt",
+    "apps-script/stats_url.txt",
+    "apps-script/survey_url.txt",
+    "manifest/rollback_checklist.md"
+  ]
+}

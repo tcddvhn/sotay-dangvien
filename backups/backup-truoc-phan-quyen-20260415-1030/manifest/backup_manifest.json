@@ -1,0 +1,49 @@
+{
+  "backupName": "backup-truoc-phan-quyen-20260415-1030",
+  "createdAt": "2026-04-15T10:30:00+07:00",
+  "createdBy": "Codex",
+  "systemScope": "he-thong-that",
+  "repoPath": "C:\\Users\\ldkie\\OneDrive\\Documents\\GitHub\\sotay-dangvien",
+  "backupReadyForRestore": true,
+  "sourceCodeIncluded": true,
+  "firestoreDocumentsIncluded": true,
+  "firebaseAuthExportIncluded": true,
+  "firebaseConfigIncluded": true,
+  "appsScriptIncluded": true,
+  "lastKnownGood": true,
+  "requiredMissingFiles": [],
+  "recommendedOptionalFiles": [
+    "apps-script/spreadsheet_links.md"
+  ],
+  "filesPresent": [
+    "source-code/app.js",
+    "source-code/index.html",
+    "source-code/styles.css",
+    "source-code/directory-module.js",
+    "source-code/directory-seed.js",
+    "source-code/firebase-messaging-sw.js",
+    "source-code/build",
+    "source-code/web",
+    "source-code/docs",
+    "source-code/huongdan.pdf",
+    "source-code/huongdan06.pdf",
+    "source-code/huongdan21.pdf",
+    "source-code/huongdan38.pdf",
+    "source-code/quydinh294.pdf",
+    "firestore/sotay_dulieu.json",
+    "firestore/sotay_thongke.json",
+    "firestore/sotay_danhba.json",
+    "firebase-auth/auth_users.csv",
+    "firebase-config/firebase_web_config.json",
+    "firebase-config/fcm_config_notes.md",
+    "apps-script/chatbot_url.txt",
+    "apps-script/stats_url.txt",
+    "apps-script/survey_url.txt",
+    "tools/export-firestore-docs-from-browser-console.js"
+  ],
+  "notes": [
+    "Day la bo backup that dau tien duoc tao truoc khi nang cap phan quyen.",
+    "Backup nay da du file toi thieu de rollback day du cho he thong that hien tai.",
+    "Khi can khoi phuc, uu tien khoi phuc sotay/dulieu truoc."
+  ]
+}
