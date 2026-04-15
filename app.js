@@ -370,13 +370,7 @@ function showThanks() {
             try { localStorage.setItem('sotay_cached_tree', JSON.stringify(APP_DATA)); } catch(e) {}
             
             if (isFirstLoadAdmin && APP_DATA.length > 0) { 
-                function initExpand(nodes) {
-                    nodes.forEach(n => {
-                        expandedAdminNodes.add(n.id);
-                        if (n.children) initExpand(n.children);
-                    });
-                }
-                initExpand(APP_DATA);
+                resetAdminTreeExpansionToRoot();
                 isFirstLoadAdmin = false; 
             }
             
@@ -1410,6 +1404,14 @@ if (tagFilter) {
 
         function getParentIdPath(targetId, nodes, path = []) { for(let node of nodes) { if(node.id === targetId) return [...path, node.id]; if(node.children) { let foundPath = getParentIdPath(targetId, node.children, [...path, node.id]); if(foundPath) return foundPath; } } return null; }
         function findNode(id, nodes) { for(let node of nodes) { if(node.id === id) return node; if(node.children) { let f = findNode(id, node.children); if(f) return f; } } return null; }
+        function resetAdminTreeExpansionToRoot() {
+            expandedAdminNodes = new Set();
+            (APP_DATA || []).forEach((node) => {
+                if (Number(node.level || 0) === 0) {
+                    expandedAdminNodes.add(node.id);
+                }
+            });
+        }
         function normalizeAdminUsername(value) { return String(value || '').trim().toLowerCase(); }
         function isSystemRootAdmin(username) { return normalizeAdminUsername(username) === SYSTEM_ROOT_ADMIN_USERNAME; }
         function getNowIsoString() { return new Date().toISOString(); }
@@ -2157,6 +2159,7 @@ if (tagFilter) {
             firebase.auth().signInWithEmailAndPassword(email, pass).then(async (userCredential) => {
                 loggedInUser = normalizeAdminUsername(userCredential.user.email.split('@')[0]);
                 await ensureAdminProfileForLogin(userCredential, loggedInUser);
+                resetAdminTreeExpansionToRoot();
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
                 document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b style="text-transform: capitalize;">${loggedInUser}</b>${currentAdminProfile ? ` | Vai trò: <b>${currentAdminProfile.role === 'super_admin' ? 'Super Admin' : 'Biên tập'}</b>` : ''}`;
