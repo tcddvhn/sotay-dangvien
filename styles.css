@@ -1673,6 +1673,28 @@ body.read-mode .top-controls { display: none; }
     margin-bottom: 4px;
 }
 
+.permission-tree-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    text-align: left;
+    width: 100%;
+}
+
+.permission-tree-toggle {
+    width: 16px;
+    flex: 0 0 16px;
+    color: #6b7280;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.permission-tree-title,
+.permission-tree-meta {
+    display: block;
+}
+
 .permission-user-meta,
 .permission-assignment-meta,
 .permission-tree-meta,

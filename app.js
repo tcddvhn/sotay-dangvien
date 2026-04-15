@@ -152,6 +152,7 @@ function showThanks() {
         let adminUserProfiles = [];
         let selectedPermissionUsername = null;
         let selectedPermissionNodeId = null;
+        let expandedPermissionNodes = new Set();
 
         var toolbarOptions = [['bold', 'italic', 'underline'], [{'list': 'ordered'}, [{'list': 'bullet'}], ['link', 'clean']]];
         var quillSummary = new Quill('#inpSummary', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Nhập nội dung tóm tắt...' });
@@ -1412,6 +1413,19 @@ if (tagFilter) {
                 }
             });
         }
+        function resetPermissionTreeExpansionToRoot() {
+            expandedPermissionNodes = new Set();
+            (APP_DATA || []).forEach((node) => {
+                if (Number(node.level || 0) === 0) {
+                    expandedPermissionNodes.add(node.id);
+                }
+            });
+        }
+        function expandPermissionTreePath(nodeId, includeSelf = true) {
+            const path = getParentIdPath(nodeId, APP_DATA) || [];
+            const ids = includeSelf ? path : path.slice(0, -1);
+            ids.forEach((id) => expandedPermissionNodes.add(id));
+        }
         function normalizeAdminUsername(value) { return String(value || '').trim().toLowerCase(); }
         function isSystemRootAdmin(username) { return normalizeAdminUsername(username) === SYSTEM_ROOT_ADMIN_USERNAME; }
         function getNowIsoString() { return new Date().toISOString(); }
@@ -1683,7 +1697,9 @@ if (tagFilter) {
                 return (nodes || []).map((node) => {
                     const activeClass = selectedPermissionNodeId === node.id ? 'active' : '';
                     const hasChildren = node.children && node.children.length;
-                    return `<div><button type="button" class="permission-tree-item ${activeClass}" onclick="selectPermissionNode('${escapeHtml(node.id)}')"><span class="permission-tree-title">${escapeHtml(node.title || 'Chưa đặt tên')}</span><span class="permission-tree-meta">Node: ${escapeHtml(node.id)} | Level ${node.level ?? ''}</span></button>${hasChildren ? `<div class="permission-tree-children">${build(node.children)}</div>` : ''}</div>`;
+                    const isExpanded = expandedPermissionNodes.has(node.id);
+                    const toggleIcon = hasChildren ? (isExpanded ? '▼' : '▶') : '•';
+                    return `<div><button type="button" class="permission-tree-item ${activeClass}" onclick="selectPermissionNode('${escapeHtml(node.id)}', ${hasChildren ? 'true' : 'false'})"><span class="permission-tree-head"><span class="permission-tree-toggle">${toggleIcon}</span><span><span class="permission-tree-title">${escapeHtml(node.title || 'Chưa đặt tên')}</span><span class="permission-tree-meta">Node: ${escapeHtml(node.id)} | Level ${node.level ?? ''}</span></span></span></button>${hasChildren && isExpanded ? `<div class="permission-tree-children">${build(node.children)}</div>` : ''}</div>`;
                 }).join('');
             }
             tree.innerHTML = build(APP_DATA);
@@ -1717,9 +1733,14 @@ if (tagFilter) {
             renderPermissionUserList();
             await loadPermissionsForSelectedUser();
         }
-        function selectPermissionNode(nodeId) {
+        function selectPermissionNode(nodeId, toggleBranch) {
             selectedPermissionNodeId = nodeId;
             const node = findNode(nodeId, APP_DATA);
+            expandPermissionTreePath(nodeId, false);
+            if (toggleBranch && node && node.children && node.children.length) {
+                if (expandedPermissionNodes.has(nodeId)) expandedPermissionNodes.delete(nodeId);
+                else expandedPermissionNodes.add(nodeId);
+            }
             const titleEl = document.getElementById('permSelectedNodeTitle');
             if (titleEl) {
                 titleEl.textContent = node ? `${node.title || 'Chưa đặt tên'} (Level ${node.level})` : 'Chưa chọn nội dung';
@@ -1750,6 +1771,9 @@ if (tagFilter) {
                 if (assignmentList) assignmentList.innerHTML = '<div class="permission-banner">Chỉ super admin được cấp quyền nội dung.</div>';
                 if (permissionTree) permissionTree.innerHTML = '<div class="permission-banner">Không khả dụng với tài khoản hiện tại.</div>';
                 return;
+            }
+            if (!expandedPermissionNodes.size) {
+                resetPermissionTreeExpansionToRoot();
             }
             await loadAdminUserProfiles();
             renderPermissionUserList();
@@ -2160,6 +2184,7 @@ if (tagFilter) {
                 loggedInUser = normalizeAdminUsername(userCredential.user.email.split('@')[0]);
                 await ensureAdminProfileForLogin(userCredential, loggedInUser);
                 resetAdminTreeExpansionToRoot();
+                resetPermissionTreeExpansionToRoot();
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
                 document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b style="text-transform: capitalize;">${loggedInUser}</b>${currentAdminProfile ? ` | Vai trò: <b>${currentAdminProfile.role === 'super_admin' ? 'Super Admin' : 'Biên tập'}</b>` : ''}`;
