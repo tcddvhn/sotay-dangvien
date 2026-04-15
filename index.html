@@ -22,7 +22,7 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="styles.css?v=20260316">
+    <link rel="stylesheet" href="styles.css?v=20260415">
 </head>
 <body>
 
@@ -455,12 +455,13 @@
                 <div class="admin-mode-switch">
                     <button id="btnAdminModeContent" class="admin-mode-btn active" onclick="switchAdminMode('content')">Biên tập nội dung</button>
                     <button id="btnAdminModeDirectory" class="admin-mode-btn" onclick="switchAdminMode('directory')">Quản trị danh bạ</button>
+                    <button id="btnAdminModePermissions" class="admin-mode-btn" onclick="switchAdminMode('permissions')">Tài khoản & quyền</button>
                 </div>
                 <div id="adminContentSidebarPane">
                 <div style="font-weight:bold; margin-bottom:5px; color: var(--primary-color);">CÂY THƯ MỤC CHUNG</div>
                 <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 10px; font-style: italic;">Mẹo: Kéo thả thư mục để chuyển cấp</div>
                 <input type="text" id="adminSearchInput" class="form-control" style="padding: 8px; font-size: 0.95rem; font-family: -apple-system, sans-serif; margin-bottom: 10px;" placeholder="Lọc nhanh thư mục để sửa...">
-                <button class="btn btn-add" style="width: 100%;" onclick="addNewRoot()">+ Thêm Phần Lớn</button>
+                <button id="btnAddRootContent" class="btn btn-add" style="width: 100%;" onclick="addNewRoot()">+ Thêm Phần Lớn</button>
                 <div class="tree-container" id="adminTree"></div>
                 </div>
                 <div id="adminDirectorySidebarPane" style="display:none;">
@@ -469,6 +470,12 @@
                     <input type="text" id="directoryAdminSearchInput" class="form-control" style="padding: 8px; font-size: 0.95rem; font-family: -apple-system, sans-serif; margin-bottom: 10px;" placeholder="Lọc nhanh đơn vị danh bạ...">
                     <button class="btn btn-add" style="width: 100%; margin-bottom: 10px;" onclick="addDirectoryRoot()">+ Thêm đơn vị cấp 1</button>
                     <div class="tree-container" id="directoryAdminTree"></div>
+                </div>
+                <div id="adminPermissionsSidebarPane" style="display:none;">
+                    <div style="font-weight:bold; margin-bottom:5px; color: var(--primary-color);">TÀI KHOẢN QUẢN TRỊ</div>
+                    <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 10px; font-style: italic;">Quản lý hồ sơ editor và giao quyền theo từng nhánh nội dung.</div>
+                    <input type="text" id="permissionUserSearchInput" class="form-control" style="padding: 8px; font-size: 0.95rem; font-family: -apple-system, sans-serif; margin-bottom: 10px;" placeholder="Lọc tài khoản quản trị...">
+                    <div class="permission-user-list" id="permissionUserList"></div>
                 </div>
             </div>
             <div class="admin-main">
@@ -493,7 +500,12 @@
                 </div>
                 <div id="editorArea" style="display:none; padding-bottom: 80px;">
                     <div style="text-align: right; margin-bottom: 10px;">
-                        <button class="btn btn-delete" style="font-size: 0.8rem;" onclick="deleteCurrentItem()">Xóa mục này</button>
+                        <button id="btnDeleteCurrentContent" class="btn btn-delete" style="font-size: 0.8rem;" onclick="deleteCurrentItem()">Xóa mục này</button>
+                    </div>
+                    <div class="content-meta-card" id="contentMetaCard">
+                        <div class="content-meta-row"><span class="content-meta-label">Tạo bởi:</span> <span id="contentCreatedMeta">Chưa có dữ liệu</span></div>
+                        <div class="content-meta-row"><span class="content-meta-label">Sửa lần cuối:</span> <span id="contentUpdatedMeta">Chưa có dữ liệu</span></div>
+                        <div class="content-meta-row"><span class="content-meta-label">Quyền hiện tại:</span> <span id="contentPermissionMeta">Đang kiểm tra...</span></div>
                     </div>
                     
                     <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
@@ -557,7 +569,7 @@
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-add" onclick="addSubItem()">+ Thêm mục con cấp dưới trực tiếp</button>
+                    <button id="btnAddSubContent" class="btn btn-add" onclick="addSubItem()">+ Thêm mục con cấp dưới trực tiếp</button>
                     <div style="position: sticky; bottom: 15px; display: flex; justify-content: flex-end; pointer-events: none; margin-top: 10px;">
                         <button id="btnSaveSingle" style="pointer-events: auto; background: #27ae60; color: white; border: none; font-weight: bold; padding: 12px 20px; font-size: 1rem; border-radius: 4px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);" onclick="saveCurrentNodeToServer()">LƯU MỤC NÀY</button>
                     </div>
@@ -636,6 +648,92 @@
                         <span style="font-size: 40px; color: #ddd;">📇</span><br>Hãy chọn một đơn vị bên trái để chỉnh sửa danh bạ
                     </div>
                 </div>
+                <div id="adminPermissionsPane" style="display:none;">
+                    <div class="admin-banner permission-banner">
+                        <div class="admin-banner-title">
+                            <i class="fas fa-user-shield"></i>
+                            Tài khoản và phân quyền nội dung
+                        </div>
+                        <div class="admin-banner-actions">
+                            <button class="btn-mini btn-mini-detail" onclick="renderPermissionMode()">Làm mới</button>
+                        </div>
+                    </div>
+                    <div class="permission-layout">
+                        <div class="permission-card">
+                            <div class="permission-card-title">Hồ sơ tài khoản</div>
+                            <div class="permission-form-grid">
+                                <div>
+                                    <label class="permission-label">Tên đăng nhập</label>
+                                    <input type="text" id="permInpUsername" class="form-control" placeholder="vd: nguyenvana">
+                                </div>
+                                <div>
+                                    <label class="permission-label">Email</label>
+                                    <input type="text" id="permInpEmail" class="form-control" placeholder="vd: nguyenvana@sotay.com">
+                                </div>
+                                <div>
+                                    <label class="permission-label">Tên hiển thị</label>
+                                    <input type="text" id="permInpDisplayName" class="form-control" placeholder="Họ và tên">
+                                </div>
+                                <div>
+                                    <label class="permission-label">Vai trò</label>
+                                    <select id="permInpRole" class="form-control">
+                                        <option value="editor">editor</option>
+                                        <option value="super_admin">super_admin</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="permission-label">Trạng thái</label>
+                                    <select id="permInpStatus" class="form-control">
+                                        <option value="active">active</option>
+                                        <option value="locked">locked</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="permission-label">Đăng nhập gần nhất</label>
+                                    <input type="text" id="permInpLastLogin" class="form-control" readonly>
+                                </div>
+                            </div>
+                            <div class="permission-actions">
+                                <button class="btn btn-add" onclick="savePermissionUserProfile()">Lưu hồ sơ tài khoản</button>
+                            </div>
+                        </div>
+                        <div class="permission-card">
+                            <div class="permission-card-title">Giao quyền theo nội dung</div>
+                            <div class="permission-current-user" id="permissionCurrentUserLabel">Chưa chọn tài khoản</div>
+                            <div class="permission-tree-wrap">
+                                <div class="permission-tree" id="permissionTree"></div>
+                            </div>
+                            <div class="permission-form-grid">
+                                <div>
+                                    <label class="permission-label">Node được chọn</label>
+                                    <input type="text" id="permSelectedNodeTitle" class="form-control" readonly>
+                                </div>
+                                <div>
+                                    <label class="permission-label">Độ sâu tối đa</label>
+                                    <select id="permInpMaxDepth" class="form-control">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5" selected>5</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="permission-checkbox-grid">
+                                <label><input type="checkbox" id="permAllowRead" checked> Đọc</label>
+                                <label><input type="checkbox" id="permAllowCreateChild" checked> Thêm cấp dưới</label>
+                                <label><input type="checkbox" id="permAllowEdit" checked> Sửa</label>
+                                <label><input type="checkbox" id="permAllowDelete"> Xóa</label>
+                            </div>
+                            <div class="permission-actions">
+                                <button class="btn btn-add" onclick="saveSelectedPermission()">Cấp/Lưu quyền</button>
+                                <button class="btn btn-delete" onclick="deleteSelectedPermission()">Thu hồi quyền</button>
+                            </div>
+                            <div class="permission-card-title" style="margin-top:18px;">Quyền đã cấp</div>
+                            <div class="permission-assignment-list" id="permissionAssignmentList"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -647,8 +745,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js" defer></script>
 
-    <script src="app.js?v=20260410" defer></script>
-    <script src="directory-module.js?v=20260402" defer></script>
+    <script src="app.js?v=20260415" defer></script>
+    <script src="directory-module.js?v=20260415" defer></script>
 <div id="autoSurveyOverlay" class="survey-overlay" style="display: none;">
     <div class="survey-card" style="position: relative; background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
         

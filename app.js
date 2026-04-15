@@ -143,7 +143,14 @@ function showThanks() {
             "hd06": { name: "Hướng dẫn 06", shortName: "HD 06", file: "huongdan06.pdf" }
         };
 
+        const ADMIN_USERS_COLLECTION = "admin_users";
+        const CONTENT_PERMISSIONS_COLLECTION = "content_permissions";
         let APP_DATA = []; let currentEditNodeId = null; let loggedInUser = null; let expandedAdminNodes = new Set(); let isFirstLoadAdmin = true; let lastSearchKeyword = ""; let hasUnsavedChanges = false; let isSystemChangingContent = false; let pendingProtectedRoute = null;
+        let currentAdminProfile = null;
+        let currentUserPermissions = [];
+        let adminUserProfiles = [];
+        let selectedPermissionUsername = null;
+        let selectedPermissionNodeId = null;
 
         var toolbarOptions = [['bold', 'italic', 'underline'], [{'list': 'ordered'}, [{'list': 'bullet'}], ['link', 'clean']]];
         var quillSummary = new Quill('#inpSummary', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Nhập nội dung tóm tắt...' });
@@ -373,7 +380,14 @@ function showThanks() {
             }
             
             renderHomeCategories(); renderFAQAndForms(); renderUserInterface(); renderRecentViews(); renderFavorites(); renderContinueReading();
-            if (document.getElementById('adminPanel').style.display === 'block') { renderAdminTree(); }
+            if (document.getElementById('adminPanel').style.display === 'block') {
+                renderAdminTree();
+                if (typeof window.getCurrentAdminMode === 'function' && window.getCurrentAdminMode() === 'permissions' && typeof renderPermissionMode === 'function') {
+                    renderPermissionMode();
+                } else if (currentEditNodeId) {
+                    updateContentMeta(findNode(currentEditNodeId, APP_DATA));
+                }
+            }
         });
         else {
             try {
@@ -1395,6 +1409,478 @@ if (tagFilter) {
 
         function getParentIdPath(targetId, nodes, path = []) { for(let node of nodes) { if(node.id === targetId) return [...path, node.id]; if(node.children) { let foundPath = getParentIdPath(targetId, node.children, [...path, node.id]); if(foundPath) return foundPath; } } return null; }
         function findNode(id, nodes) { for(let node of nodes) { if(node.id === id) return node; if(node.children) { let f = findNode(id, node.children); if(f) return f; } } return null; }
+        function normalizeAdminUsername(value) { return String(value || '').trim().toLowerCase(); }
+        function getNowIsoString() { return new Date().toISOString(); }
+        function escapeHtml(value) { return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char] || char)); }
+        function formatMetaDateTime(value) {
+            if (!value) return 'Chưa ghi nhận';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return value;
+            return date.toLocaleString('vi-VN');
+        }
+        function isCurrentSuperAdmin() { return !!(currentAdminProfile && currentAdminProfile.role === 'super_admin'); }
+        function getNodeDistanceFromAncestor(nodeId, ancestorId) {
+            const path = getParentIdPath(nodeId, APP_DATA) || [];
+            const ancestorIndex = path.indexOf(ancestorId);
+            if (ancestorIndex === -1) return -1;
+            return path.length - ancestorIndex - 1;
+        }
+        function getEffectiveNodePermission(nodeOrId) {
+            const nodeId = typeof nodeOrId === 'string' ? nodeOrId : (nodeOrId && nodeOrId.id);
+            const node = typeof nodeOrId === 'string' ? findNode(nodeOrId, APP_DATA) : nodeOrId;
+            const effective = { read: false, createChild: false, edit: false, delete: false, maxDepth: null, assignments: [] };
+            if (!nodeId || !node) return effective;
+            if (isCurrentSuperAdmin()) {
+                return { read: true, createChild: true, edit: true, delete: true, maxDepth: 99, assignments: [] };
+            }
+            currentUserPermissions.forEach((permission) => {
+                if (!permission || permission.isActive === false) return;
+                const distance = getNodeDistanceFromAncestor(nodeId, permission.nodeId);
+                if (distance < 0) return;
+                const maxDepth = Number.isFinite(Number(permission.maxDepth)) ? Number(permission.maxDepth) : 0;
+                if (distance > maxDepth) return;
+                effective.read = effective.read || permission.allowRead || permission.allowEdit || permission.allowDelete || permission.allowCreateChild;
+                effective.createChild = effective.createChild || !!permission.allowCreateChild;
+                effective.edit = effective.edit || !!permission.allowEdit;
+                effective.delete = effective.delete || !!permission.allowDelete;
+                effective.maxDepth = effective.maxDepth === null ? maxDepth : Math.max(effective.maxDepth, maxDepth);
+                effective.assignments.push(permission);
+            });
+            return effective;
+        }
+        function canCurrentUserReadNode(node) {
+            if (!node) return false;
+            if (isCurrentSuperAdmin()) return true;
+            return getEffectiveNodePermission(node).read;
+        }
+        function canCurrentUserEditNode(node) {
+            if (!node) return false;
+            if (isCurrentSuperAdmin()) return true;
+            return node.level >= 1 && node.level <= 5 && getEffectiveNodePermission(node).edit;
+        }
+        function canCurrentUserDeleteNode(node) {
+            if (!node) return false;
+            if (isCurrentSuperAdmin()) return true;
+            return node.level >= 1 && node.level <= 5 && getEffectiveNodePermission(node).delete;
+        }
+        function canCurrentUserCreateRoot() { return isCurrentSuperAdmin(); }
+        function canCurrentUserCreateChild(parentNode) {
+            if (!parentNode) return false;
+            const childLevel = Number(parentNode.level || 0) + 1;
+            if (isCurrentSuperAdmin()) return childLevel <= 5;
+            return childLevel >= 1 && childLevel <= 5 && getEffectiveNodePermission(parentNode).createChild;
+        }
+        function getReadableNodesMap() {
+            const readableMap = new Map();
+            function walk(nodes) {
+                (nodes || []).forEach((node) => {
+                    const isReadable = canCurrentUserReadNode(node);
+                    readableMap.set(node.id, isReadable);
+                    if (node.children && node.children.length) {
+                        walk(node.children);
+                    }
+                });
+            }
+            walk(APP_DATA);
+            return readableMap;
+        }
+        function setContentEditorReadOnly(isReadOnly) {
+            ['inpTag', 'inpTitle', 'inpFileUrl', 'inpFileName', 'inpForceAccordion'].forEach((id) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (id === 'inpForceAccordion') el.disabled = isReadOnly;
+                else el.readOnly = isReadOnly;
+            });
+            for (let i = 1; i <= 5; i++) {
+                const docEl = document.getElementById('inpPdfDoc' + i);
+                const pageEl = document.getElementById('inpPdfPage' + i);
+                if (docEl) docEl.disabled = isReadOnly;
+                if (pageEl) pageEl.readOnly = isReadOnly;
+            }
+            if (quillSummary && quillSummary.enable) quillSummary.enable(!isReadOnly);
+            if (quillDetail && quillDetail.enable) quillDetail.enable(!isReadOnly);
+        }
+        function updateContentPermissionStateUI(node) {
+            const saveBtn = document.getElementById('btnSaveSingle');
+            const addRootBtn = document.getElementById('btnAddRootContent');
+            const addSubBtn = document.getElementById('btnAddSubContent');
+            const deleteBtn = document.getElementById('btnDeleteCurrentContent');
+            const permissionMeta = document.getElementById('contentPermissionMeta');
+            const title = document.getElementById('adminSectionTitle');
+            const nodePermission = node ? getEffectiveNodePermission(node) : null;
+            const canEdit = !!(node && canCurrentUserEditNode(node));
+            const canCreateChild = !!(node && canCurrentUserCreateChild(node));
+            const canDelete = !!(node && canCurrentUserDeleteNode(node));
+            const canCreateRoot = canCurrentUserCreateRoot();
+
+            if (saveBtn) saveBtn.disabled = !canEdit;
+            if (addRootBtn) addRootBtn.disabled = !canCreateRoot;
+            if (addSubBtn) addSubBtn.disabled = !canCreateChild;
+            if (deleteBtn) deleteBtn.disabled = !canDelete;
+            setContentEditorReadOnly(!canEdit);
+
+            if (permissionMeta) {
+                if (!currentAdminProfile) {
+                    permissionMeta.textContent = 'Chưa đăng nhập quản trị.';
+                } else if (isCurrentSuperAdmin()) {
+                    permissionMeta.textContent = 'Quyền hiện tại: Super Admin - toàn quyền cây nội dung.';
+                } else if (!node) {
+                    permissionMeta.textContent = 'Quyền hiện tại: chưa chọn nội dung.';
+                } else {
+                    const scopeText = nodePermission && nodePermission.maxDepth !== null ? `Phạm vi sâu tối đa: ${nodePermission.maxDepth}.` : 'Chưa được cấp phạm vi sâu.';
+                    permissionMeta.textContent = `Quyền hiện tại: ${nodePermission.read ? 'xem' : 'không xem'}, ${nodePermission.edit ? 'sửa' : 'không sửa'}, ${nodePermission.createChild ? 'thêm cấp dưới' : 'không thêm cấp dưới'}, ${nodePermission.delete ? 'xóa' : 'không xóa'}. ${scopeText}`;
+                }
+            }
+            if (title && typeof window.getCurrentAdminMode === 'function' && window.getCurrentAdminMode() === 'permissions') {
+                title.textContent = 'Tài khoản & quyền';
+            }
+        }
+        function updateContentMeta(node) {
+            const createdMeta = document.getElementById('contentCreatedMeta');
+            const updatedMeta = document.getElementById('contentUpdatedMeta');
+            if (createdMeta) {
+                createdMeta.textContent = node ? `${formatMetaDateTime(node.createdAt)}${node.createdBy ? ' - ' + node.createdBy : ''}` : 'Chưa chọn nội dung';
+            }
+            if (updatedMeta) {
+                updatedMeta.textContent = node ? `${formatMetaDateTime(node.updatedAt)}${node.updatedBy ? ' - ' + node.updatedBy : ''}` : 'Chưa chọn nội dung';
+            }
+        }
+        function clearContentEditorSelection() {
+            currentEditNodeId = null;
+            hasUnsavedChanges = false;
+            document.getElementById('editorArea').style.display = 'none';
+            document.getElementById('editorPlaceholder').style.display = 'block';
+            updateContentMeta(null);
+            updateContentPermissionStateUI(null);
+        }
+        function buildPermissionDocId(username, nodeId) { return `${normalizeAdminUsername(username)}__${nodeId}`; }
+        async function loadAdminUserProfiles() {
+            if (!db) return [];
+            const snapshot = await db.collection(ADMIN_USERS_COLLECTION).get();
+            adminUserProfiles = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+                .sort((a, b) => (a.displayName || a.username || '').localeCompare(b.displayName || b.username || '', 'vi'));
+            return adminUserProfiles;
+        }
+        async function loadCurrentAdminProfileAndPermissions() {
+            if (!db || !loggedInUser) return;
+            const normalized = normalizeAdminUsername(loggedInUser);
+            const profileDoc = await db.collection(ADMIN_USERS_COLLECTION).doc(normalized).get();
+            currentAdminProfile = profileDoc.exists ? { id: profileDoc.id, ...profileDoc.data() } : null;
+            if (!currentAdminProfile || currentAdminProfile.isActive === false) {
+                currentUserPermissions = [];
+                return;
+            }
+            if (currentAdminProfile.role === 'super_admin') {
+                currentUserPermissions = [];
+            } else {
+                const permissionSnapshot = await db.collection(CONTENT_PERMISSIONS_COLLECTION).where('username', '==', normalized).get();
+                currentUserPermissions = permissionSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+                    .filter((item) => item.isActive !== false);
+            }
+        }
+        async function ensureAdminProfileForLogin(userCredential, username) {
+            if (!db) throw new Error('Không kết nối được Firestore.');
+            const normalized = normalizeAdminUsername(username);
+            const collectionRef = db.collection(ADMIN_USERS_COLLECTION);
+            const existingProfiles = await collectionRef.limit(1).get();
+            const profileRef = collectionRef.doc(normalized);
+            const profileDoc = await profileRef.get();
+            const now = getNowIsoString();
+            const email = userCredential && userCredential.user && userCredential.user.email ? userCredential.user.email : `${normalized}@sotay.com`;
+
+            if (existingProfiles.empty && !profileDoc.exists) {
+                await profileRef.set({
+                    username: normalized,
+                    email,
+                    displayName: normalized,
+                    role: 'super_admin',
+                    isActive: true,
+                    createdAt: now,
+                    createdBy: normalized,
+                    updatedAt: now,
+                    updatedBy: normalized,
+                    lastLoginAt: now
+                });
+            } else if (!profileDoc.exists) {
+                throw new Error('Tài khoản này chưa được admin cấp hồ sơ quản trị.');
+            } else if (profileDoc.data().isActive === false) {
+                throw new Error('Tài khoản quản trị này đã bị khóa.');
+            } else {
+                await profileRef.update({
+                    email,
+                    lastLoginAt: now,
+                    updatedAt: now,
+                    updatedBy: normalized
+                });
+            }
+            await loadCurrentAdminProfileAndPermissions();
+        }
+        function renderPermissionUserList() {
+            const list = document.getElementById('permissionUserList');
+            const searchInput = document.getElementById('permissionUserSearchInput');
+            if (!list) return;
+            const keyword = normalizeAdminUsername(searchInput ? searchInput.value : '');
+            const filtered = adminUserProfiles.filter((profile) => {
+                const haystack = removeAccents(`${profile.username || ''} ${profile.displayName || ''} ${profile.email || ''}`.toLowerCase());
+                return !keyword || haystack.includes(removeAccents(keyword));
+            });
+            list.innerHTML = filtered.map((profile) => {
+                const activeClass = selectedPermissionUsername === profile.username ? 'active' : '';
+                return `<button type="button" class="permission-user-item ${activeClass}" onclick="selectPermissionUser('${escapeHtml(profile.username)}')"><span class="permission-user-title">${escapeHtml(profile.displayName || profile.username || '')}</span><span class="permission-user-meta">${escapeHtml(profile.username || '')} | ${profile.role === 'super_admin' ? 'Super Admin' : 'Biên tập'}${profile.isActive === false ? ' | Khóa' : ''}</span></button>`;
+            }).join('') || '<div class="permission-banner">Chưa có tài khoản quản trị phù hợp.</div>';
+        }
+        function fillPermissionUserForm(profile) {
+            document.getElementById('permInpUsername').value = profile ? (profile.username || '') : '';
+            document.getElementById('permInpEmail').value = profile ? (profile.email || '') : '';
+            document.getElementById('permInpDisplayName').value = profile ? (profile.displayName || '') : '';
+            document.getElementById('permInpRole').value = profile ? (profile.role || 'editor') : 'editor';
+            document.getElementById('permInpStatus').value = profile && profile.isActive === false ? 'inactive' : 'active';
+            document.getElementById('permInpLastLogin').value = profile && profile.lastLoginAt ? formatMetaDateTime(profile.lastLoginAt) : 'Chưa đăng nhập';
+            const currentUserLabel = document.getElementById('permissionCurrentUserLabel');
+            if (currentUserLabel) currentUserLabel.textContent = profile ? `${profile.displayName || profile.username} (${profile.username})` : 'Chưa chọn tài khoản';
+        }
+        function renderPermissionAssignmentList() {
+            const list = document.getElementById('permissionAssignmentList');
+            if (!list) return;
+            if (!selectedPermissionUsername) {
+                list.innerHTML = '<div class="permission-banner">Chọn tài khoản để xem danh sách quyền đã cấp.</div>';
+                return;
+            }
+            if (selectedPermissionUsername === normalizeAdminUsername(loggedInUser) && isCurrentSuperAdmin()) {
+                list.innerHTML = '<div class="permission-banner">Tài khoản super admin có toàn quyền, không cần gán quyền theo node.</div>';
+                return;
+            }
+            const items = currentAdminProfile && currentAdminProfile.role === 'super_admin'
+                ? []
+                : [];
+            const profilePermissions = list.dataset.permissions ? JSON.parse(list.dataset.permissions) : [];
+            const html = profilePermissions.map((permission) => `<div class="permission-assignment-item"><span class="permission-user-title">${escapeHtml(permission.nodeTitle || permission.nodeId)}</span><span class="permission-assignment-meta">Node: ${escapeHtml(permission.nodeId)} | Sâu tối đa: ${permission.maxDepth ?? 0} | Xem: ${permission.allowRead ? 'Có' : 'Không'} | Sửa: ${permission.allowEdit ? 'Có' : 'Không'} | Thêm con: ${permission.allowCreateChild ? 'Có' : 'Không'} | Xóa: ${permission.allowDelete ? 'Có' : 'Không'}</span></div>`).join('');
+            list.innerHTML = html || '<div class="permission-banner">Tài khoản này chưa có quyền nội dung riêng.</div>';
+        }
+        function renderPermissionTree() {
+            const tree = document.getElementById('permissionTree');
+            if (!tree) return;
+            function build(nodes) {
+                return (nodes || []).map((node) => {
+                    const activeClass = selectedPermissionNodeId === node.id ? 'active' : '';
+                    const hasChildren = node.children && node.children.length;
+                    return `<div><button type="button" class="permission-tree-item ${activeClass}" onclick="selectPermissionNode('${escapeHtml(node.id)}')"><span class="permission-tree-title">${escapeHtml(node.title || 'Chưa đặt tên')}</span><span class="permission-tree-meta">Node: ${escapeHtml(node.id)} | Level ${node.level ?? ''}</span></button>${hasChildren ? `<div class="permission-tree-children">${build(node.children)}</div>` : ''}</div>`;
+                }).join('');
+            }
+            tree.innerHTML = build(APP_DATA);
+        }
+        async function loadPermissionsForSelectedUser() {
+            const list = document.getElementById('permissionAssignmentList');
+            if (!list) return [];
+            if (!db || !selectedPermissionUsername) {
+                list.dataset.permissions = '[]';
+                renderPermissionAssignmentList();
+                return [];
+            }
+            const profile = adminUserProfiles.find((item) => item.username === selectedPermissionUsername);
+            if (profile && profile.role === 'super_admin') {
+                list.dataset.permissions = '[]';
+                renderPermissionAssignmentList();
+                return [];
+            }
+            const snapshot = await db.collection(CONTENT_PERMISSIONS_COLLECTION).where('username', '==', selectedPermissionUsername).get();
+            const permissions = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+                .filter((item) => item.isActive !== false)
+                .sort((a, b) => (a.nodeTitle || a.nodeId || '').localeCompare(b.nodeTitle || b.nodeId || '', 'vi'));
+            list.dataset.permissions = JSON.stringify(permissions);
+            renderPermissionAssignmentList();
+            return permissions;
+        }
+        async function selectPermissionUser(username) {
+            selectedPermissionUsername = normalizeAdminUsername(username);
+            const profile = adminUserProfiles.find((item) => item.username === selectedPermissionUsername) || null;
+            fillPermissionUserForm(profile);
+            renderPermissionUserList();
+            await loadPermissionsForSelectedUser();
+        }
+        function selectPermissionNode(nodeId) {
+            selectedPermissionNodeId = nodeId;
+            const node = findNode(nodeId, APP_DATA);
+            const titleEl = document.getElementById('permSelectedNodeTitle');
+            if (titleEl) {
+                titleEl.textContent = node ? `${node.title || 'Chưa đặt tên'} (Level ${node.level})` : 'Chưa chọn nội dung';
+            }
+            const list = document.getElementById('permissionAssignmentList');
+            const permissions = list && list.dataset.permissions ? JSON.parse(list.dataset.permissions) : [];
+            const permission = permissions.find((item) => item.nodeId === nodeId);
+            document.getElementById('permInpMaxDepth').value = permission && Number.isFinite(Number(permission.maxDepth)) ? Number(permission.maxDepth) : 0;
+            document.getElementById('permAllowRead').checked = !!(permission && permission.allowRead);
+            document.getElementById('permAllowCreateChild').checked = !!(permission && permission.allowCreateChild);
+            document.getElementById('permAllowEdit').checked = !!(permission && permission.allowEdit);
+            document.getElementById('permAllowDelete').checked = !!(permission && permission.allowDelete);
+            renderPermissionTree();
+        }
+        async function renderPermissionMode() {
+            if (!currentAdminProfile) return;
+            const title = document.getElementById('adminSectionTitle');
+            if (title) title.textContent = 'Tài khoản & quyền';
+            const pane = document.getElementById('adminPermissionsPane');
+            const button = document.getElementById('btnAdminModePermissions');
+            if (button) button.style.display = isCurrentSuperAdmin() ? '' : 'none';
+            if (!isCurrentSuperAdmin()) {
+                fillPermissionUserForm(null);
+                const userList = document.getElementById('permissionUserList');
+                const assignmentList = document.getElementById('permissionAssignmentList');
+                const permissionTree = document.getElementById('permissionTree');
+                if (userList) userList.innerHTML = '<div class="permission-banner">Chỉ super admin được quản lý tài khoản.</div>';
+                if (assignmentList) assignmentList.innerHTML = '<div class="permission-banner">Chỉ super admin được cấp quyền nội dung.</div>';
+                if (permissionTree) permissionTree.innerHTML = '<div class="permission-banner">Không khả dụng với tài khoản hiện tại.</div>';
+                return;
+            }
+            await loadAdminUserProfiles();
+            renderPermissionUserList();
+            renderPermissionTree();
+            if (!selectedPermissionUsername && adminUserProfiles.length) {
+                await selectPermissionUser(adminUserProfiles[0].username);
+            } else if (selectedPermissionUsername) {
+                await selectPermissionUser(selectedPermissionUsername);
+            } else {
+                fillPermissionUserForm(null);
+            }
+        }
+        async function savePermissionUserProfile() {
+            if (!isCurrentSuperAdmin()) {
+                alert('Chỉ super admin được quản lý tài khoản.');
+                return;
+            }
+            const username = normalizeAdminUsername(document.getElementById('permInpUsername').value);
+            if (!username) {
+                alert('Phải nhập username tài khoản.');
+                return;
+            }
+            const now = getNowIsoString();
+            const ref = db.collection(ADMIN_USERS_COLLECTION).doc(username);
+            const existing = await ref.get();
+            const payload = {
+                username,
+                email: document.getElementById('permInpEmail').value.trim(),
+                displayName: document.getElementById('permInpDisplayName').value.trim() || username,
+                role: document.getElementById('permInpRole').value || 'editor',
+                isActive: document.getElementById('permInpStatus').value !== 'inactive',
+                updatedAt: now,
+                updatedBy: normalizeAdminUsername(loggedInUser)
+            };
+            if (!existing.exists) {
+                payload.createdAt = now;
+                payload.createdBy = normalizeAdminUsername(loggedInUser);
+            }
+            await ref.set(payload, { merge: true });
+            await loadAdminUserProfiles();
+            selectedPermissionUsername = username;
+            await selectPermissionUser(username);
+            if (username === normalizeAdminUsername(loggedInUser)) {
+                await loadCurrentAdminProfileAndPermissions();
+                if (currentEditNodeId) {
+                    const currentNode = findNode(currentEditNodeId, APP_DATA);
+                    if (!canCurrentUserReadNode(currentNode)) clearContentEditorSelection();
+                }
+                updateContentPermissionStateUI(currentEditNodeId ? findNode(currentEditNodeId, APP_DATA) : null);
+            }
+            alert('Đã lưu hồ sơ tài khoản quản trị.');
+        }
+        async function saveSelectedPermission() {
+            if (!isCurrentSuperAdmin()) {
+                alert('Chỉ super admin được cấp quyền nội dung.');
+                return;
+            }
+            if (!selectedPermissionUsername) {
+                alert('Chưa chọn tài khoản.');
+                return;
+            }
+            if (!selectedPermissionNodeId) {
+                alert('Chưa chọn nội dung để cấp quyền.');
+                return;
+            }
+            const profile = adminUserProfiles.find((item) => item.username === selectedPermissionUsername);
+            if (profile && profile.role === 'super_admin') {
+                alert('Tài khoản super admin không cần cấp quyền theo node.');
+                return;
+            }
+            const node = findNode(selectedPermissionNodeId, APP_DATA);
+            if (!node) {
+                alert('Không tìm thấy nội dung được chọn.');
+                return;
+            }
+            const now = getNowIsoString();
+            const docId = buildPermissionDocId(selectedPermissionUsername, selectedPermissionNodeId);
+            await db.collection(CONTENT_PERMISSIONS_COLLECTION).doc(docId).set({
+                username: selectedPermissionUsername,
+                nodeId: selectedPermissionNodeId,
+                nodeTitle: node.title || '',
+                nodeLevel: Number(node.level || 0),
+                maxDepth: Number(document.getElementById('permInpMaxDepth').value || 0),
+                allowRead: document.getElementById('permAllowRead').checked,
+                allowCreateChild: document.getElementById('permAllowCreateChild').checked,
+                allowEdit: document.getElementById('permAllowEdit').checked,
+                allowDelete: document.getElementById('permAllowDelete').checked,
+                isActive: true,
+                updatedAt: now,
+                updatedBy: normalizeAdminUsername(loggedInUser)
+            }, { merge: true });
+            await loadPermissionsForSelectedUser();
+            if (selectedPermissionUsername === normalizeAdminUsername(loggedInUser)) {
+                await loadCurrentAdminProfileAndPermissions();
+                if (currentEditNodeId) {
+                    const currentNode = findNode(currentEditNodeId, APP_DATA);
+                    if (!canCurrentUserReadNode(currentNode)) clearContentEditorSelection();
+                }
+                updateContentPermissionStateUI(currentEditNodeId ? findNode(currentEditNodeId, APP_DATA) : null);
+                renderAdminTree();
+            }
+            alert('Đã lưu phân quyền nội dung.');
+        }
+        async function deleteSelectedPermission() {
+            if (!isCurrentSuperAdmin()) {
+                alert('Chỉ super admin được xóa quyền nội dung.');
+                return;
+            }
+            if (!selectedPermissionUsername || !selectedPermissionNodeId) {
+                alert('Chưa chọn quyền cần xóa.');
+                return;
+            }
+            if (!confirm('Xóa quyền nội dung đã chọn?')) return;
+            const docId = buildPermissionDocId(selectedPermissionUsername, selectedPermissionNodeId);
+            await db.collection(CONTENT_PERMISSIONS_COLLECTION).doc(docId).delete();
+            await loadPermissionsForSelectedUser();
+            if (selectedPermissionUsername === normalizeAdminUsername(loggedInUser)) {
+                await loadCurrentAdminProfileAndPermissions();
+                if (currentEditNodeId) {
+                    const currentNode = findNode(currentEditNodeId, APP_DATA);
+                    if (!canCurrentUserReadNode(currentNode)) clearContentEditorSelection();
+                }
+                updateContentPermissionStateUI(currentEditNodeId ? findNode(currentEditNodeId, APP_DATA) : null);
+                renderAdminTree();
+            }
+            document.getElementById('permInpMaxDepth').value = 0;
+            document.getElementById('permAllowRead').checked = false;
+            document.getElementById('permAllowCreateChild').checked = false;
+            document.getElementById('permAllowEdit').checked = false;
+            document.getElementById('permAllowDelete').checked = false;
+            alert('Đã xóa phân quyền nội dung.');
+        }
+        function stampNodeAudit(node, isNewNode) {
+            const now = getNowIsoString();
+            const username = normalizeAdminUsername(loggedInUser);
+            if (isNewNode) {
+                node.createdAt = now;
+                node.createdBy = username;
+            }
+            node.updatedAt = now;
+            node.updatedBy = username;
+            return node;
+        }
+
+        window.renderPermissionMode = renderPermissionMode;
+        window.selectPermissionUser = selectPermissionUser;
+        window.selectPermissionNode = selectPermissionNode;
+        window.savePermissionUserProfile = savePermissionUserProfile;
+        window.saveSelectedPermission = saveSelectedPermission;
+        window.deleteSelectedPermission = deleteSelectedPermission;
 
         function toggleMenu(f) { 
             const sb = document.getElementById('sidebar'); 
@@ -1415,14 +1901,15 @@ if (tagFilter) {
         }
         function confirmUnsaved() { if (hasUnsavedChanges) return confirm("⚠️ Bạn có thay đổi chưa lưu! Xác nhận rời đi và HUỶ BỎ những thay đổi vừa nhập?"); return true; }
 
-        function moveNodeUp(e, id) { e.stopPropagation(); if(!confirmUnsaved()) return; let serverTree = JSON.parse(JSON.stringify(APP_DATA)); function process(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === id) { if(i > 0) { let temp = nodes[i]; nodes[i] = nodes[i-1]; nodes[i-1] = temp; return true; } return true; } if(nodes[i].children && process(nodes[i].children)) return true; } return false; } if(process(serverTree)) saveTreeToFirebase(serverTree); }
-        function moveNodeDown(e, id) { e.stopPropagation(); if(!confirmUnsaved()) return; let serverTree = JSON.parse(JSON.stringify(APP_DATA)); function process(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === id) { if(i < nodes.length - 1) { let temp = nodes[i]; nodes[i] = nodes[i+1]; nodes[i+1] = temp; return true; } return true; } if(nodes[i].children && process(nodes[i].children)) return true; } return false; } if(process(serverTree)) saveTreeToFirebase(serverTree); }
+        function moveNodeUp(e, id) { if (e) e.stopPropagation(); if (!isCurrentSuperAdmin()) { alert('Chỉ super admin được sắp xếp lại cây nội dung.'); return; } if(!confirmUnsaved()) return; let serverTree = JSON.parse(JSON.stringify(APP_DATA)); function process(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === id) { if(i > 0) { let temp = nodes[i]; nodes[i] = nodes[i-1]; nodes[i-1] = temp; return true; } return true; } if(nodes[i].children && process(nodes[i].children)) return true; } return false; } if(process(serverTree)) saveTreeToFirebase(serverTree); }
+        function moveNodeDown(e, id) { if (e) e.stopPropagation(); if (!isCurrentSuperAdmin()) { alert('Chỉ super admin được sắp xếp lại cây nội dung.'); return; } if(!confirmUnsaved()) return; let serverTree = JSON.parse(JSON.stringify(APP_DATA)); function process(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === id) { if(i < nodes.length - 1) { let temp = nodes[i]; nodes[i] = nodes[i+1]; nodes[i+1] = temp; return true; } return true; } if(nodes[i].children && process(nodes[i].children)) return true; } return false; } if(process(serverTree)) saveTreeToFirebase(serverTree); }
 
-        function handleDragStart(e, id) { draggedNodeId = id; e.dataTransfer.effectAllowed = 'move'; e.currentTarget.classList.add('dragging'); }
+        function handleDragStart(e, id) { if (!isCurrentSuperAdmin()) { e.preventDefault(); return; } draggedNodeId = id; e.dataTransfer.effectAllowed = 'move'; e.currentTarget.classList.add('dragging'); }
         function handleDragEnd(e) { e.currentTarget.classList.remove('dragging'); }
-        function handleDragOver(e, id) { e.preventDefault(); e.stopPropagation(); if(id === draggedNodeId) return; e.currentTarget.classList.add('drag-over'); }
+        function handleDragOver(e, id) { if (!isCurrentSuperAdmin()) return; e.preventDefault(); e.stopPropagation(); if(id === draggedNodeId) return; e.currentTarget.classList.add('drag-over'); }
         function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
         function handleDrop(e, targetId) {
+            if (!isCurrentSuperAdmin()) return;
             e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove('drag-over');
             if(!draggedNodeId || draggedNodeId === targetId) return; if(!confirmUnsaved()) return;
             if (isDescendant(draggedNodeId, targetId, APP_DATA)) { alert("⛔ Lỗi: Không thể kéo thư mục Cha thả vào bên trong Cấp Con của nó!"); return; }
@@ -1436,34 +1923,127 @@ if (tagFilter) {
         function isDescendant(parentId, childId, nodes) { let parentNode = findNode(parentId, nodes); if (!parentNode || !parentNode.children) return false; function check(children) { for (let c of children) { if (c.id === childId) return true; if (c.children && check(c.children)) return true; } return false; } return check(parentNode.children); }
 
         function saveCurrentNodeToServer() {
-            if (!currentEditNodeId) return; const btn = document.getElementById('btnSaveSingle'); btn.innerText = "⏳ Đang lưu..."; btn.disabled = true;
-            let sumVal = quillSummary.root.innerHTML; if(sumVal === '<p><br></p>') sumVal = ''; let detVal = quillDetail.root.innerHTML; if(detVal === '<p><br></p>') detVal = '';
+            if (!currentEditNodeId) return;
+            const node = findNode(currentEditNodeId, APP_DATA);
+            if (!node || !canCurrentUserEditNode(node)) {
+                alert('Bạn không có quyền sửa nội dung này.');
+                updateContentPermissionStateUI(node);
+                return;
+            }
+            const btn = document.getElementById('btnSaveSingle');
+            btn.innerText = "⏳ Đang lưu...";
+            btn.disabled = true;
+            let sumVal = quillSummary.root.innerHTML; if(sumVal === '<p><br></p>') sumVal = '';
+            let detVal = quillDetail.root.innerHTML; if(detVal === '<p><br></p>') detVal = '';
             let pdfRefs = []; for(let i=1; i<=5; i++) { let docVal = document.getElementById('inpPdfDoc'+i).value; let pageVal = document.getElementById('inpPdfPage'+i).value; if(docVal && pageVal) pdfRefs.push({ doc: docVal, page: pageVal }); }
-            let updatedData = { 
-                tag: document.getElementById('inpTag').value, 
-                title: document.getElementById('inpTitle').value, 
-                summary: sumVal, 
-                detail: detVal, 
-                fileUrl: document.getElementById('inpFileUrl').value, 
-                fileName: document.getElementById('inpFileName').value, 
+            let updatedData = {
+                tag: document.getElementById('inpTag').value,
+                title: document.getElementById('inpTitle').value,
+                summary: sumVal,
+                detail: detVal,
+                fileUrl: document.getElementById('inpFileUrl').value,
+                fileName: document.getElementById('inpFileName').value,
                 pdfRefs: pdfRefs,
                 forceAccordion: document.getElementById('inpForceAccordion').checked,
-                updatedAt: new Date().toISOString()
+                updatedAt: getNowIsoString(),
+                updatedBy: normalizeAdminUsername(loggedInUser)
             };
             if (!db) { alert("Không kết nối được Firebase. Vui lòng kiểm tra mạng hoặc tải lại trang."); btn.innerText = "LƯU MỤC NÀY"; btn.disabled = false; return; }
             const docRef = db.collection("sotay").doc("dulieu");
             db.runTransaction((transaction) => {
                 return transaction.get(docRef).then((doc) => {
                     let serverTree = doc.data().treeData || []; let isFound = false;
-                    function updateNode(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === currentEditNodeId) { nodes[i] = { ...nodes[i], ...updatedData }; isFound = true; return; } if(nodes[i].children) updateNode(nodes[i].children); } } updateNode(serverTree);
+                    function updateNode(nodes) {
+                        for(let i=0; i<nodes.length; i++) {
+                            if(nodes[i].id === currentEditNodeId) {
+                                if (!canCurrentUserEditNode(nodes[i])) throw new Error('Bạn không có quyền sửa nội dung này.');
+                                nodes[i] = { ...nodes[i], ...updatedData };
+                                if (!nodes[i].createdAt) nodes[i].createdAt = updatedData.updatedAt;
+                                if (!nodes[i].createdBy) nodes[i].createdBy = normalizeAdminUsername(loggedInUser);
+                                isFound = true;
+                                return;
+                            }
+                            if(nodes[i].children) updateNode(nodes[i].children);
+                        }
+                    }
+                    updateNode(serverTree);
                     if (isFound) { transaction.update(docRef, { treeData: serverTree }); } else { throw "Mục này có thể đã bị xóa!"; }
                 });
-            }).then(() => { btn.disabled = false; resetSaveButton(); }).catch((err) => { btn.disabled = false; resetSaveButton(); alert("Lỗi đồng bộ: " + err); });
+            }).then(() => {
+                btn.disabled = false;
+                resetSaveButton();
+                updateContentMeta(findNode(currentEditNodeId, APP_DATA));
+            }).catch((err) => {
+                btn.disabled = false;
+                resetSaveButton();
+                alert("Lỗi đồng bộ: " + err);
+            });
         }
 
-        function addNewRoot() { if(!confirmUnsaved()) return; let newNode = {id: 'r'+Date.now(), title:'PHẦN MỚI TẠO', tag:'', summary:'', detail:'', level:0, children:[]}; const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; serverTree.push(newNode); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { selectItem(newNode.id); }); }
-        function addSubItem() { if(!confirmUnsaved()) return; if(!currentEditNodeId) return; let parentNode = findNode(currentEditNodeId, APP_DATA); if(!parentNode) return; let newNode = {id: 'n'+Date.now(), title:'Mục con mới', tag:'', summary:'', detail:'', level: parentNode.level + 1, children:[]}; expandedAdminNodes.add(currentEditNodeId); const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; function appendChild(nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === currentEditNodeId) { if(!nodes[i].children) nodes[i].children = []; nodes[i].children.push(newNode); return true; } if(nodes[i].children && appendChild(nodes[i].children)) return true; } return false; } appendChild(serverTree); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { selectItem(newNode.id); }); }
-        function deleteCurrentItem() { if(!currentEditNodeId || !confirm('CẢNH BÁO: Bạn có chắc chắn muốn XÓA mục này? Toàn bộ mục con bên trong cũng sẽ bị xóa vĩnh viễn!')) return; const docRef = db.collection("sotay").doc("dulieu"); db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; function removeNode(nodes) { let idx = nodes.findIndex(c => c.id === currentEditNodeId); if(idx > -1) { nodes.splice(idx, 1); return true; } for(let i=0; i<nodes.length; i++){ if(nodes[i].children && removeNode(nodes[i].children)) return true; } return false; } removeNode(serverTree); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { currentEditNodeId = null; hasUnsavedChanges = false; document.getElementById('editorArea').style.display='none'; document.getElementById('editorPlaceholder').style.display='block'; }); }
+        function addNewRoot() {
+            if (!canCurrentUserCreateRoot()) { alert('Chỉ super admin được tạo mục level 0.'); return; }
+            if(!confirmUnsaved()) return;
+            let newNode = stampNodeAudit({id: 'r'+Date.now(), title:'PHẦN MỚI TẠO', tag:'', summary:'', detail:'', level:0, children:[], fileUrl:'', fileName:'', pdfRefs:[], forceAccordion:false}, true);
+            const docRef = db.collection("sotay").doc("dulieu");
+            db.runTransaction((transaction) => { return transaction.get(docRef).then((doc) => { let serverTree = doc.data().treeData || []; serverTree.push(newNode); transaction.update(docRef, { treeData: serverTree }); }); }).then(() => { selectItem(newNode.id); }).catch((err) => alert("Lỗi tạo mục level 0: " + err));
+        }
+        function addSubItem() {
+            if(!confirmUnsaved()) return;
+            if(!currentEditNodeId) return;
+            let parentNode = findNode(currentEditNodeId, APP_DATA);
+            if(!parentNode) return;
+            if (!canCurrentUserCreateChild(parentNode)) { alert('Bạn không có quyền thêm cấp dưới cho nội dung này.'); return; }
+            let newNode = stampNodeAudit({id: 'n'+Date.now(), title:'Mục con mới', tag:'', summary:'', detail:'', level: parentNode.level + 1, children:[], fileUrl:'', fileName:'', pdfRefs:[], forceAccordion:false}, true);
+            expandedAdminNodes.add(currentEditNodeId);
+            const docRef = db.collection("sotay").doc("dulieu");
+            db.runTransaction((transaction) => {
+                return transaction.get(docRef).then((doc) => {
+                    let serverTree = doc.data().treeData || [];
+                    function appendChild(nodes) {
+                        for(let i=0; i<nodes.length; i++) {
+                            if(nodes[i].id === currentEditNodeId) {
+                                if (!canCurrentUserCreateChild(nodes[i])) throw new Error('Bạn không có quyền thêm cấp dưới cho nội dung này.');
+                                if(!nodes[i].children) nodes[i].children = [];
+                                nodes[i].children.push(newNode);
+                                return true;
+                            }
+                            if(nodes[i].children && appendChild(nodes[i].children)) return true;
+                        }
+                        return false;
+                    }
+                    appendChild(serverTree);
+                    transaction.update(docRef, { treeData: serverTree });
+                });
+            }).then(() => { selectItem(newNode.id); }).catch((err) => alert("Lỗi tạo mục con: " + err));
+        }
+        function deleteCurrentItem() {
+            if(!currentEditNodeId) return;
+            const node = findNode(currentEditNodeId, APP_DATA);
+            if (!node || !canCurrentUserDeleteNode(node)) { alert('Bạn không có quyền xóa nội dung này.'); return; }
+            if(!confirm('CẢNH BÁO: Bạn có chắc chắn muốn XÓA mục này? Toàn bộ mục con bên trong cũng sẽ bị xóa vĩnh viễn!')) return;
+            const docRef = db.collection("sotay").doc("dulieu");
+            db.runTransaction((transaction) => {
+                return transaction.get(docRef).then((doc) => {
+                    let serverTree = doc.data().treeData || [];
+                    function removeNode(nodes) {
+                        let idx = nodes.findIndex(c => c.id === currentEditNodeId);
+                        if(idx > -1) {
+                            if (!canCurrentUserDeleteNode(nodes[idx])) throw new Error('Bạn không có quyền xóa nội dung này.');
+                            nodes.splice(idx, 1);
+                            return true;
+                        }
+                        for(let i=0; i<nodes.length; i++){
+                            if(nodes[i].children && removeNode(nodes[i].children)) return true;
+                        }
+                        return false;
+                    }
+                    removeNode(serverTree);
+                    transaction.update(docRef, { treeData: serverTree });
+                });
+            }).then(() => {
+                clearContentEditorSelection();
+            }).catch((err) => alert("Lỗi xóa nội dung: " + err));
+        }
 
         function toggleAdminNode(event, id) { event.stopPropagation(); if (expandedAdminNodes.has(id)) expandedAdminNodes.delete(id); else expandedAdminNodes.add(id); renderAdminTree(); }
         function filterAdminTree() {
@@ -1475,44 +2055,114 @@ if (tagFilter) {
             });
         }
         const debouncedAdminSearch = debounceOpt(filterAdminTree, 350); document.getElementById('adminSearchInput').addEventListener('input', debouncedAdminSearch);
+        const permissionUserSearchInput = document.getElementById('permissionUserSearchInput');
+        if (permissionUserSearchInput) {
+            permissionUserSearchInput.addEventListener('input', () => renderPermissionUserList());
+        }
+        const adminModePermissionsBtn = document.getElementById('btnAdminModePermissions');
+        if (adminModePermissionsBtn) {
+            adminModePermissionsBtn.addEventListener('click', () => {
+                window.setTimeout(() => {
+                    if (typeof renderPermissionMode === 'function') renderPermissionMode();
+                }, 0);
+            });
+        }
 
         function renderAdminTree() {
-            const tree = document.getElementById('adminTree'); tree.innerHTML = '';
+            const tree = document.getElementById('adminTree');
+            if (!tree) return;
+            const readableMap = getReadableNodesMap();
+            tree.innerHTML = '';
             function buildHtml(nodes) {
                 let html = '';
                 nodes.forEach(node => {
-                    let active = (currentEditNodeId === node.id) ? 'active' : ''; let icon = node.level === 0 ? '📚' : (node.level === 1 ? '📂' : (node.level === 2 ? '📄' : (node.level === 3 ? '📑' : '📝'))); let extraClass = node.level === 0 ? 'root-item' : 'sub-item'; let hasChildren = node.children && node.children.length > 0; let isExpanded = expandedAdminNodes.has(node.id); let toggleBtn = hasChildren ? `<span class="tree-toggle" onclick="toggleAdminNode(event, '${node.id}')">${isExpanded ? '▼' : '▶'}</span>` : `<span style="display:inline-block;width:24px;"></span>`;
-                    let btnUpDown = `<div style="margin-left:auto;"><button class="btn-order" onclick="moveNodeUp(event, '${node.id}')" title="Đẩy lên">▲</button><button class="btn-order" onclick="moveNodeDown(event, '${node.id}')" title="Đẩy xuống">▼</button></div>`;
-                    html += `<div class="tree-node" id="node-${node.id}"><div class="tree-item ${extraClass} ${active}" draggable="true" ondragstart="handleDragStart(event, '${node.id}')" ondragend="handleDragEnd(event)" ondragover="handleDragOver(event, '${node.id}')" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${node.id}')" onclick="selectItem('${node.id}')">${toggleBtn}<span style="margin-right: 5px;">${icon}</span><span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${node.title || 'Chưa đặt tên'}</span>${btnUpDown}</div>`;
-                    if(hasChildren) { html += `<div class="tree-children ${isExpanded ? '' : 'collapsed'}">${buildHtml(node.children)}</div>`; } html += `</div>`;
-                }); return html;
-            } tree.innerHTML = buildHtml(APP_DATA); filterAdminTree();
+                    const active = (currentEditNodeId === node.id) ? 'active' : '';
+                    const icon = node.level === 0 ? '📚' : (node.level === 1 ? '📂' : (node.level === 2 ? '📄' : (node.level === 3 ? '📑' : '📝')));
+                    const extraClass = node.level === 0 ? 'root-item' : 'sub-item';
+                    const hasChildren = node.children && node.children.length > 0;
+                    const isExpanded = expandedAdminNodes.has(node.id);
+                    const isReadable = readableMap.get(node.id);
+                    const itemOpacity = isReadable ? '' : 'opacity:0.55;';
+                    const lockIcon = isReadable ? '' : '<span style="margin-left:6px;">🔒</span>';
+                    const toggleBtn = hasChildren ? `<span class="tree-toggle" onclick="toggleAdminNode(event, '${node.id}')">${isExpanded ? '▼' : '▶'}</span>` : `<span style="display:inline-block;width:24px;"></span>`;
+                    const btnUpDown = isCurrentSuperAdmin() ? `<div style="margin-left:auto;"><button class="btn-order" onclick="moveNodeUp(event, '${node.id}')" title="Đẩy lên">▲</button><button class="btn-order" onclick="moveNodeDown(event, '${node.id}')" title="Đẩy xuống">▼</button></div>` : '';
+                    const dragAttrs = isCurrentSuperAdmin() ? `draggable="true" ondragstart="handleDragStart(event, '${node.id}')" ondragend="handleDragEnd(event)" ondragover="handleDragOver(event, '${node.id}')" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${node.id}')"` : '';
+                    html += `<div class="tree-node" id="node-${node.id}"><div class="tree-item ${extraClass} ${active}" style="${itemOpacity}" ${dragAttrs} onclick="selectItem('${node.id}')">${toggleBtn}<span style="margin-right: 5px;">${icon}</span><span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(node.title || 'Chưa đặt tên')}</span>${lockIcon}${btnUpDown}</div>`;
+                    if(hasChildren) { html += `<div class="tree-children ${isExpanded ? '' : 'collapsed'}">${buildHtml(node.children)}</div>`; }
+                    html += `</div>`;
+                });
+                return html;
+            }
+            tree.innerHTML = buildHtml(APP_DATA);
+            filterAdminTree();
+            updateContentPermissionStateUI(currentEditNodeId ? findNode(currentEditNodeId, APP_DATA) : null);
         }
 
         function selectItem(id) {
             if (hasUnsavedChanges && currentEditNodeId !== id) { if (!confirm("⚠️ CẢNH BÁO: Bạn đang nhập nội dung nhưng CHƯA LƯU!\n\nBạn có chắc chắn muốn bỏ qua và chuyển sang mục khác không? (Nội dung vừa nhập sẽ bị mất)")) { return; } }
-            resetSaveButton(); currentEditNodeId = id; let nodeData = findNode(id, APP_DATA); if(!nodeData) return; renderAdminTree(); 
-            document.getElementById('editorPlaceholder').style.display = 'none'; document.getElementById('editorArea').style.display = 'block'; 
+            let nodeData = findNode(id, APP_DATA);
+            if(!nodeData) return;
+            if (!canCurrentUserReadNode(nodeData)) {
+                alert('Bạn chưa được cấp quyền truy cập nội dung này.');
+                return;
+            }
+            resetSaveButton();
+            currentEditNodeId = id;
+            renderAdminTree();
+            document.getElementById('editorPlaceholder').style.display = 'none';
+            document.getElementById('editorArea').style.display = 'block';
             isSystemChangingContent = true;
-            document.getElementById('inpTag').value = nodeData.tag || ''; document.getElementById('inpTitle').value = nodeData.title || ''; document.getElementById('inpFileUrl').value = nodeData.fileUrl || ''; document.getElementById('inpFileName').value = nodeData.fileName || '';
+            document.getElementById('inpTag').value = nodeData.tag || '';
+            document.getElementById('inpTitle').value = nodeData.title || '';
+            document.getElementById('inpFileUrl').value = nodeData.fileUrl || '';
+            document.getElementById('inpFileName').value = nodeData.fileName || '';
             document.getElementById('inpForceAccordion').checked = nodeData.forceAccordion || false;
-            let refs = nodeData.pdfRefs || []; if (nodeData.pdfPage && refs.length === 0) refs.push({doc: 'hd02', page: nodeData.pdfPage}); 
-            for(let i=1; i<=4; i++) { let docEl = document.getElementById('inpPdfDoc'+i); let pageEl = document.getElementById('inpPdfPage'+i); if (refs[i-1]) { docEl.value = refs[i-1].doc || ''; pageEl.value = refs[i-1].page || ''; } else { docEl.value = ''; pageEl.value = ''; } }
-            quillSummary.root.innerHTML = processLegacyText(nodeData.summary || ''); quillDetail.root.innerHTML = processLegacyText(nodeData.detail || '');
+            let refs = nodeData.pdfRefs || [];
+            if (nodeData.pdfPage && refs.length === 0) refs.push({doc: 'hd02', page: nodeData.pdfPage});
+            for(let i=1; i<=5; i++) {
+                let docEl = document.getElementById('inpPdfDoc'+i);
+                let pageEl = document.getElementById('inpPdfPage'+i);
+                if (refs[i-1]) { docEl.value = refs[i-1].doc || ''; pageEl.value = refs[i-1].page || ''; }
+                else { docEl.value = ''; pageEl.value = ''; }
+            }
+            quillSummary.root.innerHTML = processLegacyText(nodeData.summary || '');
+            quillDetail.root.innerHTML = processLegacyText(nodeData.detail || '');
+            updateContentMeta(nodeData);
+            updateContentPermissionStateUI(nodeData);
             setTimeout(() => { isSystemChangingContent = false; }, 100);
         }
 
-        function processLogin() { 
+        async function processLogin() { 
             let user = document.getElementById('username').value.trim().toLowerCase(); let pass = document.getElementById('password').value; let errBox = document.getElementById('loginError'); 
             let email = user.includes('@') ? user : user + '@sotay.com';
-            const btnLogin = document.querySelector('#loginOverlay .btn-login'); btnLogin.innerHTML = "ĐANG KIỂM TRA..."; btnLogin.disabled = true;
-            firebase.auth().signInWithEmailAndPassword(email, pass).then((userCredential) => {
-                loggedInUser = userCredential.user.email.split('@')[0]; document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b style="text-transform: capitalize;">${loggedInUser}</b>`; renderAdminTree(); document.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { loggedIn: true, user: loggedInUser } })); btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
-            }).catch((error) => { errBox.style.display = 'block'; document.getElementById('password').value = ''; btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false; });
+            const btnLogin = document.querySelector('#loginOverlay .btn-login'); btnLogin.innerHTML = "ĐANG KIỂM TRA..."; btnLogin.disabled = true; errBox.style.display = 'none';
+            firebase.auth().signInWithEmailAndPassword(email, pass).then(async (userCredential) => {
+                loggedInUser = normalizeAdminUsername(userCredential.user.email.split('@')[0]);
+                await ensureAdminProfileForLogin(userCredential, loggedInUser);
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('adminWelcome').innerHTML = `Đang đăng nhập bởi: <b style="text-transform: capitalize;">${loggedInUser}</b>${currentAdminProfile ? ` | Vai trò: <b>${currentAdminProfile.role === 'super_admin' ? 'Super Admin' : 'Biên tập'}</b>` : ''}`;
+                const permissionBtn = document.getElementById('btnAdminModePermissions');
+                if (permissionBtn) permissionBtn.style.display = isCurrentSuperAdmin() ? '' : 'none';
+                renderAdminTree();
+                if (typeof window.switchAdminMode === 'function') {
+                    window.switchAdminMode('content');
+                }
+                document.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { loggedIn: true, user: loggedInUser, profile: currentAdminProfile } }));
+                btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
+            }).catch((error) => {
+                errBox.style.display = 'block';
+                errBox.textContent = error && error.message ? error.message : 'Đăng nhập thất bại.';
+                document.getElementById('password').value = '';
+                btnLogin.innerHTML = "VÀO TRANG QUẢN TRỊ"; btnLogin.disabled = false;
+                if (firebase.auth && firebase.auth().currentUser) {
+                    firebase.auth().signOut();
+                }
+            });
         }
         function openLoginForm() { toggleMenu(false); document.getElementById('loginOverlay').style.display = 'flex'; }
         function closeLoginForm() { document.getElementById('loginOverlay').style.display = 'none'; }
-        function closeAdminPanel() { if(typeof getCurrentAdminMode === 'function' && getCurrentAdminMode() === 'directory') { if (typeof confirmDirectoryUnsaved === 'function' && !confirmDirectoryUnsaved()) return; } else { if(!confirmUnsaved()) return; } firebase.auth().signOut().then(() => { document.getElementById('adminPanel').style.display = 'none'; loggedInUser = null; document.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { loggedIn: false, user: null } })); }); }
+        function closeAdminPanel() { if(typeof getCurrentAdminMode === 'function' && getCurrentAdminMode() === 'directory') { if (typeof confirmDirectoryUnsaved === 'function' && !confirmDirectoryUnsaved()) return; } else { if(!confirmUnsaved()) return; } firebase.auth().signOut().then(() => { document.getElementById('adminPanel').style.display = 'none'; loggedInUser = null; currentAdminProfile = null; currentUserPermissions = []; selectedPermissionUsername = null; selectedPermissionNodeId = null; clearContentEditorSelection(); document.dispatchEvent(new CustomEvent('admin-auth-changed', { detail: { loggedIn: false, user: null } })); }); }
         
         function toggleAccordion(headerEl) {
             let parentGroup = headerEl.parentElement; 
