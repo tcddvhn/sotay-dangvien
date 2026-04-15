@@ -13,4 +13,8 @@ public sealed record ContentNodeDto(
     int Level,
     int SortOrder,
     bool IsActive,
+    DateTime CreatedAt,
+    string? CreatedBy,
+    DateTime UpdatedAt,
+    string? UpdatedBy,
     IReadOnlyList<ContentNodeDto> Children);

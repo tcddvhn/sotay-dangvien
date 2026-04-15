@@ -220,6 +220,34 @@ CREATE TABLE core.SystemSettings
 );
 GO
 
+CREATE TABLE auth.ContentPermissions
+(
+    Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AuthContentPermissions PRIMARY KEY,
+    AdminUserId UNIQUEIDENTIFIER NOT NULL,
+    ContentNodeId UNIQUEIDENTIFIER NOT NULL,
+    MaxDepth INT NOT NULL CONSTRAINT DF_AuthContentPermissions_MaxDepth DEFAULT(0),
+    AllowRead BIT NOT NULL CONSTRAINT DF_AuthContentPermissions_AllowRead DEFAULT(0),
+    AllowCreateChild BIT NOT NULL CONSTRAINT DF_AuthContentPermissions_AllowCreateChild DEFAULT(0),
+    AllowEdit BIT NOT NULL CONSTRAINT DF_AuthContentPermissions_AllowEdit DEFAULT(0),
+    AllowDelete BIT NOT NULL CONSTRAINT DF_AuthContentPermissions_AllowDelete DEFAULT(0),
+    IsActive BIT NOT NULL CONSTRAINT DF_AuthContentPermissions_IsActive DEFAULT(1),
+    CreatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_AuthContentPermissions_CreatedAt DEFAULT(SYSUTCDATETIME()),
+    CreatedBy NVARCHAR(100) NULL,
+    UpdatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_AuthContentPermissions_UpdatedAt DEFAULT(SYSUTCDATETIME()),
+    UpdatedBy NVARCHAR(100) NULL
+);
+GO
+
+ALTER TABLE auth.ContentPermissions
+ADD CONSTRAINT FK_AuthContentPermissions_ContentNode
+FOREIGN KEY (ContentNodeId) REFERENCES core.ContentNodes(Id);
+GO
+
+CREATE UNIQUE INDEX UX_AuthContentPermissions_AdminUserId_ContentNodeId ON auth.ContentPermissions(AdminUserId, ContentNodeId);
+CREATE INDEX IX_AuthContentPermissions_AdminUserId ON auth.ContentPermissions(AdminUserId);
+CREATE INDEX IX_AuthContentPermissions_ContentNodeId ON auth.ContentPermissions(ContentNodeId);
+GO
+
 CREATE TABLE audit.AdminAuditLogs
 (
     Id BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AdminAuditLogs PRIMARY KEY,

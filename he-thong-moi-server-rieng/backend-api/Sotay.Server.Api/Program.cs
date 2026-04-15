@@ -93,6 +93,7 @@ if (!string.IsNullOrWhiteSpace(databaseConnectionString))
     builder.Services.AddScoped<IContentService, SqlContentService>();
     builder.Services.AddScoped<IDirectoryService, SqlDirectoryService>();
     builder.Services.AddScoped<IAdminAuthService, IdentityAdminAuthService>();
+    builder.Services.AddScoped<IAdminPermissionService, SqlAdminPermissionService>();
     builder.Services.AddScoped<ISurveyService, SqlSurveyService>();
     builder.Services.AddScoped<IStatsService, SqlStatsService>();
     builder.Services.AddScoped<INoticeService, SqlNoticeService>();
@@ -106,6 +107,7 @@ else
     builder.Services.AddSingleton<IContentService, MockContentService>();
     builder.Services.AddSingleton<IDirectoryService, MockDirectoryService>();
     builder.Services.AddSingleton<IAdminAuthService, MockAdminAuthService>();
+    builder.Services.AddSingleton<IAdminPermissionService, MockAdminPermissionService>();
     builder.Services.AddSingleton<ISurveyService, MockSurveyService>();
     builder.Services.AddSingleton<IStatsService, MockStatsService>();
     builder.Services.AddSingleton<INoticeService, MockNoticeService>();

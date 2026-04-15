@@ -21,6 +21,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     public DbSet<PushSubscriptionEntity> PushSubscriptions => Set<PushSubscriptionEntity>();
 
+    public DbSet<ContentPermissionEntity> ContentPermissions => Set<ContentPermissionEntity>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -29,7 +31,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             entity.ToTable("AdminUsers", "auth");
             entity.Property(x => x.DisplayName).HasMaxLength(255);
+            entity.Property(x => x.RoleName).HasMaxLength(50).HasDefaultValue("editor");
             entity.Property(x => x.IsActive).HasDefaultValue(true);
+            entity.Property(x => x.CreatedBy).HasMaxLength(100);
+            entity.Property(x => x.UpdatedBy).HasMaxLength(100);
         });
 
         modelBuilder.Entity<IdentityRole<Guid>>(entity =>
@@ -146,6 +151,25 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(x => x.UserKey).HasMaxLength(100);
             entity.Property(x => x.IsActive).HasDefaultValue(true);
             entity.HasIndex(x => x.EndpointUrl).IsUnique();
+        });
+
+        modelBuilder.Entity<ContentPermissionEntity>(entity =>
+        {
+            entity.ToTable("ContentPermissions", "auth");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.MaxDepth).HasDefaultValue(0);
+            entity.Property(x => x.IsActive).HasDefaultValue(true);
+            entity.Property(x => x.CreatedBy).HasMaxLength(100);
+            entity.Property(x => x.UpdatedBy).HasMaxLength(100);
+            entity.HasIndex(x => new { x.AdminUserId, x.ContentNodeId }).IsUnique();
+            entity.HasOne(x => x.AdminUser)
+                .WithMany()
+                .HasForeignKey(x => x.AdminUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.ContentNode)
+                .WithMany()
+                .HasForeignKey(x => x.ContentNodeId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

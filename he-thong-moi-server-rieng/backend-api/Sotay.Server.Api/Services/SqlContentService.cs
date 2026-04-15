@@ -123,6 +123,10 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
                 x.Level,
                 x.SortOrder,
                 x.IsActive,
+                x.CreatedAt,
+                x.CreatedBy,
+                x.UpdatedAt,
+                x.UpdatedBy,
                 BuildTree(allNodes, x.Id)))
             .ToList();
     }
@@ -141,6 +145,10 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
             entity.Level,
             entity.SortOrder,
             entity.IsActive,
+            entity.CreatedAt,
+            entity.CreatedBy,
+            entity.UpdatedAt,
+            entity.UpdatedBy,
             Array.Empty<ContentNodeDto>());
 
     private static void Flatten(

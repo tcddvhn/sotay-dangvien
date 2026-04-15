@@ -177,6 +177,10 @@
                 level: Number(node?.level || 0),
                 order: Number(node?.sortOrder || 0),
                 isActive: node?.isActive !== false,
+                createdAt: String(node?.createdAt || ''),
+                createdBy: String(node?.createdBy || ''),
+                updatedAt: String(node?.updatedAt || ''),
+                updatedBy: String(node?.updatedBy || ''),
                 children: (node?.children || []).map(mapServerContentNodeToLegacy)
             };
         }
@@ -259,6 +263,9 @@
             canUseAuthApi() {
                 return isServerApiEnabled('ENABLE_SERVER_AUTH_API');
             },
+            canUseAdminPermissionApi() {
+                return isServerApiEnabled('ENABLE_SERVER_AUTH_API');
+            },
             canUseChatbotApi() {
                 return isServerApiEnabled('ENABLE_SERVER_CHATBOT_API');
             },
@@ -322,6 +329,29 @@
             },
             async logoutAdmin() {
                 return serverApiRequest('/admin/auth/logout', { method: 'POST', body: '{}' });
+            },
+            async getAdminProfiles() {
+                return serverApiRequest('/admin/permissions/users');
+            },
+            async saveAdminProfile(profile) {
+                return serverApiRequest('/admin/permissions/users/save', {
+                    method: 'POST',
+                    body: JSON.stringify(profile)
+                });
+            },
+            async getAdminContentPermissions(adminUserId) {
+                return serverApiRequest(`/admin/permissions/users/${encodeURIComponent(adminUserId)}/content`);
+            },
+            async saveAdminContentPermission(permission) {
+                return serverApiRequest('/admin/permissions/content/save', {
+                    method: 'POST',
+                    body: JSON.stringify(permission)
+                });
+            },
+            async deleteAdminContentPermission(id) {
+                return serverApiRequest(`/admin/permissions/content/${encodeURIComponent(id)}`, {
+                    method: 'DELETE'
+                });
             },
             async askChatbot(message, conversationId) {
                 return serverApiRequest('/chatbot/ask', {

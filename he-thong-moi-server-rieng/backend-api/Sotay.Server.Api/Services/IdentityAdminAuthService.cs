@@ -70,7 +70,14 @@ public sealed class IdentityAdminAuthService(
         }
 
         var roles = await userManager.GetRolesAsync(user);
-        var primaryRole = roles.FirstOrDefault();
+        var primaryRole = !string.IsNullOrWhiteSpace(user.RoleName)
+            ? user.RoleName
+            : roles.FirstOrDefault();
+
+        user.LastLoginAt = DateTime.UtcNow;
+        user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedBy = user.UserName;
+        await userManager.UpdateAsync(user);
 
         return new AdminLoginResult(
             true,

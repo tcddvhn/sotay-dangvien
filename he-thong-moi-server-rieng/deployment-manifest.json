@@ -1,6 +1,6 @@
 {
   "manifestVersion": "1.0.0",
-  "updatedAt": "2026-04-14",
+  "updatedAt": "2026-04-15",
   "projectName": "So tay Nghiep vu TCĐ, ĐV",
   "workspaceRoot": "he-thong-moi-server-rieng",
   "defaultCommandTrigger": "Hay thuc hien chuyen doi",
@@ -10,7 +10,8 @@
     "backendRoot": "he-thong-moi-server-rieng/backend-api/Sotay.Server.Api",
     "docsRoot": "he-thong-moi-server-rieng/docs",
     "migrationDataRoot": "he-thong-moi-server-rieng/migration-data",
-    "toolsRoot": "he-thong-moi-server-rieng/tools"
+    "toolsRoot": "he-thong-moi-server-rieng/tools",
+    "firebaseAuthSyncRoot": "he-thong-moi-server-rieng/firebase-auth-admin-sync"
   },
   "defaults": {
     "domain": "sotaynghiepvu.dcs.vn",
@@ -50,6 +51,9 @@
   "smokeTests": [
     "GET /api/health",
     "POST /api/admin/auth/login",
+    "GET /api/admin/permissions/users",
+    "GET /api/admin/permissions/users/{adminUserId}/content",
+    "POST /api/admin/permissions/content/save",
     "GET /api/content/tree",
     "GET /api/directory/tree",
     "GET /api/stats/dashboard",
@@ -61,6 +65,9 @@
   "notes": [
     "Production frontend phai dung runtime-config production, khong duoc de localhost.",
     "Khong duoc dua Chatbot.ApiKey vao frontend.",
-    "Neu migration-data co file content-tree.export.json va directory-tree.export.json thi import du lieu cu vao SQL Server."
+    "Neu migration-data co file content-tree.export.json va directory-tree.export.json thi import du lieu cu vao SQL Server.",
+    "Workspace da duoc bo sung bo Auth sync Firebase, nhung chua parity day du tinh nang phan quyen noi dung cua he thong that.",
+    "Can doc docs/bao_cao_chenh_lech_voi_he_thong_that_sau_dot_phan_quyen.md truoc khi danh gia muc do san sang cutover.",
+    "Truoc khi dung API phan quyen moi, phai tao migration EF Core cho auth.AdminUsers va auth.ContentPermissions."
   ]
 }

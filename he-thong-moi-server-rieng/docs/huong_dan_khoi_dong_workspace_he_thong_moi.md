@@ -23,6 +23,11 @@ Tai lieu nay huong dan cach bat dau phat trien he thong moi trong thu muc `he-th
 - `docs/bao_cao_phu_thuoc_con_lai_trong_frontend_static.md`: danh sach phu thuoc cu con sot lai
 - `docs/bao_cao_thay_the_survey_stats_notice.md`: ket qua thay survey/stats/notice sang backend moi
 - `docs/bao_cao_thay_the_push_notification.md`: ket qua thay push notification sang backend moi
+- `docs/bao_cao_phuong_an_phan_quyen_quan_tri_noi_dung.md`: phuong an phan quyen noi dung tren he thong that
+- `docs/thiet_ke_chi_tiet_phan_quyen_quan_tri_noi_dung.md`: thiet ke chi tiet cho mo hinh phan quyen moi
+- `docs/huong_dan_dong_bo_firebase_auth_sang_admin_users.md`: huong dan dong bo `Firebase Auth -> admin_users`
+- `docs/bao_cao_chenh_lech_voi_he_thong_that_sau_dot_phan_quyen.md`: bao cao nhung diem workspace moi chua parity day du voi he thong that
+- `firebase-auth-admin-sync/`: bo Cloud Functions dong bo user tu Firebase Auth sang admin profile
 
 ## 3. Trang thai hien tai
 
@@ -30,6 +35,8 @@ Tai lieu nay huong dan cach bat dau phat trien he thong moi trong thu muc `he-th
 - Backend moi: co skeleton, `DbContext`, entity va API mau
 - Database moi: co schema nen, chua apply len SQL Server
 - Auth moi: da co huong `Identity`, chua build test that tren may nay
+- Phan quyen moi cua he thong that: da co tai lieu va bo Auth sync, nhung backend/frontend workspace moi chua co API va UI parity day du
+- Backend moi hien da co API nen cho `admin profile` va `content permissions`, nhung van chua co migration va chua co UI parity tren `frontend-static`
 
 Chi tiet backend hien tai:
 
@@ -114,6 +121,16 @@ Phai cai:
 6. Dien `PushOptions` va test `Web Push`
 7. Mo `frontend-static` de test lai toan bo luong da chuyen
 8. Sau khi on dinh moi bo fallback cu
+
+## 9. Luu y rieng sau dot phan quyen
+
+- Khong duoc gia dinh `frontend-static` da co tab `Tai khoan & quyen` giong he thong that.
+- Thu muc `firebase-auth-admin-sync/` da duoc mang sang de dung cho giai doan dong bo account.
+- Backend/API phan quyen da co nen, nhung van phai:
+  1. tao migration EF Core moi
+  2. update database
+  3. bo sung UI `Tai khoan & quyen` vao `frontend-static`
+  4. ap quyen vao luong CRUD content
 
 Khi chay thu lan dau, dung them:
 

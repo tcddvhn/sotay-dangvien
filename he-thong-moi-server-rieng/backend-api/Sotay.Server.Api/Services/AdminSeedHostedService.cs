@@ -36,8 +36,13 @@ public sealed class AdminSeedHostedService(
                 UserName = options.UserName,
                 Email = options.Email,
                 DisplayName = options.DisplayName,
+                RoleName = string.Equals(options.RoleName, "super_admin", StringComparison.OrdinalIgnoreCase) ? "super_admin" : "editor",
                 EmailConfirmed = true,
-                IsActive = true
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = "seed",
+                UpdatedAt = DateTime.UtcNow,
+                UpdatedBy = "seed"
             };
 
             var createResult = await userManager.CreateAsync(user, options.Password);
@@ -51,5 +56,11 @@ public sealed class AdminSeedHostedService(
         {
             await userManager.AddToRoleAsync(user, options.RoleName);
         }
+
+        user.RoleName = string.Equals(options.RoleName, "super_admin", StringComparison.OrdinalIgnoreCase) ? "super_admin" : "editor";
+        user.IsActive = true;
+        user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedBy = "seed";
+        await userManager.UpdateAsync(user);
     }
 }

@@ -26,7 +26,7 @@ public sealed class MockAdminAuthService : IAdminAuthService
             "mock-access-token",
             DateTimeOffset.UtcNow.AddHours(1),
             "Quản trị viên mẫu",
-            "SuperAdmin",
+            "super_admin",
             "Đăng nhập mock thành công."));
     }
 

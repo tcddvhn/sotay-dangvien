@@ -67,7 +67,9 @@ public sealed class MockContentService : IContentService
             {
                 entity = new MockContentState
                 {
-                    Id = id
+                    Id = id,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = request.UpdatedBy
                 };
                 Store.Add(entity);
             }
@@ -139,6 +141,10 @@ public sealed class MockContentService : IContentService
                 x.Level,
                 x.SortOrder,
                 x.IsActive,
+                x.CreatedAt,
+                x.CreatedBy,
+                x.UpdatedAt,
+                x.UpdatedBy,
                 BuildTree(x.Id)))
             .ToList();
 
@@ -156,6 +162,10 @@ public sealed class MockContentService : IContentService
             item.Level,
             item.SortOrder,
             item.IsActive,
+            item.CreatedAt,
+            item.CreatedBy,
+            item.UpdatedAt,
+            item.UpdatedBy,
             BuildTree(item.Id));
 
     private static void Flatten(
@@ -180,6 +190,8 @@ public sealed class MockContentService : IContentService
                 Level = node.Level,
                 SortOrder = node.SortOrder,
                 IsActive = node.IsActive,
+                CreatedBy = updatedBy,
+                CreatedAt = DateTime.UtcNow,
                 UpdatedBy = updatedBy,
                 UpdatedAt = DateTime.UtcNow
             });
@@ -215,6 +227,10 @@ public sealed class MockContentService : IContentService
         public int SortOrder { get; set; }
 
         public bool IsActive { get; set; }
+
+        public string? CreatedBy { get; set; }
+
+        public DateTime CreatedAt { get; set; }
 
         public string? UpdatedBy { get; set; }
 
