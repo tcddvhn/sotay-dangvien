@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Sotay.Server.Api.Data;
@@ -5,17 +6,21 @@ using Sotay.Server.Api.Data.Entities;
 using Sotay.Server.Api.Data.Identity;
 using Sotay.Server.Api.Models.Auth;
 using Sotay.Server.Api.Services.Interfaces;
+using System.Security.Claims;
 
 namespace Sotay.Server.Api.Services;
 
 public sealed class SqlAdminPermissionService(
     ApplicationDbContext dbContext,
-    UserManager<AdminUserEntity> userManager) : IAdminPermissionService
+    UserManager<AdminUserEntity> userManager,
+    IHttpContextAccessor httpContextAccessor) : IAdminPermissionService
 {
     private const string SystemRootAdminUserName = "admin";
 
     public async Task<IReadOnlyList<AdminProfileDto>> GetAdminProfilesAsync(CancellationToken cancellationToken)
     {
+        await EnsureCurrentUserIsSuperAdminAsync(cancellationToken);
+
         var users = await dbContext.Users
             .AsNoTracking()
             .OrderByDescending(x => x.RoleName == "super_admin")
@@ -27,6 +32,8 @@ public sealed class SqlAdminPermissionService(
 
     public async Task<AdminProfileDto?> GetAdminProfileAsync(Guid id, CancellationToken cancellationToken)
     {
+        await EnsureCurrentUserIsSuperAdminAsync(cancellationToken);
+
         var user = await dbContext.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
@@ -34,8 +41,16 @@ public sealed class SqlAdminPermissionService(
         return user is null ? null : MapProfile(user);
     }
 
+    public async Task<AdminProfileDto?> GetCurrentAdminProfileAsync(CancellationToken cancellationToken)
+    {
+        var user = await GetCurrentAdminUserAsync(cancellationToken);
+        return user is null ? null : MapProfile(user);
+    }
+
     public async Task<AdminProfileDto> SaveAdminProfileAsync(AdminProfileSaveRequest request, CancellationToken cancellationToken)
     {
+        await EnsureCurrentUserIsSuperAdminAsync(cancellationToken);
+
         var normalizedUserName = NormalizeUserName(request.UserName);
         var normalizedEmail = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim().ToLowerInvariant();
         var now = DateTime.UtcNow;
@@ -93,6 +108,8 @@ public sealed class SqlAdminPermissionService(
 
     public async Task<IReadOnlyList<ContentPermissionDto>> GetContentPermissionsAsync(Guid adminUserId, CancellationToken cancellationToken)
     {
+        await EnsureCurrentUserIsSuperAdminAsync(cancellationToken);
+
         var permissions = await dbContext.ContentPermissions
             .AsNoTracking()
             .Include(x => x.ContentNode)
@@ -107,11 +124,13 @@ public sealed class SqlAdminPermissionService(
 
     public async Task<ContentPermissionDto> SaveContentPermissionAsync(ContentPermissionSaveRequest request, CancellationToken cancellationToken)
     {
+        await EnsureCurrentUserIsSuperAdminAsync(cancellationToken);
+
         var adminUser = await dbContext.Users.FirstOrDefaultAsync(x => x.Id == request.AdminUserId, cancellationToken)
-            ?? throw new InvalidOperationException("Không tìm thấy tài khoản quản trị.");
+            ?? throw new InvalidOperationException("Khong tim thay tai khoan quan tri.");
 
         var contentNode = await dbContext.ContentNodes.FirstOrDefaultAsync(x => x.Id == request.ContentNodeId, cancellationToken)
-            ?? throw new InvalidOperationException("Không tìm thấy node nội dung.");
+            ?? throw new InvalidOperationException("Khong tim thay node noi dung.");
 
         var now = DateTime.UtcNow;
         var entity = request.Id.HasValue
@@ -154,6 +173,8 @@ public sealed class SqlAdminPermissionService(
 
     public async Task<bool> DeleteContentPermissionAsync(Guid id, CancellationToken cancellationToken)
     {
+        await EnsureCurrentUserIsSuperAdminAsync(cancellationToken);
+
         var entity = await dbContext.ContentPermissions.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (entity is null)
         {
@@ -204,4 +225,35 @@ public sealed class SqlAdminPermissionService(
 
     private static string NormalizeUserName(string userName)
         => userName.Trim().ToLowerInvariant();
+
+    private async Task<AdminUserEntity?> GetCurrentAdminUserAsync(CancellationToken cancellationToken)
+    {
+        var principal = httpContextAccessor.HttpContext?.User;
+        if (principal?.Identity?.IsAuthenticated != true)
+        {
+            return null;
+        }
+
+        var userIdValue = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdValue, out var userId))
+        {
+            return null;
+        }
+
+        return await dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
+    }
+
+    private async Task EnsureCurrentUserIsSuperAdminAsync(CancellationToken cancellationToken)
+    {
+        var currentUser = await GetCurrentAdminUserAsync(cancellationToken);
+        if (currentUser is null)
+        {
+            throw new AdminPermissionAuthenticationRequiredException("Can dang nhap quan tri de thuc hien thao tac nay.");
+        }
+
+        if (!string.Equals(currentUser.RoleName, "super_admin", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new AdminPermissionDeniedException("Chi super admin duoc quan ly tai khoan va phan quyen.");
+        }
+    }
 }

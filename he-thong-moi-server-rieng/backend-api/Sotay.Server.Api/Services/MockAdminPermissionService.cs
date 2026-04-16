@@ -29,6 +29,9 @@ public sealed class MockAdminPermissionService : IAdminPermissionService
     public Task<AdminProfileDto?> GetAdminProfileAsync(Guid id, CancellationToken cancellationToken)
         => Task.FromResult(_profiles.FirstOrDefault(x => x.Id == id));
 
+    public Task<AdminProfileDto?> GetCurrentAdminProfileAsync(CancellationToken cancellationToken)
+        => Task.FromResult(_profiles.FirstOrDefault());
+
     public Task<AdminProfileDto> SaveAdminProfileAsync(AdminProfileSaveRequest request, CancellationToken cancellationToken)
     {
         var isRootAdmin = string.Equals(request.UserName, "admin", StringComparison.OrdinalIgnoreCase);

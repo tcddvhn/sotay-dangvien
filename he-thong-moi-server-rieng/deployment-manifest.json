@@ -1,6 +1,6 @@
 {
   "manifestVersion": "1.0.0",
-  "updatedAt": "2026-04-15",
+  "updatedAt": "2026-04-16",
   "projectName": "So tay Nghiep vu TCĐ, ĐV",
   "workspaceRoot": "he-thong-moi-server-rieng",
   "defaultCommandTrigger": "Hay thuc hien chuyen doi",
@@ -66,8 +66,9 @@
     "Production frontend phai dung runtime-config production, khong duoc de localhost.",
     "Khong duoc dua Chatbot.ApiKey vao frontend.",
     "Neu migration-data co file content-tree.export.json va directory-tree.export.json thi import du lieu cu vao SQL Server.",
-    "Workspace da duoc bo sung bo Auth sync Firebase, nhung chua parity day du tinh nang phan quyen noi dung cua he thong that.",
+    "Workspace da co UI Tai khoan va quyen tren frontend-static va API admin permissions tuong ung.",
     "Can doc docs/bao_cao_chenh_lech_voi_he_thong_that_sau_dot_phan_quyen.md truoc khi danh gia muc do san sang cutover.",
-    "Truoc khi dung API phan quyen moi, phai tao migration EF Core cho auth.AdminUsers va auth.ContentPermissions."
+    "Truoc khi dung API phan quyen moi, phai tao migration EF Core cho auth.AdminUsers va auth.ContentPermissions.",
+    "Backend content da co enforcement quyen cho save/delete/tree-sync; van can test end-to-end voi super_admin va editor."
   ]
 }

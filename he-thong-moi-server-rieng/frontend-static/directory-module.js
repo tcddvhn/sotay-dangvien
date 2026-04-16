@@ -455,27 +455,36 @@
     function renderDirectoryAdminMode() {
         const contentSidebar = document.getElementById('adminContentSidebarPane');
         const directorySidebar = document.getElementById('adminDirectorySidebarPane');
+        const permissionsSidebar = document.getElementById('adminPermissionsSidebarPane');
         const contentPane = document.getElementById('adminContentPane');
         const directoryPane = document.getElementById('adminDirectoryPane');
+        const permissionsPane = document.getElementById('adminPermissionsPane');
         const contentBtn = document.getElementById('btnAdminModeContent');
         const directoryBtn = document.getElementById('btnAdminModeDirectory');
+        const permissionsBtn = document.getElementById('btnAdminModePermissions');
         const title = document.getElementById('adminSectionTitle');
-        if (!contentSidebar || !directorySidebar || !contentPane || !directoryPane || !contentBtn || !directoryBtn || !title) return;
+        if (!contentSidebar || !directorySidebar || !permissionsSidebar || !contentPane || !directoryPane || !permissionsPane || !contentBtn || !directoryBtn || !permissionsBtn || !title) return;
 
         const isDirectory = currentAdminMode === 'directory';
-        contentSidebar.style.display = isDirectory ? 'none' : 'block';
-        directorySidebar.style.display = isDirectory ? 'block' : 'none';
-        contentPane.style.display = isDirectory ? 'none' : 'block';
+        const isPermissions = currentAdminMode === 'permissions';
+        contentSidebar.style.display = (!isDirectory && !isPermissions) ? 'flex' : 'none';
+        directorySidebar.style.display = isDirectory ? 'flex' : 'none';
+        permissionsSidebar.style.display = isPermissions ? 'flex' : 'none';
+        contentPane.style.display = (!isDirectory && !isPermissions) ? 'block' : 'none';
         directoryPane.style.display = isDirectory ? 'block' : 'none';
-        contentBtn.classList.toggle('active', !isDirectory);
+        permissionsPane.style.display = isPermissions ? 'block' : 'none';
+        contentBtn.classList.toggle('active', !isDirectory && !isPermissions);
         directoryBtn.classList.toggle('active', isDirectory);
-        title.textContent = isDirectory ? 'Quản trị Danh bạ' : 'Biên tập Nội dung';
+        permissionsBtn.classList.toggle('active', isPermissions);
+        title.textContent = isDirectory ? 'Quản trị Danh bạ' : (isPermissions ? 'Tài khoản & quyền' : 'Biên tập Nội dung');
 
         if (isDirectory) {
             renderDirectoryAdminTree();
             if (directoryCurrentEditId) {
                 fillDirectoryEditor(directoryCurrentEditId);
             }
+        } else if (isPermissions && typeof window.renderPermissionMode === 'function') {
+            window.renderPermissionMode();
         }
     }
 
@@ -483,7 +492,7 @@
         if (mode === currentAdminMode) return;
         if (currentAdminMode === 'content' && typeof confirmUnsaved === 'function' && !confirmUnsaved()) return;
         if (currentAdminMode === 'directory' && !confirmDirectoryUnsaved()) return;
-        currentAdminMode = mode === 'directory' ? 'directory' : 'content';
+        currentAdminMode = mode === 'directory' ? 'directory' : (mode === 'permissions' ? 'permissions' : 'content');
         renderDirectoryAdminMode();
     }
 

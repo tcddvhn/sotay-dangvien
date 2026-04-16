@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Sotay.Server.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0953b43a2f0559461aa3ce196bf422e8c4c74497")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ead3b9ad49c201589f7b2bb7f0b0e5bb857d99a4")]
 [assembly: System.Reflection.AssemblyProductAttribute("Sotay.Server.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Sotay.Server.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

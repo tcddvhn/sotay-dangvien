@@ -8,6 +8,8 @@ public interface IAdminPermissionService
 
     Task<AdminProfileDto?> GetAdminProfileAsync(Guid id, CancellationToken cancellationToken);
 
+    Task<AdminProfileDto?> GetCurrentAdminProfileAsync(CancellationToken cancellationToken);
+
     Task<AdminProfileDto> SaveAdminProfileAsync(AdminProfileSaveRequest request, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ContentPermissionDto>> GetContentPermissionsAsync(Guid adminUserId, CancellationToken cancellationToken);

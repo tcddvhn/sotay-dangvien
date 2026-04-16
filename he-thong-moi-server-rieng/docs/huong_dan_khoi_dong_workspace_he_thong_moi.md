@@ -35,8 +35,10 @@ Tai lieu nay huong dan cach bat dau phat trien he thong moi trong thu muc `he-th
 - Backend moi: co skeleton, `DbContext`, entity va API mau
 - Database moi: co schema nen, chua apply len SQL Server
 - Auth moi: da co huong `Identity`, chua build test that tren may nay
-- Phan quyen moi cua he thong that: da co tai lieu va bo Auth sync, nhung backend/frontend workspace moi chua co API va UI parity day du
-- Backend moi hien da co API nen cho `admin profile` va `content permissions`, nhung van chua co migration va chua co UI parity tren `frontend-static`
+- Phan quyen moi cua he thong that: da duoc mang sang workspace moi o muc backend API va UI `frontend-static`
+- Backend moi hien da co API nen cho `admin profile` va `content permissions`; frontend-static da co tab `Tai khoan & quyen`, chan CRUD theo quyen, va metadata noi dung
+- Backend `content` da co enforcement quyen cho `save`, `delete`, va `tree/sync`
+- Diem con thieu la migration EF Core moi va test end-to-end tren moi truong SQL/Identity that
 
 Chi tiet backend hien tai:
 
@@ -124,13 +126,13 @@ Phai cai:
 
 ## 9. Luu y rieng sau dot phan quyen
 
-- Khong duoc gia dinh `frontend-static` da co tab `Tai khoan & quyen` giong he thong that.
+- `frontend-static` da co tab `Tai khoan & quyen` va logic chan thao tac theo quyen o tang client.
 - Thu muc `firebase-auth-admin-sync/` da duoc mang sang de dung cho giai doan dong bo account.
 - Backend/API phan quyen da co nen, nhung van phai:
   1. tao migration EF Core moi
   2. update database
-  3. bo sung UI `Tai khoan & quyen` vao `frontend-static`
-  4. ap quyen vao luong CRUD content
+  3. test lai UI `Tai khoan & quyen` tren `frontend-static`
+  4. xac nhan enforcement backend `content` bang testcase `super_admin/editor`
 
 Khi chay thu lan dau, dung them:
 

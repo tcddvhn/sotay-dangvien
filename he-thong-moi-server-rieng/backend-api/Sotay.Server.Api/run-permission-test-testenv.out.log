@@ -1,0 +1,314 @@
+info: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[63]
+      User profile is available. Using 'C:\Users\ldkie\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5247
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Test
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\ldkie\OneDrive\Documents\GitHub\sotay-dangvien\he-thong-moi-server-rieng\backend-api\Sotay.Server.Api
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (664ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [auth].[AdminRoles] AS [a]
+      WHERE [a].[NormalizedName] = @__normalizedName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (690ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [core].[ContentNodes] AS [c]) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [auth].[AdminRoles] AS [a]
+      WHERE [a].[NormalizedName] = @__normalizedName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [directory].[Units] AS [u]) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [stats].[UsageEvents] AS [u]) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [notify].[Notices] AS [n]) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (25ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 4000), @p2='?' (Size = 256), @p3='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [auth].[AdminRoles] ([Id], [ConcurrencyStamp], [Name], [NormalizedName])
+      VALUES (@p0, @p1, @p2, @p3);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[CreatedAt], [a].[CreatedBy], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[IsActive], [a].[LastLoginAt], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[RoleName], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UpdatedAt], [a].[UpdatedBy], [a].[UserName]
+      FROM [auth].[AdminUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [auth].[AdminRoles] AS [a]
+      WHERE [a].[NormalizedName] = @__normalizedRoleName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__get_Item_0='?' (DbType = Guid), @__get_Item_1='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[UserId], [a].[RoleId]
+      FROM [auth].[AdminUserRoles] AS [a]
+      WHERE [a].[UserId] = @__get_Item_0 AND [a].[RoleId] = @__get_Item_1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [auth].[AdminRoles] AS [a]
+      WHERE [a].[NormalizedName] = @__normalizedRoleName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__get_Item_0='?' (DbType = Guid), @__get_Item_1='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[UserId], [a].[RoleId]
+      FROM [auth].[AdminUserRoles] AS [a]
+      WHERE [a].[UserId] = @__get_Item_0 AND [a].[RoleId] = @__get_Item_1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__normalizedRoleName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [auth].[AdminRoles] AS [a]
+      WHERE [a].[NormalizedName] = @__normalizedRoleName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[CreatedAt], [a].[CreatedBy], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[IsActive], [a].[LastLoginAt], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[RoleName], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UpdatedAt], [a].[UpdatedBy], [a].[UserName]
+      FROM [auth].[AdminUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p24='?' (DbType = Guid), @p2='?' (DbType = Int32), @p3='?' (Size = 4000), @p25='?' (Size = 4000), @p4='?' (DbType = DateTime2), @p5='?' (Size = 100), @p6='?' (Size = 255), @p7='?' (Size = 256), @p8='?' (DbType = Boolean), @p9='?' (DbType = Boolean), @p10='?' (DbType = DateTime2), @p11='?' (DbType = Boolean), @p12='?' (DbType = DateTimeOffset), @p13='?' (Size = 256), @p14='?' (Size = 256), @p15='?' (Size = 4000), @p16='?' (Size = 4000), @p17='?' (DbType = Boolean), @p18='?' (Size = 50), @p19='?' (Size = 4000), @p20='?' (DbType = Boolean), @p21='?' (DbType = DateTime2), @p22='?' (Size = 100), @p23='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SET NOCOUNT ON;
+      INSERT INTO [auth].[AdminUserRoles] ([RoleId], [UserId])
+      VALUES (@p0, @p1);
+      UPDATE [auth].[AdminUsers] SET [AccessFailedCount] = @p2, [ConcurrencyStamp] = @p3, [CreatedAt] = @p4, [CreatedBy] = @p5, [DisplayName] = @p6, [Email] = @p7, [EmailConfirmed] = @p8, [IsActive] = @p9, [LastLoginAt] = @p10, [LockoutEnabled] = @p11, [LockoutEnd] = @p12, [NormalizedEmail] = @p13, [NormalizedUserName] = @p14, [PasswordHash] = @p15, [PhoneNumber] = @p16, [PhoneNumberConfirmed] = @p17, [RoleName] = @p18, [SecurityStamp] = @p19, [TwoFactorEnabled] = @p20, [UpdatedAt] = @p21, [UpdatedBy] = @p22, [UserName] = @p23
+      OUTPUT 1
+      WHERE [Id] = @p24 AND [ConcurrencyStamp] = @p25;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[CreatedAt], [a].[CreatedBy], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[IsActive], [a].[LastLoginAt], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[RoleName], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UpdatedAt], [a].[UpdatedBy], [a].[UserName]
+      FROM [auth].[AdminUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@p22='?' (DbType = Guid), @p0='?' (DbType = Int32), @p1='?' (Size = 4000), @p23='?' (Size = 4000), @p2='?' (DbType = DateTime2), @p3='?' (Size = 100), @p4='?' (Size = 255), @p5='?' (Size = 256), @p6='?' (DbType = Boolean), @p7='?' (DbType = Boolean), @p8='?' (DbType = DateTime2), @p9='?' (DbType = Boolean), @p10='?' (DbType = DateTimeOffset), @p11='?' (Size = 256), @p12='?' (Size = 256), @p13='?' (Size = 4000), @p14='?' (Size = 4000), @p15='?' (DbType = Boolean), @p16='?' (Size = 50), @p17='?' (Size = 4000), @p18='?' (DbType = Boolean), @p19='?' (DbType = DateTime2), @p20='?' (Size = 100), @p21='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      UPDATE [auth].[AdminUsers] SET [AccessFailedCount] = @p0, [ConcurrencyStamp] = @p1, [CreatedAt] = @p2, [CreatedBy] = @p3, [DisplayName] = @p4, [Email] = @p5, [EmailConfirmed] = @p6, [IsActive] = @p7, [LastLoginAt] = @p8, [LockoutEnabled] = @p9, [LockoutEnd] = @p10, [NormalizedEmail] = @p11, [NormalizedUserName] = @p12, [PasswordHash] = @p13, [PhoneNumber] = @p14, [PhoneNumberConfirmed] = @p15, [RoleName] = @p16, [SecurityStamp] = @p17, [TwoFactorEnabled] = @p18, [UpdatedAt] = @p19, [UpdatedBy] = @p20, [UserName] = @p21
+      OUTPUT 1
+      WHERE [Id] = @p22 AND [ConcurrencyStamp] = @p23;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:5247/api/admin/permissions/users - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://localhost:5247/api/admin/auth/login - application/json 69
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://localhost:5247/api/admin/auth/login - application/json 69
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Sotay.Server.Api.Controllers.AdminAuthController.Login (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Sotay.Server.Api.Controllers.AdminAuthController.Login (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Authorization.DefaultAuthorizationService[2]
+      Authorization failed. These requirements were not met:
+      DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+info: Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationHandler[12]
+      AuthenticationScheme: Identity.Application was challenged.
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:5247/api/admin/permissions/users - 401 0 - 65.2928ms
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "Login", controller = "AdminAuth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Sotay.Server.Api.Models.Common.ApiEnvelope`1[Sotay.Server.Api.Models.Auth.AdminLoginResult]]] Login(Sotay.Server.Api.Models.Auth.AdminLoginRequest, System.Threading.CancellationToken) on controller Sotay.Server.Api.Controllers.AdminAuthController (Sotay.Server.Api).
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "Login", controller = "AdminAuth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Sotay.Server.Api.Models.Common.ApiEnvelope`1[Sotay.Server.Api.Models.Auth.AdminLoginResult]]] Login(Sotay.Server.Api.Models.Auth.AdminLoginRequest, System.Threading.CancellationToken) on controller Sotay.Server.Api.Controllers.AdminAuthController (Sotay.Server.Api).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[CreatedAt], [a].[CreatedBy], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[IsActive], [a].[LastLoginAt], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[RoleName], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UpdatedAt], [a].[UpdatedBy], [a].[UserName]
+      FROM [auth].[AdminUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[CreatedAt], [a].[CreatedBy], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[IsActive], [a].[LastLoginAt], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[RoleName], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UpdatedAt], [a].[UpdatedBy], [a].[UserName]
+      FROM [auth].[AdminUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__user_Id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[ClaimType], [a].[ClaimValue], [a].[UserId]
+      FROM [auth].[AdminUserClaims] AS [a]
+      WHERE [a].[UserId] = @__user_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__user_Id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[ClaimType], [a].[ClaimValue], [a].[UserId]
+      FROM [auth].[AdminUserClaims] AS [a]
+      WHERE [a].[UserId] = @__user_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [auth].[AdminUserRoles] AS [a]
+      INNER JOIN [auth].[AdminRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [auth].[AdminUserRoles] AS [a]
+      INNER JOIN [auth].[AdminRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [auth].[AdminRoles] AS [a]
+      WHERE [a].[NormalizedName] = @__normalizedName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [auth].[AdminRoles] AS [a]
+      WHERE [a].[NormalizedName] = @__normalizedName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__role_Id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [auth].[AdminRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @__role_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__role_Id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [auth].[AdminRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @__role_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [auth].[AdminRoles] AS [a]
+      WHERE [a].[NormalizedName] = @__normalizedName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [auth].[AdminRoles] AS [a]
+      WHERE [a].[NormalizedName] = @__normalizedName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__role_Id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [auth].[AdminRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @__role_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__role_Id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [auth].[AdminRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @__role_Id_0
+info: Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationHandler[10]
+      AuthenticationScheme: Identity.Application signed in.
+info: Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationHandler[10]
+      AuthenticationScheme: Identity.Application signed in.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [auth].[AdminUserRoles] AS [a]
+      INNER JOIN [auth].[AdminRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [auth].[AdminUserRoles] AS [a]
+      INNER JOIN [auth].[AdminRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[CreatedAt], [a].[CreatedBy], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[IsActive], [a].[LastLoginAt], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[RoleName], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UpdatedAt], [a].[UpdatedBy], [a].[UserName]
+      FROM [auth].[AdminUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[CreatedAt], [a].[CreatedBy], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[IsActive], [a].[LastLoginAt], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[RoleName], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UpdatedAt], [a].[UpdatedBy], [a].[UserName]
+      FROM [auth].[AdminUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@p22='?' (DbType = Guid), @p0='?' (DbType = Int32), @p1='?' (Size = 4000), @p23='?' (Size = 4000), @p2='?' (DbType = DateTime2), @p3='?' (Size = 100), @p4='?' (Size = 255), @p5='?' (Size = 256), @p6='?' (DbType = Boolean), @p7='?' (DbType = Boolean), @p8='?' (DbType = DateTime2), @p9='?' (DbType = Boolean), @p10='?' (DbType = DateTimeOffset), @p11='?' (Size = 256), @p12='?' (Size = 256), @p13='?' (Size = 4000), @p14='?' (Size = 4000), @p15='?' (DbType = Boolean), @p16='?' (Size = 50), @p17='?' (Size = 4000), @p18='?' (DbType = Boolean), @p19='?' (DbType = DateTime2), @p20='?' (Size = 100), @p21='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      UPDATE [auth].[AdminUsers] SET [AccessFailedCount] = @p0, [ConcurrencyStamp] = @p1, [CreatedAt] = @p2, [CreatedBy] = @p3, [DisplayName] = @p4, [Email] = @p5, [EmailConfirmed] = @p6, [IsActive] = @p7, [LastLoginAt] = @p8, [LockoutEnabled] = @p9, [LockoutEnd] = @p10, [NormalizedEmail] = @p11, [NormalizedUserName] = @p12, [PasswordHash] = @p13, [PhoneNumber] = @p14, [PhoneNumberConfirmed] = @p15, [RoleName] = @p16, [SecurityStamp] = @p17, [TwoFactorEnabled] = @p18, [UpdatedAt] = @p19, [UpdatedBy] = @p20, [UserName] = @p21
+      OUTPUT 1
+      WHERE [Id] = @p22 AND [ConcurrencyStamp] = @p23;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@p22='?' (DbType = Guid), @p0='?' (DbType = Int32), @p1='?' (Size = 4000), @p23='?' (Size = 4000), @p2='?' (DbType = DateTime2), @p3='?' (Size = 100), @p4='?' (Size = 255), @p5='?' (Size = 256), @p6='?' (DbType = Boolean), @p7='?' (DbType = Boolean), @p8='?' (DbType = DateTime2), @p9='?' (DbType = Boolean), @p10='?' (DbType = DateTimeOffset), @p11='?' (Size = 256), @p12='?' (Size = 256), @p13='?' (Size = 4000), @p14='?' (Size = 4000), @p15='?' (DbType = Boolean), @p16='?' (Size = 50), @p17='?' (Size = 4000), @p18='?' (DbType = Boolean), @p19='?' (DbType = DateTime2), @p20='?' (Size = 100), @p21='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      UPDATE [auth].[AdminUsers] SET [AccessFailedCount] = @p0, [ConcurrencyStamp] = @p1, [CreatedAt] = @p2, [CreatedBy] = @p3, [DisplayName] = @p4, [Email] = @p5, [EmailConfirmed] = @p6, [IsActive] = @p7, [LastLoginAt] = @p8, [LockoutEnabled] = @p9, [LockoutEnd] = @p10, [NormalizedEmail] = @p11, [NormalizedUserName] = @p12, [PasswordHash] = @p13, [PhoneNumber] = @p14, [PhoneNumberConfirmed] = @p15, [RoleName] = @p16, [SecurityStamp] = @p17, [TwoFactorEnabled] = @p18, [UpdatedAt] = @p19, [UpdatedBy] = @p20, [UserName] = @p21
+      OUTPUT 1
+      WHERE [Id] = @p22 AND [ConcurrencyStamp] = @p23;
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing OkObjectResult, writing value of type 'Sotay.Server.Api.Models.Common.ApiEnvelope`1[[Sotay.Server.Api.Models.Auth.AdminLoginResult, Sotay.Server.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing OkObjectResult, writing value of type 'Sotay.Server.Api.Models.Common.ApiEnvelope`1[[Sotay.Server.Api.Models.Auth.AdminLoginResult, Sotay.Server.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action Sotay.Server.Api.Controllers.AdminAuthController.Login (Sotay.Server.Api) in 286.2187ms
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action Sotay.Server.Api.Controllers.AdminAuthController.Login (Sotay.Server.Api) in 286.3643ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Sotay.Server.Api.Controllers.AdminAuthController.Login (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Sotay.Server.Api.Controllers.AdminAuthController.Login (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://localhost:5247/api/admin/auth/login - 200 - application/json;+charset=utf-8 338.7056ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://localhost:5247/api/admin/auth/login - 200 - application/json;+charset=utf-8 351.0458ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:5247/api/admin/permissions/me - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 POST http://localhost:5247/api/content/save - application/json 134
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Sotay.Server.Api.Controllers.AdminPermissionController.GetCurrentAdminProfile (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'Sotay.Server.Api.Controllers.ContentController.Save (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "Save", controller = "Content"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Sotay.Server.Api.Models.Common.ApiEnvelope`1[Sotay.Server.Api.Models.Content.ContentNodeDto]]] Save(Sotay.Server.Api.Models.Content.ContentNodeSaveRequest, System.Threading.CancellationToken) on controller Sotay.Server.Api.Controllers.ContentController (Sotay.Server.Api).
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "GetCurrentAdminProfile", controller = "AdminPermission"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[Sotay.Server.Api.Models.Common.ApiEnvelope`1[Sotay.Server.Api.Models.Auth.AdminProfileDto]]] GetCurrentAdminProfile(System.Threading.CancellationToken) on controller Sotay.Server.Api.Controllers.AdminPermissionController (Sotay.Server.Api).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[CreatedAt], [a].[CreatedBy], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[IsActive], [a].[LastLoginAt], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[RoleName], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UpdatedAt], [a].[UpdatedBy], [a].[UserName]
+      FROM [auth].[AdminUsers] AS [a]
+      WHERE [a].[Id] = @__userId_0
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing OkObjectResult, writing value of type 'Sotay.Server.Api.Models.Common.ApiEnvelope`1[[Sotay.Server.Api.Models.Auth.AdminProfileDto, Sotay.Server.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action Sotay.Server.Api.Controllers.AdminPermissionController.GetCurrentAdminProfile (Sotay.Server.Api) in 27.4576ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Sotay.Server.Api.Controllers.AdminPermissionController.GetCurrentAdminProfile (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:5247/api/admin/permissions/me - 200 - application/json;+charset=utf-8 36.0740ms
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[CreatedAt], [a].[CreatedBy], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[IsActive], [a].[LastLoginAt], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[RoleName], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UpdatedAt], [a].[UpdatedBy], [a].[UserName]
+      FROM [auth].[AdminUsers] AS [a]
+      WHERE [a].[Id] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[CreatedAt], [c].[CreatedBy], [c].[DetailHtml], [c].[FileName], [c].[FileUrl], [c].[ForceAccordion], [c].[IsActive], [c].[LegacyId], [c].[Level], [c].[ParentId], [c].[PdfRefsJson], [c].[SortOrder], [c].[SummaryHtml], [c].[Tag], [c].[Title], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [core].[ContentNodes] AS [c]
+      WHERE [c].[Id] = @__id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = DateTime2), @p2='?' (Size = 100), @p3='?' (Size = 4000), @p4='?' (Size = 255), @p5='?' (Size = 1000), @p6='?' (DbType = Boolean), @p7='?' (Size = 200), @p8='?' (DbType = Int32), @p9='?' (DbType = Guid), @p10='?' (Size = 4000), @p11='?' (DbType = Int32), @p12='?' (Size = 4000), @p13='?' (Size = 250), @p14='?' (Size = 500), @p15='?' (DbType = DateTime2), @p16='?' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [core].[ContentNodes] ([Id], [CreatedAt], [CreatedBy], [DetailHtml], [FileName], [FileUrl], [IsActive], [LegacyId], [Level], [ParentId], [PdfRefsJson], [SortOrder], [SummaryHtml], [Tag], [Title], [UpdatedAt], [UpdatedBy])
+      OUTPUT INSERTED.[ForceAccordion]
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16);
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing OkObjectResult, writing value of type 'Sotay.Server.Api.Models.Common.ApiEnvelope`1[[Sotay.Server.Api.Models.Content.ContentNodeDto, Sotay.Server.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action Sotay.Server.Api.Controllers.ContentController.Save (Sotay.Server.Api) in 154.4006ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'Sotay.Server.Api.Controllers.ContentController.Save (Sotay.Server.Api)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 POST http://localhost:5247/api/content/save - 200 - application/json;+charset=utf-8 161.7182ms

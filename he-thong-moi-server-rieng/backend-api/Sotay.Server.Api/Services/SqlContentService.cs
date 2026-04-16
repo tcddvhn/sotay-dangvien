@@ -1,12 +1,17 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Sotay.Server.Api.Data;
 using Sotay.Server.Api.Data.Entities;
+using Sotay.Server.Api.Data.Identity;
 using Sotay.Server.Api.Models.Content;
 using Sotay.Server.Api.Services.Interfaces;
 
 namespace Sotay.Server.Api.Services;
 
-public sealed class SqlContentService(ApplicationDbContext dbContext) : IContentService
+public sealed class SqlContentService(
+    ApplicationDbContext dbContext,
+    IHttpContextAccessor httpContextAccessor) : IContentService
 {
     public async Task<IReadOnlyList<ContentNodeDto>> GetTreeAsync(CancellationToken cancellationToken)
     {
@@ -31,22 +36,37 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
 
     public async Task<ContentNodeDto> SaveAsync(ContentNodeSaveRequest request, CancellationToken cancellationToken)
     {
-        var parent = request.ParentId.HasValue
-            ? await dbContext.ContentNodes.FirstOrDefaultAsync(x => x.Id == request.ParentId.Value, cancellationToken)
-            : null;
-
+        var currentAdmin = await RequireCurrentAdminAsync(cancellationToken);
         var id = request.Id ?? Guid.NewGuid();
         var entity = await dbContext.ContentNodes.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         var isNew = entity is null;
+
+        if (!isNew)
+        {
+            await EnsureCanEditNodeAsync(currentAdmin, id, cancellationToken);
+        }
+
+        ContentNodeEntity? parent = null;
+        if (isNew && request.ParentId.HasValue)
+        {
+            parent = await dbContext.ContentNodes.FirstOrDefaultAsync(x => x.Id == request.ParentId.Value, cancellationToken)
+                ?? throw new InvalidOperationException("Khong tim thay node cha de tao muc con.");
+            await EnsureCanCreateChildAsync(currentAdmin, parent.Id, cancellationToken);
+        }
+
+        if (isNew && !request.ParentId.HasValue)
+        {
+            EnsureRootCreationAllowed(currentAdmin);
+        }
 
         entity ??= new ContentNodeEntity
         {
             Id = id,
             CreatedAt = DateTime.UtcNow,
-            CreatedBy = request.UpdatedBy
+            CreatedBy = currentAdmin.UserName
         };
 
-        entity.ParentId = request.ParentId;
+        entity.ParentId = isNew ? request.ParentId : entity.ParentId;
         entity.Title = request.Title;
         entity.Tag = request.Tag;
         entity.SummaryHtml = request.SummaryHtml;
@@ -55,11 +75,18 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
         entity.FileName = request.FileName;
         entity.PdfRefsJson = request.PdfRefsJson;
         entity.ForceAccordion = request.ForceAccordion;
-        entity.Level = parent is not null ? parent.Level + 1 : request.Level ?? 0;
+        entity.Level = isNew
+            ? (parent is not null ? parent.Level + 1 : request.Level ?? 0)
+            : entity.Level;
         entity.SortOrder = request.SortOrder;
         entity.IsActive = request.IsActive;
         entity.UpdatedAt = DateTime.UtcNow;
-        entity.UpdatedBy = request.UpdatedBy;
+        entity.UpdatedBy = currentAdmin.UserName;
+
+        if (entity.Level is < 0 or > 5)
+        {
+            throw new InvalidOperationException("Level noi dung khong hop le.");
+        }
 
         if (isNew)
         {
@@ -72,6 +99,9 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
+        var currentAdmin = await RequireCurrentAdminAsync(cancellationToken);
+        await EnsureCanDeleteNodeAsync(currentAdmin, id, cancellationToken);
+
         var hasChildren = await dbContext.ContentNodes.AnyAsync(x => x.ParentId == id, cancellationToken);
         if (hasChildren)
         {
@@ -91,15 +121,203 @@ public sealed class SqlContentService(ApplicationDbContext dbContext) : IContent
 
     public async Task<IReadOnlyList<ContentNodeDto>> SyncTreeAsync(ContentTreeSyncRequest request, CancellationToken cancellationToken)
     {
+        var currentAdmin = await RequireCurrentAdminAsync(cancellationToken);
+        EnsureTreeSyncAllowed(currentAdmin);
+
         var existing = await dbContext.ContentNodes.ToListAsync(cancellationToken);
         dbContext.ContentNodes.RemoveRange(existing);
 
         var flattened = new List<ContentNodeEntity>();
-        Flatten(request.Tree, request.UpdatedBy, flattened);
+        Flatten(request.Tree, currentAdmin.UserName, flattened);
         dbContext.ContentNodes.AddRange(flattened);
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return await GetTreeAsync(cancellationToken);
+    }
+
+    private async Task<AdminUserEntity> RequireCurrentAdminAsync(CancellationToken cancellationToken)
+    {
+        var principal = httpContextAccessor.HttpContext?.User;
+        if (principal?.Identity?.IsAuthenticated != true)
+        {
+            throw new ContentAuthenticationRequiredException("Yeu cau dang nhap quan tri truoc khi thay doi noi dung.");
+        }
+
+        var userIdRaw = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdRaw, out var userId))
+        {
+            throw new ContentAuthenticationRequiredException("Khong xac dinh duoc tai khoan quan tri hien tai.");
+        }
+
+        var user = await dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
+        if (user is null || !user.IsActive)
+        {
+            throw new ContentAuthenticationRequiredException("Tai khoan quan tri hien tai khong hop le hoac da bi khoa.");
+        }
+
+        return user;
+    }
+
+    private static bool IsSuperAdmin(AdminUserEntity admin)
+        => string.Equals(admin.RoleName, "super_admin", StringComparison.OrdinalIgnoreCase);
+
+    private static void EnsureRootCreationAllowed(AdminUserEntity admin)
+    {
+        if (!IsSuperAdmin(admin))
+        {
+            throw new ContentPermissionDeniedException("Chi super admin duoc tao muc level 0.");
+        }
+    }
+
+    private static void EnsureTreeSyncAllowed(AdminUserEntity admin)
+    {
+        if (!IsSuperAdmin(admin))
+        {
+            throw new ContentPermissionDeniedException("Chi super admin duoc dong bo lai toan bo cay noi dung.");
+        }
+    }
+
+    private async Task EnsureCanEditNodeAsync(AdminUserEntity admin, Guid nodeId, CancellationToken cancellationToken)
+    {
+        if (IsSuperAdmin(admin))
+        {
+            return;
+        }
+
+        var node = await dbContext.ContentNodes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == nodeId, cancellationToken)
+            ?? throw new InvalidOperationException("Khong tim thay node noi dung can sua.");
+
+        if (node.Level is < 1 or > 5)
+        {
+            throw new ContentPermissionDeniedException("Tai khoan hien tai khong duoc sua node nay.");
+        }
+
+        var allowed = await HasPermissionAsync(
+            admin.Id,
+            nodeId,
+            permission => permission.AllowEdit,
+            cancellationToken);
+
+        if (!allowed)
+        {
+            throw new ContentPermissionDeniedException("Tai khoan hien tai khong co quyen sua noi dung nay.");
+        }
+    }
+
+    private async Task EnsureCanDeleteNodeAsync(AdminUserEntity admin, Guid nodeId, CancellationToken cancellationToken)
+    {
+        if (IsSuperAdmin(admin))
+        {
+            return;
+        }
+
+        var node = await dbContext.ContentNodes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == nodeId, cancellationToken)
+            ?? throw new InvalidOperationException("Khong tim thay node noi dung can xoa.");
+
+        if (node.Level is < 1 or > 5)
+        {
+            throw new ContentPermissionDeniedException("Tai khoan hien tai khong duoc xoa node nay.");
+        }
+
+        var allowed = await HasPermissionAsync(
+            admin.Id,
+            nodeId,
+            permission => permission.AllowDelete,
+            cancellationToken);
+
+        if (!allowed)
+        {
+            throw new ContentPermissionDeniedException("Tai khoan hien tai khong co quyen xoa noi dung nay.");
+        }
+    }
+
+    private async Task EnsureCanCreateChildAsync(AdminUserEntity admin, Guid parentNodeId, CancellationToken cancellationToken)
+    {
+        if (IsSuperAdmin(admin))
+        {
+            return;
+        }
+
+        var parent = await dbContext.ContentNodes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == parentNodeId, cancellationToken)
+            ?? throw new InvalidOperationException("Khong tim thay node cha de tao muc con.");
+
+        var childLevel = parent.Level + 1;
+        if (childLevel is < 1 or > 5)
+        {
+            throw new ContentPermissionDeniedException("Khong the tao muc con ngoai pham vi level 1 den 5.");
+        }
+
+        var allowed = await HasPermissionAsync(
+            admin.Id,
+            parentNodeId,
+            permission => permission.AllowCreateChild,
+            cancellationToken);
+
+        if (!allowed)
+        {
+            throw new ContentPermissionDeniedException("Tai khoan hien tai khong co quyen them muc con cho noi dung nay.");
+        }
+    }
+
+    private async Task<bool> HasPermissionAsync(
+        Guid adminUserId,
+        Guid nodeId,
+        Func<ContentPermissionEntity, bool> actionSelector,
+        CancellationToken cancellationToken)
+    {
+        var ancestorDistances = await GetAncestorDistanceMapAsync(nodeId, cancellationToken);
+        if (ancestorDistances.Count == 0)
+        {
+            return false;
+        }
+
+        var ancestorIds = ancestorDistances.Keys.ToList();
+        var permissions = await dbContext.ContentPermissions
+            .AsNoTracking()
+            .Where(x => x.AdminUserId == adminUserId && x.IsActive && ancestorIds.Contains(x.ContentNodeId))
+            .ToListAsync(cancellationToken);
+
+        return permissions.Any(permission =>
+        {
+            if (!actionSelector(permission))
+            {
+                return false;
+            }
+
+            if (!ancestorDistances.TryGetValue(permission.ContentNodeId, out var distance))
+            {
+                return false;
+            }
+
+            return distance <= permission.MaxDepth;
+        });
+    }
+
+    private async Task<Dictionary<Guid, int>> GetAncestorDistanceMapAsync(Guid nodeId, CancellationToken cancellationToken)
+    {
+        var result = new Dictionary<Guid, int>();
+        Guid? currentId = nodeId;
+        var distance = 0;
+
+        while (currentId.HasValue)
+        {
+            var currentNode = await dbContext.ContentNodes
+                .AsNoTracking()
+                .Where(x => x.Id == currentId.Value)
+                .Select(x => new { x.Id, x.ParentId })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (currentNode is null)
+            {
+                break;
+            }
+
+            result[currentNode.Id] = distance;
+            currentId = currentNode.ParentId;
+            distance += 1;
+        }
+
+        return result;
     }
 
     private static IReadOnlyList<ContentNodeDto> BuildTree(
